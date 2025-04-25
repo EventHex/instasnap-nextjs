@@ -1,0 +1,204 @@
+"use client";
+import React, { useState } from "react";
+import Link from "next/link";
+import { Banner, Profileimg, Flat, Suitcase, Gender, User } from "../assets";
+import Header from "../components/Header";
+import Banners from "../components/Banner";
+import Input from "../components/input";
+
+const Register = () => {
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    designation: "",
+    companyName: "",
+    gender: ""
+  });
+
+  // New state for storing submitted data
+  const [submittedData, setSubmittedData] = useState(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [selectedCode, setSelectedCode] = useState("91");
+  const [isGenderOpen, setIsGenderOpen] = useState(false);
+
+  const countryCodes = [
+    { code: "91", country: "India" },
+    { code: "1", country: "USA" },
+    { code: "44", country: "UK" },
+    { code: "86", country: "China" },
+    { code: "81", country: "Japan" },
+  ];
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleCountryCodeSelect = (code) => {
+    setSelectedCode(code);
+    setIsDropdownOpen(false);
+  };
+
+  const handleGenderSelect = (value) => {
+    setFormData(prev => ({
+      ...prev,
+      gender: value
+    }));
+    setIsGenderOpen(false);
+  };
+
+  // Check if form is valid
+  const isFormValid = () => {
+    return (
+      formData.firstName.trim() !== "" &&
+      formData.phone.trim() !== "" &&
+      formData.designation.trim() !== "" &&
+      formData.companyName.trim() !== "" &&
+      formData.gender !== ""
+    );
+  };
+
+  // Handle form submission
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (isFormValid()) {
+      // Store the submitted data
+      setSubmittedData({
+        ...formData,
+        countryCode: selectedCode
+      });
+      
+      // You can add additional logic here (e.g., API calls)
+      console.log("Form submitted:", {
+        ...formData,
+        countryCode: selectedCode
+      });
+    }
+  };
+
+  return (
+    <div className="w-full">
+      <Header />
+      <Banners profile={Profileimg} Banner={Banner} />
+      
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-md mx-auto pt-16 px-4">
+          <div className="text-center mb-8">
+            <p className="text-2xl font-normal font-inter">
+              Verify your mobile number
+            </p>
+          </div>
+
+          <form className="space-y-4" onSubmit={handleSubmit}>
+            {/* Phone Input with Country Code */}
+            <div className="flex">
+              <div className="relative">
+                <button
+                  type="button"
+                  className="h-full bg-gray-50 px-3 flex items-center gap-1 rounded-l-lg border border-[#E2E4E9] hover:bg-gray-100"
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                >
+                  +{selectedCode}
+                </button>
+                
+                {isDropdownOpen && (
+                  <div className="absolute top-full left-0 mt-1 w-32 bg-white border border-[#E2E4E9] rounded-lg shadow-lg z-10">
+                    {countryCodes.map((country) => (
+                      <button
+                        key={country.code}
+                        className="w-full px-3 py-2 text-left hover:bg-gray-50 flex items-center justify-between"
+                        onClick={() => handleCountryCodeSelect(country.code)}
+                      >
+                        <span>{country.country}</span>
+                        <span className="text-gray-500">+{country.code}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="relative flex-1">
+                <div className="relative flex">
+                  <div className="relative flex-1">
+                    <input
+                      type="tel"
+                      name="phone"
+                      placeholder="Enter your number"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      className="w-full bg-gray-50 border-[#E2E4E9] border-r-0 py-3 pl-10 pr-4 border focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2">
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className="px-2 py-2 border-[#E2E4E9] border border-l-0 text-[#375DFB] rounded-r-lg"
+                  >
+                    send code
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Replace Name input */}
+            <Input
+              name="firstName"
+              placeholder="First Name"
+              value={formData.firstName}
+              onChange={handleChange}
+              icon={User}
+            />
+
+            {/* Replace Designation input */}
+            <Input
+              name="designation"
+              placeholder="Designation"
+              value={formData.designation}
+              onChange={handleChange}
+              icon={Suitcase}
+            />
+
+            {/* Replace Company Name input */}
+            <Input
+              name="companyName"
+              placeholder="Company Name"
+              value={formData.companyName}
+              onChange={handleChange}
+              icon={Flat}
+            />
+
+            {/* Replace Gender input */}
+            <Input
+              readOnly
+              value={formData.gender || 'Select Gender'}
+              onClick={() => setIsGenderOpen(!isGenderOpen)}
+              icon={Gender}
+              containerClassName="cursor-pointer"
+            />
+
+            <div className="w-full flex justify-center">
+              <button 
+                type="submit"
+                disabled={!isFormValid()}
+                className={`w-[80%] py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                  isFormValid() 
+                    ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+              >
+                Find my photos
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Register;
