@@ -31,12 +31,7 @@ const NavigationBar = () => {
             }`}>
               <Image src={item.icon} alt={item.label} width={20} height={20} />
               
-              {/* Notification dot for Bell icon */}
-              {item.id === 'notifications' && (
-                <div className="absolute top-0 right-0">
-                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                </div>
-              )}
+            
             </div>
             <span className={`text-xs mt-1 ${
               activeTab === item.id 
