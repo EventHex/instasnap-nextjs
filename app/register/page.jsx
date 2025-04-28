@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import { Banner, Profileimg, Flat, Suitcase, Gender, User, PenIcon, ErrorIcon } from "../assets";
+import { Banner, Profileimg, Flat, Suitcase, Gender, User, PenIcon, ErrorIcon ,VerifiedIcon} from "../assets";
 import Header from "../components/Header";
 import Banners from "../components/banner";
 import Input from "../components/input";
@@ -30,6 +30,7 @@ const Register = () => {
   // Add state to track if code was sent
   const [codeSent, setCodeSent] = useState(false);
   const [codeSentError, setCodeSentError] = useState(false);
+  const [codeSentSuccess, setCodeSentSuccess] = useState(false);
 
   const countryCodes = [
     { code: "91", country: "India" },
@@ -109,6 +110,9 @@ const Register = () => {
     setCodeSentError(true);
   }
   
+  const handleVerify = () => {
+    setCodeSentSuccess(true);
+  }
   return (
     <div className="w-full flex justify-center flex-col items-center">
       <Banners profile={Profileimg} Banner={Banner} />
@@ -171,11 +175,13 @@ const Register = () => {
                       className="px-2 py-2 border-[#E2E4E9] border border-l-0 text-[#375DFB] rounded-r-lg flex items-center justify-center"
                     >
                       {codeSent ? (
+                      <div className="  ">
                         <Image
-                          className=""
-                          src={PenIcon}
-                          alt="PenIcon"
+                          className=" "
+                          src={codeSentSuccess ? VerifiedIcon : PenIcon}
+                          alt={codeSentSuccess ? "UserIcon" : "PenIcon"}
                         />
+                        </div>
                       ) : (
                         'send code'
                       )}
@@ -202,6 +208,7 @@ const Register = () => {
                           <div className="absolute left-3 top-1/2 -translate-y-1/2"></div>
                         </div>
                         <button
+                        onClick={handleVerify}
                           type="button"
                           className="px-2 py-2 border-[#E2E4E9] bg-[#F6F8FA] border border-l text-[#CDD0D5] hover:bg-[#375DFB] hover:text-white rounded-r-lg"
                         >
