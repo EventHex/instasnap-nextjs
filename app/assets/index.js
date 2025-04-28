@@ -12,6 +12,9 @@ import User from "./icons/Vector (13).svg";
 import HumanSelfi from "./image/Face-Id--Streamline-Tokyo.svg";
 import Sparkle from './icons/Vector (15).svg'  
 import FaceIdBase from './image/Face ID base blue 1.svg'
+import LockIcon from './icons/lock-2-fill.svg'
+import PenIcon from './icons/pencil-line (1).svg'
+import ErrorIcon from './icons/error-warning-fill.svg'
 export {
   Logo,
   Phone,
@@ -26,5 +29,8 @@ export {
   User,
   HumanSelfi,
   Sparkle,
-  FaceIdBase
+  FaceIdBase,
+  LockIcon,
+  PenIcon,
+  ErrorIcon
 };
