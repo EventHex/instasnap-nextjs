@@ -1,16 +1,136 @@
-import React from 'react';
+'use client'
+import React, { useState } from 'react';
+import Image from 'next/image'; // Added the missing Image import
 import NavigationBar from '../components/navfooter';
+import { EventHeader } from '../components/header';
+import { Placeholder, PotraitPlaceholder } from '../assets';
+import { CloudDownload, Heart, HeartPlus, Share2 } from 'lucide-react';
+
+const data = [
+  {
+    id: 1,
+    image: Placeholder,
+    alt: 'Placeholder',
+  },
+  {
+    id: 2,
+    image: Placeholder,
+    alt: 'PotraitPlaceholder',
+  },
+  {
+    id: 3,
+    image: Placeholder,
+    alt: 'Placeholder',
+  },
+  {
+    id: 4,
+    image: Placeholder,
+    alt: 'PotraitPlaceholder',
+  },
+  {
+    id: 5,
+    image: Placeholder,
+    alt: 'Placeholder',
+  },
+ 
+  
+  
+]
 
 const Page = () => {
+  // Change to track likes for each item
+  const [likedItems, setLikedItems] = useState({});
+
+  const toggleLike = (id) => {
+    setLikedItems(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+  };
+
+  // Share functionality with id
+  const handleShare = async (id, imageUrl) => {
+    try {
+      console.log(`Sharing item ${id}`);
+      if (navigator.share) {
+        await navigator.share({
+          title: 'Check out this image!',
+          text: 'I found this amazing image on InstaSnap',
+          url: imageUrl || window.location.href,
+        });
+      } else {
+        // Fallback for browsers that don't support Web Share API
+        const tempInput = document.createElement('input');
+        tempInput.value = window.location.href;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        alert('Link copied to clipboard!');
+      }
+    } catch (error) {
+      console.error('Error sharing:', error);
+    }
+  };
+
+  // Download functionality with id
+  const handleDownload = async (id, imageUrl, alt) => {
+    try {
+      console.log(`Downloading item ${id}`);
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `instasnap-${alt || 'image'}-${id}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading:', error);
+    }
+  };
+
   return (
-    <div className="min-h-screen pb-16"> {/* Add padding at bottom to prevent content from being hidden behind navbar */}
-      {/* Your page content goes here */}
-      <div className="p-4">
-        <h1 className="text-2xl font-bold">Your Content</h1>
-        <p className="mt-2">Main content of your page goes here</p>
+    <div className=""> 
+      <div className="w-full flex justify-center font-inter items-center py-2">
+        <EventHeader />
       </div>
       
-      {/* NavigationBar component will be fixed at the bottom */}
+      <div className="grid grid-cols-1 gap-4">
+       {data.map((item) => (
+        <div key={item.id} className="w-full ">
+          <Image src={item.image} alt={item.alt} />
+          <div className='w-full flex p-2 justify-between items-center'>
+            <div className=''>
+              {likedItems[item.id] ? (
+                <HeartPlus 
+                  onClick={() => toggleLike(item.id)} 
+                  className="cursor-pointer"
+                />
+              ) : (
+                <Heart 
+                  onClick={() => toggleLike(item.id)} 
+                  className="cursor-pointer"
+                />
+              )}
+            </div>
+            <div className='flex gap-2'>
+              <Share2 
+                onClick={() => handleShare(item.id, item.image.src)} 
+                className="cursor-pointer hover:text-blue-600 transition-colors"
+              />
+              <CloudDownload 
+                onClick={() => handleDownload(item.id, item.image.src, item.alt)}
+                className="cursor-pointer hover:text-blue-600 transition-colors"
+              />
+            </div>
+          </div>
+        </div>
+       ))}
+      </div>
+      
       <NavigationBar />
     </div>
   );

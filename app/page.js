@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link"; // Added missing import for Link
-import Header from "./components/header";
 import { Banner, HumanSelfi, Sparkle } from "./assets";
 import SnapButton from "./components/button";
 
@@ -8,7 +7,6 @@ import SnapButton from "./components/button";
 export default function Home() {
   return (
     <div className="w-full ">
-      {/* <Header /> */}
       <div className="flex flex-col items-center justify-center">
         <div className="w-full max-w-6xl">
           <Image

@@ -21,6 +21,8 @@ import HighlightIcon from './icons/highlight.svg'
 import ContributeIcon from './icons/contribution.svg'
 import PostIcon from './icons/post.svg'
 import NotificationIcon from './icons/notification.svg'
+import Placeholder from './image/Placeholder_Image.webp'
+import PotraitPlaceholder from './image/360_F_345059232_CPieT8RIWOUk4JqBkkWkIETYAkmz2b75.jpg' 
 export {
   Logo,
   Phone,
@@ -44,5 +46,7 @@ export {
   HighlightIcon,
   ContributeIcon,
   PostIcon,
-  NotificationIcon
+  NotificationIcon  ,
+  Placeholder,
+  PotraitPlaceholder
 };
