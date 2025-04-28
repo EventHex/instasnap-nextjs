@@ -7,12 +7,12 @@ import SnapButton from "./components/button";
 
 export default function Home() {
   return (
-    <div className="w-full px-5">
-      <Header />
+    <div className="w-full ">
+      {/* <Header /> */}
       <div className="flex flex-col items-center justify-center">
         <div className="w-full max-w-6xl">
           <Image
-            className="rounded-[30px] w-full object-cover"
+            className=" rounded-b-[30px]  w-full object-cover"
             src={Banner}
             alt="Banner"
             width={1200}
@@ -45,9 +45,8 @@ export default function Home() {
                   icon={Sparkle}
                   buttonName="Snap a Selfie"
                   alt="sparkle"
-                  className="w-[80%] mt-5 rounded-[10px] border border-blue-600
-                    hover:bg-blue-600 hover:text-white flex justify-center items-center py-2 px-4
-                    transition-all duration-300 delay-200"
+                  className="bg-[#375DFB] text-white rounded-[10px] flex justify-center items-center py-1 px-6 w-[80%] hover:text-black hover:border-[#375DFB] border border-transparent transition-all hover:bg-white duration-300"
+
                 />
               </Link>
               <div className="w-[90%] mt-1">
