@@ -3,8 +3,9 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { Banner, Profileimg, Flat, Suitcase, Gender, User } from "../assets";
 import Header from "../components/Header";
-import Banners from "../components/Banner";
+import Banners from "../components/banner";
 import Input from "../components/input";
+import Dropdown from "../components/dropdown";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -29,6 +30,12 @@ const Register = () => {
     { code: "44", country: "UK" },
     { code: "86", country: "China" },
     { code: "81", country: "Japan" },
+  ];
+
+  const genderOptions = [
+    { value: 'Male', label: 'Male' },
+    { value: 'Female', label: 'Female' },
+    { value: 'Other', label: 'Other' }
   ];
 
   const handleChange = (e) => {
@@ -82,14 +89,15 @@ const Register = () => {
   };
 
   return (
-    <div className="w-full">
-      <Header />
+    <div className="w-full flex justify-center flex-col items-center">
+      
+
       <Banners profile={Profileimg} Banner={Banner} />
       
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-md mx-auto pt-16 px-4">
+      <div className=" ">
+        <div className=" pt-16 px-4">
           <div className="text-center mb-8">
-            <p className="text-2xl font-normal font-inter">
+            <p className="text-[24px] font-[400]  font-inter">
               Verify your mobile number
             </p>
           </div>
@@ -172,13 +180,15 @@ const Register = () => {
               icon={Flat}
             />
 
-            {/* Replace Gender input */}
-            <Input
-              readOnly
-              value={formData.gender || 'Select Gender'}
-              onClick={() => setIsGenderOpen(!isGenderOpen)}
+            {/* Replace Gender input with Dropdown */}
+            <Dropdown
+              value={formData.gender || ''}
+              placeholder="Select Gender"
               icon={Gender}
-              containerClassName="cursor-pointer"
+              options={genderOptions}
+              isOpen={isGenderOpen}
+              onToggle={() => setIsGenderOpen(!isGenderOpen)}
+              onSelect={handleGenderSelect}
             />
 
             <div className="w-full flex justify-center">
