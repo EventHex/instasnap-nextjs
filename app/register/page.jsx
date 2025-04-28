@@ -121,6 +121,7 @@ const Register = () => {
             onSubmit={handleSubmit}
           >
             {/* Phone Input with Country Code */}
+            <div className="flex flex-col gap-5">
             <div className="flex">
               <div className="relative">
                 <button
@@ -192,7 +193,7 @@ const Register = () => {
                         placeholder="Enter verification code"
                         value={formData.verificationCode || ''}
                         onChange={handleChange}
-                        className="w-full border-[#E2E4E9] border-r-0 py-3 pl-10 pr-4 border focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full border-[#E2E4E9] border-r-0 rounded-l-lg py-3 pl-10 pr-4 border focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                       <div className="absolute left-3 top-1/2 -translate-y-1/2"></div>
                     </div>
@@ -206,7 +207,7 @@ const Register = () => {
                 </div>
               </div>
             )}
-
+</div>
             <Input
               name="firstName"
               placeholder="First Name"
