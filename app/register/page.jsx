@@ -6,6 +6,7 @@ import Header from "../components/Header";
 import Banners from "../components/banner";
 import Input from "../components/input";
 import Dropdown from "../components/dropdown";
+import Button from "../components/button";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -15,7 +16,7 @@ const Register = () => {
     phone: "",
     designation: "",
     companyName: "",
-    gender: ""
+    gender: "",
   });
 
   // New state for storing submitted data
@@ -33,16 +34,16 @@ const Register = () => {
   ];
 
   const genderOptions = [
-    { value: 'Male', label: 'Male' },
-    { value: 'Female', label: 'Female' },
-    { value: 'Other', label: 'Other' }
+    { value: "Male", label: "Male" },
+    { value: "Female", label: "Female" },
+    { value: "Other", label: "Other" },
   ];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -52,9 +53,9 @@ const Register = () => {
   };
 
   const handleGenderSelect = (value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      gender: value
+      gender: value,
     }));
     setIsGenderOpen(false);
   };
@@ -77,43 +78,44 @@ const Register = () => {
       // Store the submitted data
       setSubmittedData({
         ...formData,
-        countryCode: selectedCode
+        countryCode: selectedCode,
       });
-      
+
       // You can add additional logic here (e.g., API calls)
       console.log("Form submitted:", {
         ...formData,
-        countryCode: selectedCode
+        countryCode: selectedCode,
       });
     }
   };
 
   return (
     <div className="w-full flex justify-center flex-col items-center">
-      
-
       <Banners profile={Profileimg} Banner={Banner} />
-      
+
       <div className=" ">
-        <div className=" pt-16 px-4">
+        <div className=" pt-12 px-4">
           <div className="text-center mb-8">
             <p className="text-[24px] font-[400]  font-inter">
               Verify your mobile number
             </p>
           </div>
 
-          <form className="space-y-4" onSubmit={handleSubmit}>
+          <form
+            className="space-y-4  flex flex-col gap-[16px]  mb-10"
+            onSubmit={handleSubmit}
+          >
             {/* Phone Input with Country Code */}
             <div className="flex">
               <div className="relative">
                 <button
                   type="button"
-                  className="h-full bg-gray-50 px-3 flex items-center gap-1 rounded-l-lg border border-[#E2E4E9] hover:bg-gray-100"
+                  className="h-full  px-3 flex items-center gap-1 rounded-l-lg border border-[#E2E4E9] hover:bg-gray-100"
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 >
                   +{selectedCode}
                 </button>
-                
+
                 {isDropdownOpen && (
                   <div className="absolute top-full left-0 mt-1 w-32 bg-white border border-[#E2E4E9] rounded-lg shadow-lg z-10">
                     {countryCodes.map((country) => (
@@ -138,10 +140,9 @@ const Register = () => {
                       placeholder="Enter your number"
                       value={formData.phone}
                       onChange={handleChange}
-                      className="w-full bg-gray-50 border-[#E2E4E9] border-r-0 py-3 pl-10 pr-4 border focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full  border-[#E2E4E9] border-r-0 py-3 pl-10 pr-4 border focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2">
-                    </div>
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2"></div>
                   </div>
                   <button
                     type="button"
@@ -152,8 +153,39 @@ const Register = () => {
                 </div>
               </div>
             </div>
+            <div className="flex">
+              <div className="relative ">
+              
 
-            {/* Replace Name input */}
+                {isDropdownOpen && (
+                  <div className="absolute top-full left-0 mt-1 w-32 bg-white border border-[#E2E4E9] rounded-lg shadow-lg z-10">
+                  
+                  </div>
+                )}
+              </div>
+              <div className="relative flex-1">
+                <div className="relative flex">
+                  <div className="relative flex-1">
+                    <input
+                      type="tel"
+                      name="phone"
+                      placeholder="Enter your number"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      className="w-full  border-[#E2E4E9] border-r-0 py-3 pl-10 pr-4 border focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2"></div>
+                  </div>
+                  <button
+                    type="button"
+                    className="px-2 py-2 border-[#E2E4E9] bg-[#F6F8FA] border border-l text-[#CDD0D5] hover:bg-[#375DFB] hover:text-white rounded-r-lg"
+                  >
+verify                
+   </button>
+                </div>
+              </div>
+            </div>
+
             <Input
               name="firstName"
               placeholder="First Name"
@@ -162,7 +194,6 @@ const Register = () => {
               icon={User}
             />
 
-            {/* Replace Designation input */}
             <Input
               name="designation"
               placeholder="Designation"
@@ -171,7 +202,6 @@ const Register = () => {
               icon={Suitcase}
             />
 
-            {/* Replace Company Name input */}
             <Input
               name="companyName"
               placeholder="Company Name"
@@ -180,9 +210,8 @@ const Register = () => {
               icon={Flat}
             />
 
-            {/* Replace Gender input with Dropdown */}
             <Dropdown
-              value={formData.gender || ''}
+              value={formData.gender || ""}
               placeholder="Select Gender"
               icon={Gender}
               options={genderOptions}
@@ -191,18 +220,10 @@ const Register = () => {
               onSelect={handleGenderSelect}
             />
 
-            <div className="w-full flex justify-center">
-              <button 
-                type="submit"
-                disabled={!isFormValid()}
-                className={`w-[80%] py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                  isFormValid() 
-                    ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                }`}
-              >
+            <div className="w-full my-5 flex justify-center">
+              <Button type="submit" disabled={!isFormValid()}>
                 Find my photos
-              </button>
+              </Button>
             </div>
           </form>
         </div>
