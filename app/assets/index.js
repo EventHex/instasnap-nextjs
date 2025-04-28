@@ -14,6 +14,7 @@ import Sparkle from './icons/Vector (15).svg'
 import FaceIdBase from './image/Face ID base blue 1.svg'
 import LockIcon from './icons/lock-2-fill.svg'
 import PenIcon from './icons/pencil-line (1).svg'
+import ErrorIcon from './icons/error-warning-fill.svg'
 export {
   Logo,
   Phone,
@@ -30,5 +31,6 @@ export {
   Sparkle,
   FaceIdBase,
   LockIcon,
-  PenIcon
+  PenIcon,
+  ErrorIcon
 };
