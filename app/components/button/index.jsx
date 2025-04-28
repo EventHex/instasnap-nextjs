@@ -1,20 +1,27 @@
-const { default: Image } = require("next/image");
+import React from 'react';
 
-const SnapButton = ({ icon, buttonName, alt, className }) => {
+const Button = ({
+  type = "button",
+  disabled = false,
+  onClick,
+  children,
+  className = "",
+  width = "w-[80%]"
+}) => {
+  const baseStyles = "py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2";
+  const enabledStyles = "bg-blue-600 text-white hover:bg-blue-700";
+  const disabledStyles = "bg-gray-300 text-gray-500 cursor-not-allowed";
+
   return (
-    <button className={className}>
-      {icon ? (
-        <Image 
-          src={icon} 
-          alt={alt || "button icon"} 
-          width={20} 
-          height={20} 
-          className="mr-2 h-5 w-5" 
-        />
-      ) : null}
-      {buttonName}
+    <button 
+      type={type}
+      disabled={disabled}
+      onClick={onClick}
+      className={`${baseStyles} ${width} ${disabled ? disabledStyles : enabledStyles} ${className}`}
+    >
+      {children}
     </button>
   );
 };
 
-export default SnapButton;
+export default Button;

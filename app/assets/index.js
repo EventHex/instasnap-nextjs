@@ -15,7 +15,15 @@ import FaceIdBase from './image/Face ID base blue 1.svg'
 import ShineAI from './icons/Vector(16).svg'
 import Frame from './image/Frame.svg'
 import EventHex from './icons/Vector (90).svg'
-
+import LockIcon from './icons/lock-2-fill.svg'
+import PenIcon from './icons/pencil-line (1).svg'
+import ErrorIcon from './icons/error-warning-fill.svg'
+import VerifiedIcon from './icons/Verify.svg'
+import HomeIcon from './icons/home.svg'
+import HighlightIcon from './icons/highlight.svg'
+import ContributeIcon from './icons/contribution.svg'
+import PostIcon from './icons/post.svg'
+import NotificationIcon from './icons/notification.svg'
 export {
   Logo,
   Phone,
@@ -34,4 +42,14 @@ export {
   ShineAI,
   Frame,
   EventHex,
+  LockIcon,
+  PenIcon,
+  ErrorIcon,
+  VerifiedIcon,
+  HomeIcon,
+  HighlightIcon,
+  ContributeIcon,
+  PostIcon,
+  NotificationIcon
+
 };
