@@ -13,6 +13,7 @@ import HumanSelfi from "./image/Face-Id--Streamline-Tokyo.svg";
 import Sparkle from './icons/Vector (15).svg'  
 import FaceIdBase from './image/Face ID base blue 1.svg'
 import LockIcon from './icons/lock-2-fill.svg'
+import PenIcon from './icons/pencil-line (1).svg'
 export {
   Logo,
   Phone,
@@ -28,5 +29,6 @@ export {
   HumanSelfi,
   Sparkle,
   FaceIdBase,
-  LockIcon
+  LockIcon,
+  PenIcon
 };

@@ -1,12 +1,13 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import { Banner, Profileimg, Flat, Suitcase, Gender, User } from "../assets";
+import { Banner, Profileimg, Flat, Suitcase, Gender, User ,PenIcon} from "../assets";
 import Header from "../components/Header";
 import Banners from "../components/banner";
 import Input from "../components/input";
 import Dropdown from "../components/dropdown";
 import Button from "../components/button";
+import Image from "next/image";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -24,6 +25,10 @@ const Register = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedCode, setSelectedCode] = useState("91");
   const [isGenderOpen, setIsGenderOpen] = useState(false);
+  // Add new state for showing verification input
+  const [showVerification, setShowVerification] = useState(false);
+  // Add state to track if code was sent
+  const [codeSent, setCodeSent] = useState(false);
 
   const countryCodes = [
     { code: "91", country: "India" },
@@ -89,6 +94,16 @@ const Register = () => {
     }
   };
 
+  // Update the handleSendCode function
+  const handleSendCode = () => {
+    if (formData.phone) {
+      setShowVerification(true);
+      setCodeSent(true);
+      // Add your send code logic here
+      console.log("Sending code to:", formData.phone);
+    }
+  };
+
   return (
     <div className="w-full flex justify-center flex-col items-center">
       <Banners profile={Profileimg} Banner={Banner} />
@@ -110,7 +125,7 @@ const Register = () => {
               <div className="relative">
                 <button
                   type="button"
-                  className="h-full  px-3 flex items-center gap-1 rounded-l-lg border border-[#E2E4E9] hover:bg-gray-100"
+                  className="h-full px-3 flex items-center gap-1 rounded-l-lg border border-[#E2E4E9] hover:bg-gray-100"
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 >
                   +{selectedCode}
@@ -140,51 +155,57 @@ const Register = () => {
                       placeholder="Enter your number"
                       value={formData.phone}
                       onChange={handleChange}
-                      className="w-full  border-[#E2E4E9] border-r-0 py-3 pl-10 pr-4 border focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full border-[#E2E4E9] border-r-0 py-3 pl-10 pr-4 border focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     <div className="absolute left-3 top-1/2 -translate-y-1/2"></div>
                   </div>
                   <button
                     type="button"
-                    className="px-2 py-2 border-[#E2E4E9] border border-l-0 text-[#375DFB] rounded-r-lg"
+                    onClick={handleSendCode}
+                    className="px-2 py-2 border-[#E2E4E9] border border-l-0 text-[#375DFB] rounded-r-lg flex items-center justify-center"
                   >
-                    send code
+                    {codeSent ? (
+
+ <Image
+          className=""
+          src={PenIcon}
+          alt="PenIcon"
+      
+        />                      // <img src={PenIcon} alt="edit" className="h-5 w-5" />
+                    ) : (
+                      'send code'
+                    )}
                   </button>
                 </div>
               </div>
             </div>
-            <div className="flex">
-              <div className="relative ">
-              
 
-                {isDropdownOpen && (
-                  <div className="absolute top-full left-0 mt-1 w-32 bg-white border border-[#E2E4E9] rounded-lg shadow-lg z-10">
-                  
+            {/* Verification Input - Only shown after sending code */}
+            {showVerification && (
+              <div className="flex">
+                <div className="relative flex-1">
+                  <div className="relative flex">
+                    <div className="relative flex-1">
+                      <input
+                        type="tel"
+                        name="verificationCode"
+                        placeholder="Enter verification code"
+                        value={formData.verificationCode || ''}
+                        onChange={handleChange}
+                        className="w-full border-[#E2E4E9] border-r-0 py-3 pl-10 pr-4 border focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2"></div>
+                    </div>
+                    <button
+                      type="button"
+                      className="px-2 py-2 border-[#E2E4E9] bg-[#F6F8FA] border border-l text-[#CDD0D5] hover:bg-[#375DFB] hover:text-white rounded-r-lg"
+                    >
+                      verify
+                    </button>
                   </div>
-                )}
-              </div>
-              <div className="relative flex-1">
-                <div className="relative flex">
-                  <div className="relative flex-1">
-                    <input
-                      type="tel"
-                      name="phone"
-                      placeholder="Enter your number"
-                      value={formData.phone}
-                      onChange={handleChange}
-                      className="w-full  border-[#E2E4E9] border-r-0 py-3 pl-10 pr-4 border focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2"></div>
-                  </div>
-                  <button
-                    type="button"
-                    className="px-2 py-2 border-[#E2E4E9] bg-[#F6F8FA] border border-l text-[#CDD0D5] hover:bg-[#375DFB] hover:text-white rounded-r-lg"
-                  >
-verify                
-   </button>
                 </div>
               </div>
-            </div>
+            )}
 
             <Input
               name="firstName"
