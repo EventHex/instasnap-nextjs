@@ -15,6 +15,12 @@ import FaceIdBase from './image/Face ID base blue 1.svg'
 import LockIcon from './icons/lock-2-fill.svg'
 import PenIcon from './icons/pencil-line (1).svg'
 import ErrorIcon from './icons/error-warning-fill.svg'
+import VerifiedIcon from './icons/Verify.svg'
+import HomeIcon from './icons/home.svg'
+import HighlightIcon from './icons/highlight.svg'
+import ContributeIcon from './icons/contribution.svg'
+import PostIcon from './icons/post.svg'
+import NotificationIcon from './icons/notification.svg'
 export {
   Logo,
   Phone,
@@ -32,5 +38,11 @@ export {
   FaceIdBase,
   LockIcon,
   PenIcon,
-  ErrorIcon
+  ErrorIcon,
+  VerifiedIcon,
+  HomeIcon,
+  HighlightIcon,
+  ContributeIcon,
+  PostIcon,
+  NotificationIcon
 };
