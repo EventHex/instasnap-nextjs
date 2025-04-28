@@ -12,7 +12,10 @@ import User from "./icons/Vector (13).svg";
 import HumanSelfi from "./image/Face-Id--Streamline-Tokyo.svg";
 import Sparkle from './icons/Vector (15).svg'  
 import FaceIdBase from './image/Face ID base blue 1.svg'
-import ShineAI from './icons/Vector.svg'
+import ShineAI from './icons/Vector(16).svg'
+import Frame from './image/Frame.svg'
+import EventHex from './icons/Vector (90).svg'
+
 export {
   Logo,
   Phone,
@@ -29,4 +32,6 @@ export {
   Sparkle,
   FaceIdBase,
   ShineAI,
+  Frame,
+  EventHex,
 };

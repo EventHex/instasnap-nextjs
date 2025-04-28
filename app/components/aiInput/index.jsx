@@ -1,6 +1,5 @@
 import React from 'react'
 import Image from 'next/image'
-import { Sparkle } from '../../assets'
 
 const AiInput = ({icon, message, number, label}) => {
   return (
