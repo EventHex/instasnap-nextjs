@@ -166,13 +166,11 @@ const Register = () => {
                     className="px-2 py-2 border-[#E2E4E9] border border-l-0 text-[#375DFB] rounded-r-lg flex items-center justify-center"
                   >
                     {codeSent ? (
-
- <Image
-          className=""
-          src={PenIcon}
-          alt="PenIcon"
-      
-        />                      // <img src={PenIcon} alt="edit" className="h-5 w-5" />
+                      <Image
+                        className=""
+                        src={PenIcon}
+                        alt="PenIcon"
+                      />
                     ) : (
                       'send code'
                     )}
@@ -183,31 +181,37 @@ const Register = () => {
 
             {/* Verification Input - Only shown after sending code */}
             {showVerification && (
-              <div className="flex">
-                <div className="relative flex-1">
-                  <div className="relative flex">
-                    <div className="relative flex-1">
-                      <input
-                        type="tel"
-                        name="verificationCode"
-                        placeholder="Enter verification code"
-                        value={formData.verificationCode || ''}
-                        onChange={handleChange}
-                        className="w-full border-[#E2E4E9] border-r-0 rounded-l-lg py-3 pl-10 pr-4 border focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                      <div className="absolute left-3 top-1/2 -translate-y-1/2"></div>
+              <>
+                <div className="flex flex-col gap-2">
+                  <div className="relative flex-1">
+                    <div className="relative flex">
+                      <div className="relative flex-1">
+                        <input
+                          type="tel"
+                          name="verificationCode"
+                          placeholder="Enter verification code"
+                          value={formData.verificationCode || ''}
+                          onChange={handleChange}
+                          className="w-full border-[#E2E4E9] border-r-0 rounded-l-lg py-3 pl-10 pr-4 border focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2"></div>
+                      </div>
+                      <button
+                        type="button"
+                        className="px-2 py-2 border-[#E2E4E9] bg-[#F6F8FA] border border-l text-[#CDD0D5] hover:bg-[#375DFB] hover:text-white rounded-r-lg"
+                      >
+                        verify
+                      </button>
                     </div>
-                    <button
-                      type="button"
-                      className="px-2 py-2 border-[#E2E4E9] bg-[#F6F8FA] border border-l text-[#CDD0D5] hover:bg-[#375DFB] hover:text-white rounded-r-lg"
-                    >
-                      verify
-                    </button>
                   </div>
+                <div className="flex">
+                  <p className=" font-inter  text-[#525866] font-[400] text-[14px]">Experiencing issues receiving the code?  <span className="text-[#525866] font-inter font-[400] text-[14px] underline" >Resend code</span> </p>
                 </div>
-              </div>
+                </div>
+          
+              </>
             )}
-</div>
+            </div>
             <Input
               name="firstName"
               placeholder="First Name"
