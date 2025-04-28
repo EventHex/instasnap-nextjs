@@ -83,7 +83,7 @@ const Index = () => {
         <div className="w-full justify-center flex">
           <StartButton
             buttonName="Get Started"
-            className="bg-[#375DFB] text-white rounded-[10px] flex justify-center items-center py-5 px-6 w-[80%] hover:text-black hover:border-[#375DFB] border border-transparent transition-all hover:bg-white duration-300"
+            className="bg-[#375DFB] text-white rounded-[10px] flex justify-center items-center py-1 px-1 w-[80%] hover:text-black hover:border-[#375DFB] border border-transparent transition-all hover:bg-white duration-300"
             onClick={startCamera}
           />
         </div>
