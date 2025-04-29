@@ -24,6 +24,8 @@ import HighlightIcon from './icons/highlight.svg'
 import ContributeIcon from './icons/contribution.svg'
 import PostIcon from './icons/post.svg'
 import NotificationIcon from './icons/notification.svg'
+import India from './icons/india.svg'
+import DownArrow from './icons/Downarrow.svg'
 export {
   Logo,
   Phone,
@@ -50,6 +52,8 @@ export {
   HighlightIcon,
   ContributeIcon,
   PostIcon,
-  NotificationIcon
+  NotificationIcon,
+  India,
+  DownArrow
 
 };
