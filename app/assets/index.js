@@ -28,6 +28,9 @@ import India from './icons/india.svg'
 import DownArrow from './icons/Downarrow.svg'
 import Placeholder from './image/Placeholder_Image.webp'
  import PotraitPlaceholder from './image/360_F_345059232_CPieT8RIWOUk4JqBkkWkIETYAkmz2b75.jpg' 
+ import japan from './icons/japan.svg'
+ import palastine from './icons/palastine.svg'
+ import uk from './icons/UK.svg'
 
 export {
   Logo,
@@ -59,6 +62,9 @@ export {
   India,
   DownArrow,
   Placeholder,
-  PotraitPlaceholder
+  PotraitPlaceholder,
+  japan,
+  palastine,
+  uk
 
 };
