@@ -177,7 +177,9 @@ const Register = () => {
                       {codeSent ? (
                       <div className="  ">
                         <Image
-                          className=" "
+                          width={20}
+                          height={20}
+                          className=""
                           src={codeSentSuccess ? VerifiedIcon : PenIcon}
                           alt={codeSentSuccess ? "UserIcon" : "PenIcon"}
                         />
@@ -221,6 +223,8 @@ const Register = () => {
                   <div className="flex w-full gap-2">
                   <p className="flex justify-start  gap-2">
                   <Image
+                  width={20}
+                  height={20}
                   className="w-5 h-5"
                   src={ErrorIcon}
                   alt="ErrorIcon"
