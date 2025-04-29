@@ -9,8 +9,12 @@ import EventHex from "../assets/icons/Vector (90).svg";
 import ShineAI from "../assets/icons/Vector(16).svg";
 import Navbar from "../components/navfooter";
 import { Marquee3D } from "../components/ui/card";
+import { View, X } from "lucide-react";
+
 const Home = () => {
   const [isClient, setIsClient] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -33,6 +37,18 @@ const Home = () => {
       image: Post3,
     },
   ];  
+
+  // View post function
+  const Viewpost = (image) => {
+    setSelectedImage(image);
+    setShowModal(true);
+  };
+
+  // Close modal function
+  const closeModal = () => {
+    setSelectedImage(null);
+    setShowModal(false);
+  };
 
   return (
     <div className="w-full mb-[70px] ">
@@ -62,11 +78,16 @@ const Home = () => {
           </div>
         </div>
       </div>
-      {/* {data.length !== 0 ? (
+      {data.length !== 0 ? (
        <div className="grid grid-cols-3 gap-1 max-w-4xl mx-auto px-4 mt-4">
        {data.map((item) => (
          <div className="bg-white rounded-lg overflow-hidden" key={item.id}>
-           <Image src={item.image} alt="Post" className="w-full h-auto" />
+           <Image 
+             onClick={() => Viewpost(item.image)} 
+             src={item.image} 
+             alt="Post" 
+             className="w-full h-auto cursor-pointer hover:opacity-90 transition-opacity"
+           />
          </div>
        ))}
      </div>
@@ -104,12 +125,44 @@ const Home = () => {
           </div>
         </div>
       )}
-       */}
+      
 
-<div>
+{/* <div>
   <Marquee3D />
-</div>
+</div> */}
 
+      {/* Modal */}
+      {showModal && (
+        <div 
+          className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 animate-fadeIn"
+          onClick={closeModal}
+        >
+          <div 
+            className="relative max-w-4xl w-full animate-scaleIn"
+            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking image
+          >
+            <button
+              onClick={closeModal}
+              className="absolute top-4 right-4 text-white hover:text-gray-300 z-10 
+                transform transition-all duration-300 hover:rotate-90"
+            >
+              <X size={24} />
+            </button>
+            <div className="relative aspect-square w-full bg-white/5 backdrop-blur-sm rounded-lg 
+              overflow-hidden shadow-2xl transform transition-all duration-1000">
+              <Image
+                src={selectedImage}
+                alt="Selected post"
+                className="w-full h-full object-contain transition-all duration-800 
+                  hover:scale-105"
+                width={1000}
+                height={1000}
+                priority
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       <Navbar />
     </div>

@@ -26,7 +26,7 @@ const Page = () => {
       id: 5,
       image: Post2,
     },{
-      id: 5,
+      id: 5.5, // Changed from 5 to 5.5 to make it unique
       image: Post2,
     },
     {
@@ -89,9 +89,6 @@ const Page = () => {
       id: 20,
       image: Post2,
     },
-   
-    
-    
   ]
 
   return (
