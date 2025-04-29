@@ -49,9 +49,9 @@ const Home = () => {
         </div>
       </div>
       <div className="">
-        <div className="flex flex-col items-center justify-center p-6 bg-[#F6F8FA] w-full ">
+        <div className="flex flex-col items-center justify-center p-6 bg-[#F6F8FA] w-full">
           <p className="text-[#0A0D14] text-[18px] font-[500] text-center">
-            Oops! Our AI couldn't find any Hilights for you yet.
+            Oops! Our AI couldn't find any Highlights for you yet.
           </p>
           <div className="flex items-center justify-center bg-gray-100">
             <Image
