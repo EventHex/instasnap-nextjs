@@ -19,14 +19,14 @@ export default function Home() {
           />
         </div>
 
-        <div className="w-full max-w-6xl flex flex-col items-center justify-center mt-2 p-4 rounded-lg">
-          <div className="w-full mt-1 flex justify-center">
+        <div className="w-full max-w-6xl flex flex-col items-center justify-center   rounded-lg">
+          <div className="w-full items-center flex justify-center">
             <Image
               className="w-full sm:w-[300px] object-cover"
               src={HumanSelfi}
               alt="Selfie"
-              width={300}
-              height={300}
+              width={250}
+              height={250}
             />
           </div>
           <div className="flex flex-col justify-center w-full">

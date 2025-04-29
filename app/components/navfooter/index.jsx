@@ -1,26 +1,37 @@
 'use client'
 
-import React,{ useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { HomeIcon, HighlightIcon, ContributeIcon, PostIcon, NotificationIcon } from '../../assets';
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+
 const NavigationBar = () => {
+  const pathname = usePathname();
   const [activeTab, setActiveTab] = useState('highlights');
   
+  // Update active tab based on current pathname
+  useEffect(() => {
+    const path = pathname.split('/')[1] || 'home';
+    if (navItems.some(item => item.id === path)) {
+      setActiveTab(path);
+    }
+  }, [pathname]);
+  
   const navItems = [
-    { id: 'home', label: 'Home', icon: HomeIcon,path:'/home' },
-    { id: 'highlights', label: 'Highlights', icon: HighlightIcon,path:'/highlight' },
-    { id: 'contribute', label: 'Contribute', icon: ContributeIcon,path:'/contribute' },
-    { id: 'post', label: 'Post', icon: PostIcon,path:'/post' },
-    { id: 'notifications', label: 'Notifications', icon: NotificationIcon,path:'/notifications' }
+    { id: 'home', label: 'Home', icon: HomeIcon, path: '/home' },
+    { id: 'highlights', label: 'Highlights', icon: HighlightIcon, path: '/highlight' },
+    { id: 'contribute', label: 'Contribute', icon: ContributeIcon, path: '/contribute' },
+    { id: 'post', label: 'Post', icon: PostIcon, path: '/post' },
+    { id: 'notifications', label: 'Notifications', icon: NotificationIcon, path: '/notifications' }
   ];
   
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200">
       <nav className="flex justify-between items-center px-4 py-2">
         {navItems.map((item) => (
-          <Link href={item.path} key={item.id}>
-          <button
+          <Link 
+            href={item.path} 
             key={item.id}
             className="flex flex-col items-center relative"
             onClick={() => setActiveTab(item.id)}
@@ -30,9 +41,13 @@ const NavigationBar = () => {
                 ? 'bg-blue-500 text-white' 
                 : 'text-gray-600'
             }`}>
-              <Image src={item.icon} alt={item.label} width={20} height={20} />
-              
-            
+              <Image 
+                src={item.icon} 
+                alt={item.label} 
+                width={20} 
+                height={20} 
+                className={activeTab === item.id ? 'invert' : ''}
+              />
             </div>
             <span className={`text-xs mt-1 ${
               activeTab === item.id 
@@ -41,7 +56,6 @@ const NavigationBar = () => {
             }`}>
               {item.label}
             </span>
-          </button>
           </Link>
         ))}
       </nav>

@@ -3,7 +3,7 @@ import React from 'react'
 import { EventHeader } from '../components/header'
 import { Post1, Post2, Post3 } from '../assets'
 import Image from 'next/image'
-
+import NavFooter from '../components/navfooter'
 const Page = () => {
   const postData = [
     {
@@ -45,6 +45,51 @@ const Page = () => {
       id: 9,
       image: Post3,
     },
+    {
+      id: 10,
+      image: Post1,
+    },
+    {
+      id: 11,
+      image: Post2,
+    },  
+    {
+      id: 12,
+      image: Post3,
+    },
+    {
+      id: 13, 
+      image: Post1,
+    },
+    {
+      id: 14,
+      image: Post2,
+    },
+    {
+      id: 15,
+      image: Post3,
+    },
+    {
+      id: 16,
+      image: Post1,
+    },
+    {
+      id: 17,
+      image: Post2,
+    },
+    {
+      id: 18,
+      image: Post3,
+    },
+    {
+      id: 19,
+      image: Post1,
+    },
+    {
+      id: 20,
+      image: Post2,
+    },
+   
     
     
   ]
@@ -58,7 +103,7 @@ const Page = () => {
       
      
       
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 mb-[60px] gap-1">
         {postData.map((post) => (
           <div key={post.id} className="aspect-square relative">
             <Image 
@@ -72,6 +117,7 @@ const Page = () => {
           </div>
         ))}
       </div>
+      <NavFooter/>
     </div>
   )
 }
