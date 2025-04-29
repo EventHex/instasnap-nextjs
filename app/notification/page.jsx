@@ -5,7 +5,7 @@ const NotificationCard = () => {
     <div className='flex justify-center items-center'>
     <div className="w-full p-5  rounded-xl  overflow-hidden">
         <div className='flex justify-center items-center'>
-            <h1 className='text-[15px] font-[600]'>
+            <h1 className='text-[15px] font-inter font-[600]'>
                 Notification
             </h1>
         </div>
