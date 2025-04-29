@@ -7,6 +7,7 @@ import NavFooter from '../../components/navfooter'
 import { ArrowLeft, CloudDownload, Heart, Share2, MessageCircle } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import Button from '../../components/button'
 
 const DetailsPage = ({ params }) => {
   const router = useRouter()
@@ -138,12 +139,7 @@ const DetailsPage = ({ params }) => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className='flex justify-between items-center py-2 px-4 bg-white shadow-sm'>
-        <button 
-          onClick={handleBack}
-          className="flex items-center text-gray-700 hover:text-gray-900 transition-colors"
-        >
-          <ArrowLeft size={24} />
-        </button>
+        <Button isBack variant="arrow" className="mr-4" />
         <EventHeader />
         <div className="w-8" /> {/* Empty div for flex spacing */}
       </div>
@@ -187,9 +183,9 @@ const DetailsPage = ({ params }) => {
                 <button className="hover:text-red-500 transition-colors">
                   <Heart size={24} />
                 </button>
-                <button className="hover:text-blue-500 transition-colors">
+                {/* <button className="hover:text-blue-500 transition-colors">
                   <MessageCircle size={24} />
-                </button>
+                </button> */}
                 <button className="hover:text-green-500 transition-colors">
                   <Share2 size={24} />
                 </button>
