@@ -1,7 +1,8 @@
 'use client'
 
-import { Copy } from 'lucide-react';
+import { Copy, ChevronLeft } from 'lucide-react';
 import React, { useState } from 'react';
+import NavigationBar from '../components/navfooter';
 
 const SocialShare = () => {
   const [text, setText] = useState("Can't wait to apply what I learned at the KEDDA Dental Expo! 🦷✨ The future of dental technology is bright. 🚀 #KeddaDentalExpo #Learning 🇺🇸 #InternationalDentalTechExpo");
@@ -13,15 +14,21 @@ const SocialShare = () => {
     setText(newText);
     setCharacterCount(newText.length);
   };
+  const handleGoBack = () => {
+    // Using the browser's history API to go back to the previous page
+    window.history.back();
+  };
 
   return (
-    <div className="max-w-md mx-auto bg-white rounded-lg ">
-      <div className="p-4  border-gray-100">
+    <div className="max-w-md mx-auto bg-white rounded-lg">
+      <div className="p-4 border-gray-100">
         <div className="flex items-center">
-          <button className="mr-4">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-800" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-            </svg>
+          <button 
+            className="mr-4 p-1 rounded-full hover:bg-gray-100 transition-colors" 
+            onClick={handleGoBack}
+            aria-label="Go back"
+          >
+            <ChevronLeft size={20} strokeWidth={1.5} />
           </button>
           <h1 className="text-xl font-semibold text-center flex-grow">Social Share</h1>
         </div>
@@ -29,9 +36,9 @@ const SocialShare = () => {
 
       <div className="p-4">
         <div className="flex justify-between items-center mb-2">
-          <span className="text-gray-800 text-sm font-medium">Share your thoughts</span>
-          <button className="text-blue-500 flex gap-1 font-medium">
-         <span><Copy size={20}   strokeWidth={1} /></span>   Copy
+          <span className="text-gray-800 text-[14px] font-medium">Share your thoughts</span>
+          <button className="text-blue-500 flex gap-1 items-center font-medium">
+            <span><Copy size={20} strokeWidth={1} /></span> Copy
           </button>
         </div>
 
@@ -51,6 +58,9 @@ const SocialShare = () => {
           <span className="text-amber-400 mr-2">✨</span>
           Rewrite with AI
         </button>
+      </div>
+      <div>
+        <NavigationBar/>
       </div>
     </div>
   );
