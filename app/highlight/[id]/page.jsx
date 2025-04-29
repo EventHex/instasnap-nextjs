@@ -4,10 +4,13 @@ import { EventHeader } from '../../components/header'
 import { Post1, Post2, Post3 } from '../../assets'
 import Image from 'next/image'
 import NavFooter from '../../components/navfooter'
-import { CloudDownload, Heart, Share2, MessageCircle } from 'lucide-react'
+import { ArrowLeft, CloudDownload, Heart, Share2, MessageCircle } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 const DetailsPage = ({ params }) => {
+  const router = useRouter()
+
   const allPosts = [
     {
       id: 1,
@@ -120,6 +123,10 @@ const DetailsPage = ({ params }) => {
   const selectedPost = allPosts.find(post => post.id === Number(params.id))
   const otherPosts = allPosts.filter(post => post.id !== Number(params.id))
 
+  const handleBack = () => {
+    router.back()
+  }
+
   if (!selectedPost) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -130,8 +137,15 @@ const DetailsPage = ({ params }) => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className='flex justify-center items-center py-2 bg-white shadow-sm'>
+      <div className='flex justify-between items-center py-2 px-4 bg-white shadow-sm'>
+        <button 
+          onClick={handleBack}
+          className="flex items-center text-gray-700 hover:text-gray-900 transition-colors"
+        >
+          <ArrowLeft size={24} />
+        </button>
         <EventHeader />
+        <div className="w-8" /> {/* Empty div for flex spacing */}
       </div>
 
       {/* Main Content */}
