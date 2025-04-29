@@ -9,7 +9,7 @@ import ShineAI from "../assets/icons/Vector(16).svg";
 import Navbar from "../components/navfooter";
 const Home = () => {
   return (
-    <div className="w-full mb-[70px]">
+    <div className="w-full mb-[70px] ">
       <div className="flex flex-col items-center justify-center">
         <Banners profile={Profileimg} Banner={Banner} />
 
@@ -68,6 +68,7 @@ const Home = () => {
           </div>
         </div>
       </div>
+      
       <Navbar />
     </div>
   );
