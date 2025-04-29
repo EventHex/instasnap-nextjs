@@ -1,4 +1,5 @@
-import React from "react";
+'use client'
+import React, { useState, useEffect } from "react";
 import { Banner, Profileimg } from "../assets";
 import Banners from "../components/banner";
 import AiInput from "../components/aiInput";
@@ -7,7 +8,18 @@ import Frame from "../assets/image/Frame.svg";
 import EventHex from "../assets/icons/Vector (90).svg";
 import ShineAI from "../assets/icons/Vector(16).svg";
 import Navbar from "../components/navfooter";
+
 const Home = () => {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) {
+    return null; // or a loading state
+  }
+
   return (
     <div className="w-full mb-[70px] ">
       <div className="flex flex-col items-center justify-center">

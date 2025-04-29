@@ -113,14 +113,27 @@ const Page = () => {
         <div key={item.id} className="w-full ">
           <div className='w-full px-1 py-2 flex gap-2 items-center'>
             <div className='rounded-full bg-gray-200 w-8 h-8'>
-<Image className='rounded-full w-full h-full' src={item.profile} alt={item.alt} />
+              <Image 
+                width={32}
+                height={32}
+                className='rounded-full w-full h-full object-cover'
+                src={item.profile}
+                alt={item.alt}
+                priority
+              />
             </div>
             <div>
               <p>{item.username}</p>
             
             </div>
           </div>
-          <Image src={item.image} alt={item.alt} />
+          <Image 
+            width={500}
+            height={500}
+            src={item.image}
+            alt={item.alt}
+            className="w-full h-auto"
+          />
           <div className='w-full flex p-2 justify-between items-center'>
             <div className=''>
               {likedItems[item.id] ? (

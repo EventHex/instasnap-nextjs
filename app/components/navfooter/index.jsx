@@ -1,24 +1,25 @@
 'use client'
 
 import React,{ useState } from 'react';
-// import { Home, Image, FileText, Share2, Bell } from 'lucide-react';
 import { HomeIcon, HighlightIcon, ContributeIcon, PostIcon, NotificationIcon } from '../../assets';
 import Image from 'next/image';
+import Link from 'next/link';
 const NavigationBar = () => {
   const [activeTab, setActiveTab] = useState('highlights');
   
   const navItems = [
-    { id: 'home', label: 'Home', icon: HomeIcon },
-    { id: 'highlights', label: 'Highlights', icon: HighlightIcon },
-    { id: 'contribute', label: 'Contribute', icon: ContributeIcon },
-    { id: 'post', label: 'Post', icon: PostIcon },
-    { id: 'notifications', label: 'Notifications', icon: NotificationIcon }
+    { id: 'home', label: 'Home', icon: HomeIcon,path:'/home' },
+    { id: 'highlights', label: 'Highlights', icon: HighlightIcon,path:'/highlight' },
+    { id: 'contribute', label: 'Contribute', icon: ContributeIcon,path:'/contribute' },
+    { id: 'post', label: 'Post', icon: PostIcon,path:'/post' },
+    { id: 'notifications', label: 'Notifications', icon: NotificationIcon,path:'/notifications' }
   ];
   
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200">
       <nav className="flex justify-between items-center px-4 py-2">
         {navItems.map((item) => (
+          <Link href={item.path} key={item.id}>
           <button
             key={item.id}
             className="flex flex-col items-center relative"
@@ -41,6 +42,7 @@ const NavigationBar = () => {
               {item.label}
             </span>
           </button>
+          </Link>
         ))}
       </nav>
     </div>
