@@ -121,6 +121,7 @@ const Page = () => {
                 alt={item.alt}
                 priority
               />
+<Image className='rounded-full w-full h-full' src={item.profile} alt={item.alt} />
             </div>
             <div>
               <p>{item.username}</p>
@@ -134,6 +135,7 @@ const Page = () => {
             alt={item.alt}
             className="w-full h-auto"
           />
+          <Image src={item.image} alt={item.alt} />
           <div className='w-full flex p-2 justify-between items-center'>
             <div className=''>
               {likedItems[item.id] ? (

@@ -1,17 +1,13 @@
-import React from "react";
-import { Banner } from "../assets";
-import Banners from "../components/banner";
-import India from "../assets/icons/india.svg";
-import DownArrow from "../assets/icons/downarrow.svg";
-import Image from "next/image";
-import SignInButton from "../components/button";
 
-const about = () => {
+import React from 'react'
+
+function page() {
   return (
-   <>
-   <div className="">ads</div>
-   </>
-  );
-};
+    <div>
+    <h1>Post</h1>
+    </div>
+  )
+}
 
-export default about;
+export default page
+
