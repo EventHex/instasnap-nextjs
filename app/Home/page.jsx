@@ -6,10 +6,10 @@ import Image from "next/image";
 import Frame from "../assets/image/Frame.svg";
 import EventHex from "../assets/icons/Vector (90).svg";
 import ShineAI from "../assets/icons/Vector(16).svg";
-
+import Navbar from "../components/navfooter";
 const Home = () => {
   return (
-    <div className="w-full">
+    <div className="w-full mb-[70px]">
       <div className="flex flex-col items-center justify-center">
         <Banners profile={Profileimg} Banner={Banner} />
 
@@ -25,7 +25,7 @@ const Home = () => {
       <div className="">
         <div className="flex items-center justify-center">
           {/* Main Div */}
-          <div className="w-full max-w-4xl bg-white flex justify-between  items-center py-[8px] px-[20px] boarder-[#E2E4E9] shadow">
+          <div className="w-full max-w-4xl bg-white flex justify-between  items-center py-[8px] px-[20px] boarder-[#E2E4E9] ">
             {/* Text on the Left */}
             <h1 className="text-2xl font-[500px] text-[16px] ">Your Photos</h1>
 
@@ -41,7 +41,7 @@ const Home = () => {
           <p className="text-[#0A0D14] text-[18px] font-[500] text-center">
             Oops! Our AI couldn't find any Hilights for you yet.
           </p>
-          <div className="flex items-center justify-center w-[120px] h-[120px] bg-gray-100">
+          <div className="flex items-center justify-center bg-gray-100">
             <Image
               src={Frame}
               alt="Frame"
@@ -68,6 +68,7 @@ const Home = () => {
           </div>
         </div>
       </div>
+      <Navbar />
     </div>
   );
 };
