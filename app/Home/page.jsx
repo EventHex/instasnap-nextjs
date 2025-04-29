@@ -9,11 +9,11 @@ import EventHex from "../assets/icons/Vector (90).svg";
 import ShineAI from "../assets/icons/Vector(16).svg";
 import Navbar from "../components/navfooter";
 import { Marquee3D } from "../components/ui/card";
-import { View, X } from "lucide-react";
+import { CloudDownload, Share2, View, X } from "lucide-react";
 
 const Home = () => {
   const [isClient, setIsClient] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedPost, setSelectedPost] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
@@ -27,27 +27,72 @@ const Home = () => {
     {
       id: 1,
       image: Post1,
+      date: "2024-02-01",
     },
     {
       id: 2,
       image: Post2,
+      date: "2024-03-02",
     },
     {
       id: 3,
       image: Post3,
+      date: "2024-04-05",
     },
   ];  
 
   // View post function
-  const Viewpost = (image) => {
-    setSelectedImage(image);
+  const Viewpost = (post) => {
+    setSelectedPost(post);
     setShowModal(true);
   };
 
   // Close modal function
   const closeModal = () => {
-    setSelectedImage(null);
+    setSelectedPost(null);
     setShowModal(false);
+  };
+
+  // Share functionality
+  const handleShare = async (image) => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: 'Check out this photo!',
+          text: 'Found this amazing photo on InstaSnap',
+          url: image.src || window.location.href,
+        });
+      } else {
+        // Fallback for browsers that don't support Web Share API
+        const tempInput = document.createElement('input');
+        tempInput.value = window.location.href;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        alert('Link copied to clipboard!');
+      }
+    } catch (error) {
+      console.error('Error sharing:', error);
+    }
+  };
+
+  // Download functionality
+  const handleDownload = async (image) => {
+    try {
+      const response = await fetch(image.src);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `instasnap-photo-${Date.now()}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading:', error);
+    }
   };
 
   return (
@@ -83,7 +128,7 @@ const Home = () => {
        {data.map((item) => (
          <div className="bg-white rounded-lg overflow-hidden" key={item.id}>
            <Image 
-             onClick={() => Viewpost(item.image)} 
+             onClick={() => Viewpost(item)} 
              src={item.image} 
              alt="Post" 
              className="w-full h-auto cursor-pointer hover:opacity-90 transition-opacity"
@@ -132,14 +177,14 @@ const Home = () => {
 </div> */}
 
       {/* Modal */}
-      {showModal && (
+      {showModal && selectedPost && (
         <div 
-          className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 animate-fadeIn"
+          className="fixed inset-0 flex-col gap-3 bg-black/60 z-50 flex items-center justify-center p-4 animate-fadeIn"
           onClick={closeModal}
         >
           <div 
             className="relative max-w-4xl w-full animate-scaleIn"
-            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking image
+            onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={closeModal}
@@ -151,7 +196,7 @@ const Home = () => {
             <div className="relative aspect-square w-full bg-white/5 backdrop-blur-sm rounded-lg 
               overflow-hidden shadow-2xl transform transition-all duration-1000">
               <Image
-                src={selectedImage}
+                src={selectedPost.image}
                 alt="Selected post"
                 className="w-full h-full object-contain transition-all duration-800 
                   hover:scale-105"
@@ -159,6 +204,25 @@ const Home = () => {
                 height={1000}
                 priority
               />
+            </div>
+          </div>
+          <div className="w-full max-w-4xl px-4 flex justify-between items-center">
+            <div>
+              <p className="text-white text-[14px] font-[500]">{selectedPost.date}</p>
+            </div>
+            <div className="flex items-center gap-5 justify-center">
+              <button 
+                onClick={() => handleShare(selectedPost.image)}
+                className="text-white hover:text-blue-400 transition-colors duration-300 flex items-center gap-2"
+              >
+                <Share2 size={24} />
+              </button>
+              <button 
+                onClick={() => handleDownload(selectedPost.image)}
+                className="text-white hover:text-blue-400 transition-colors duration-300 flex items-center gap-2"
+              >
+                <CloudDownload size={24} />
+              </button>
             </div>
           </div>
         </div>
