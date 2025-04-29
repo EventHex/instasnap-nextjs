@@ -1,6 +1,6 @@
 'use client'
 import React, { useState } from 'react';
-import Image from 'next/image'; // Added the missing Image import
+import Image from 'next/image'; 
 import NavigationBar from '../components/navfooter';
 import { EventHeader } from '../components/header';
 import { Placeholder, PotraitPlaceholder } from '../assets';
@@ -42,9 +42,6 @@ const data = [
     username: 'kathryn jones',
     profile: Placeholder,
   },
- 
-  
-  
 ]
 
 const Page = () => {
@@ -121,25 +118,29 @@ const Page = () => {
                 alt={item.alt}
                 priority
               />
-<Image className='rounded-full w-full h-full' src={item.profile} alt={item.alt} />
             </div>
             <div>
               <p>{item.username}</p>
-            
             </div>
           </div>
-          <Image 
-            width={500}
-            height={500}
-            src={item.image}
-            alt={item.alt}
-            className="w-full h-auto"
-          />
-          <Image src={item.image} alt={item.alt} />
+          
+          {/* Image container to prevent stacking */}
+          <div className="relative w-full h-auto overflow-hidden">
+            <Image 
+              width={500}
+              height={500}
+              src={item.image}
+              alt={item.alt}
+              className="w-full h-auto"
+            />
+          </div>
+          
           <div className='w-full flex p-2 justify-between items-center'>
             <div className=''>
               {likedItems[item.id] ? (
-                <HeartPlus 
+                <Heart 
+                  color='red'  
+                  fill='red'   // Added fill to make the heart solid/filled
                   onClick={() => toggleLike(item.id)} 
                   className="cursor-pointer"
                 />
