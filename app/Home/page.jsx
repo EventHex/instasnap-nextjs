@@ -8,9 +8,31 @@ import Frame from "../assets/image/Frame.svg";
 import EventHex from "../assets/icons/Vector (90).svg";
 import ShineAI from "../assets/icons/Vector(16).svg";
 import Navbar from "../components/navfooter";
-import { Marquee3D } from "../components/ui/card";
 import { CloudDownload, Share2, View, X } from "lucide-react";
 import Button from '../components/button'
+import Masonry from 'react-masonry-css';
+
+// Fixed Marquee3D Component
+const Marquee3D = () => {
+  // Sample items for the marquee - replace with your actual implementation
+  const items = Array.from({ length: 10 }, (_, index) => ({
+    id: `marquee-item-${index}`,
+    content: `Item ${index + 1}`
+  }));
+
+  return (
+    <div className="marquee-container">
+      <div className="marquee">
+        {items.map((item) => (
+          // Added key prop to fix the React warning
+          <div key={item.id} className="marquee-item">
+            {item.content}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 const Home = () => {
   const [isClient, setIsClient] = useState(false);
@@ -24,27 +46,17 @@ const Home = () => {
   if (!isClient) {
     return null; // or a loading state
   }
-  const data = [
-    {
-      id: 1,
-      image: Post1,
-      date: "2024-02-01",
-    },
-    {
-      id: 2,
-      image: Post2,
-      date: "2024-03-02",
-    },
-    {
-      id: 3,
-      image: Post3,
-      date: "2024-04-05",
-    },
-  ];  
 
-  // View post function
+  // Updated data with placeholder images
+  const data = Array.from({ length: 13 }, (_, i) => ({
+    id: i + 1,
+    image: `https://picsum.photos/seed/${i + 1}/400/${Math.floor(Math.random() * 201) + 300}`, // Random height between 300-500
+    date: `2024-0${Math.floor(i / 4) + 1}-${String(i % 28 + 1).padStart(2, '0')}`, // Placeholder dates
+  }));
+
+  // View post function (assuming image is now a URL string)
   const Viewpost = (post) => {
-    setSelectedPost(post);
+    setSelectedPost(post); // post object now contains the URL string
     setShowModal(true);
   };
 
@@ -54,46 +66,65 @@ const Home = () => {
     setShowModal(false);
   };
 
-  // Share functionality
-  const handleShare = async (image) => {
+  // Share functionality (needs adjustment if image is now just a URL)
+  const handleShare = async (imageUrl) => {
     try {
       if (navigator.share) {
         await navigator.share({
           title: 'Check out this photo!',
           text: 'Found this amazing photo on InstaSnap',
-          url: image.src || window.location.href,
+          url: imageUrl, // Use the image URL directly
         });
       } else {
-        // Fallback for browsers that don't support Web Share API
+        // Fallback
         const tempInput = document.createElement('input');
-        tempInput.value = window.location.href;
+        tempInput.value = imageUrl; // Copy the image URL
         document.body.appendChild(tempInput);
         tempInput.select();
         document.execCommand('copy');
         document.body.removeChild(tempInput);
-        alert('Link copied to clipboard!');
+        alert('Image URL copied to clipboard!');
       }
     } catch (error) {
       console.error('Error sharing:', error);
     }
   };
 
-  // Download functionality
-  const handleDownload = async (image) => {
+  // Download functionality (needs adjustment for external URLs)
+  const handleDownload = async (imageUrl) => {
     try {
-      const response = await fetch(image.src);
+      // Fetch the image as a blob
+      const response = await fetch(imageUrl);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const blob = await response.blob();
+
+      // Create a temporary link to trigger download
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `instasnap-photo-${Date.now()}.jpg`;
+      // Extract a filename or generate one
+      const filename = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
+      link.download = `instasnap-${filename}-${Date.now()}.jpg`;
       document.body.appendChild(link);
       link.click();
+
+      // Clean up
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Error downloading:', error);
+      alert('Failed to download image.'); // Inform user
     }
+  };
+
+  // Masonry breakpoint columns
+  const breakpointColumnsObj = {
+    default: 3,
+    1100: 3,
+    700: 2,
+    500: 2
   };
 
   return (
@@ -128,18 +159,25 @@ const Home = () => {
         </div>
       </div>
       {data.length !== 0 ? (
-       <div className="grid grid-cols-3 gap-1 max-w-4xl mx-auto px-4 mt-4">
-       {data.map((item) => (
-         <div className="bg-white rounded-lg overflow-hidden" key={item.id}>
-           <Image 
-             onClick={() => Viewpost(item)} 
-             src={item.image} 
-             alt="Post" 
-             className="w-full h-auto cursor-pointer hover:opacity-90 transition-opacity"
-           />
-         </div>
-       ))}
-     </div>
+        <Masonry
+          breakpointCols={breakpointColumnsObj}
+          className="flex w-full max-w-4xl mx-auto px-4 mt-4 gap-1"
+          columnClassName="bg-clip-padding"
+        >
+          {data.map((item) => (
+            <div className="bg-white rounded-lg overflow-hidden mb-1" key={item.id}>
+              <Image
+                onClick={() => Viewpost(item)}
+                src={item.image}
+                alt={`Post ${item.id}`}
+                className="w-full h-auto cursor-pointer hover:opacity-90 transition-opacity"
+                width={400}
+                height={400}
+                sizes="(max-width: 700px) 50vw, (max-width: 1100px) 33vw, 33vw"
+              />
+            </div>
+          ))}
+        </Masonry>
       ) : (
         <div className="">
           <div className="flex flex-col items-center justify-center p-6 bg-[#F6F8FA] w-full">
@@ -175,37 +213,35 @@ const Home = () => {
         </div>
       )}
       
-
-<div>
-  <Marquee3D />
-</div>
+      {/* <div>
+        <Marquee3D />
+      </div> */}
 
       {/* Modal */}
       {showModal && selectedPost && (
-        <div 
+        <div
           className="fixed inset-0 flex-col gap-3 bg-black/60 z-50 flex items-center justify-center p-4 animate-fadeIn"
           onClick={closeModal}
         >
-          <div 
+          <div
             className="relative max-w-4xl w-full animate-scaleIn"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={closeModal}
-              className="absolute top-4 right-4 text-white hover:text-gray-300 z-10 
+              className="absolute top-4 right-4 text-white hover:text-gray-300 z-10
                 transform transition-all duration-300 hover:rotate-90"
             >
               <X size={24} />
             </button>
-            <div className="relative aspect-square w-full bg-white/5 backdrop-blur-sm rounded-lg 
+            <div className="relative aspect-w-1 aspect-h-1 w-full bg-white/5 backdrop-blur-sm rounded-lg
               overflow-hidden shadow-2xl transform transition-all duration-1000">
               <Image
                 src={selectedPost.image}
                 alt="Selected post"
-                className="w-full h-full object-contain transition-all duration-800 
+                className="w-full h-full object-contain transition-all duration-800
                   hover:scale-105"
-                width={1000}
-                height={1000}
+                layout="fill"
                 priority
               />
             </div>
@@ -215,13 +251,13 @@ const Home = () => {
               <p className="text-white text-[14px] font-[500]">{selectedPost.date}</p>
             </div>
             <div className="flex items-center gap-5 justify-center">
-              <button 
+              <button
                 onClick={() => handleShare(selectedPost.image)}
                 className="text-white hover:text-blue-400 transition-colors duration-300 flex items-center gap-2"
               >
                 <Share2 size={24} />
               </button>
-              <button 
+              <button
                 onClick={() => handleDownload(selectedPost.image)}
                 className="text-white hover:text-blue-400 transition-colors duration-300 flex items-center gap-2"
               >
