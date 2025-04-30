@@ -7,10 +7,10 @@ import SnapButton from "./components/button";
 export default function Home() {
   return (
     <div className="w-full ">
-      <div className="flex flex-col items-center justify-center">
+      <div className="flex flex-col  items-center justify-center">
         <div className="w-full max-w-6xl">
           <Image
-            className=" rounded-b-[30px]  w-full object-cover"
+            className=" rounded-b-[30px]  w-full object-fill"
             src={Banner}
             alt="Banner"
             width={1200}
