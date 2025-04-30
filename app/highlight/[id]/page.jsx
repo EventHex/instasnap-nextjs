@@ -14,6 +14,7 @@ const DetailsPage = () => {
   const params = useParams()
   const [selectedPost, setSelectedPost] = useState(null)
   const [otherPosts, setOtherPosts] = useState([])
+  const [isLiked, setIsLiked] = useState(false)
 
   const allPosts = [
     {
@@ -137,6 +138,10 @@ const DetailsPage = () => {
     router.back()
   }
 
+  const handleLikeToggle = () => {
+    setIsLiked(prev => !prev)
+  }
+
   if (!selectedPost) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -146,8 +151,8 @@ const DetailsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className='flex justify-center items-center py-2 px-4 bg-white shadow-sm'>
+    <div className=" bg-gray-50">
+      <div className='flex justify-center items-center  bg-white '>
         <EventHeader />
         <div className="w-8" />
       </div>
@@ -188,8 +193,15 @@ const DetailsPage = () => {
           <div className="p-4 ">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <button className="hover:text-red-500 transition-colors">
-                  <Heart size={24} />
+                <button 
+                  onClick={handleLikeToggle}
+                  className="transition-colors"
+                >
+                  <Heart 
+                    size={24} 
+                    fill={isLiked ? 'red' : 'none'} 
+                    color={isLiked ? 'red' : 'currentColor'}
+                  />
                 </button>
                 <button className="hover:text-green-500 transition-colors">
                   <Share2 size={24} />
@@ -200,12 +212,14 @@ const DetailsPage = () => {
               </button>
             </div>
             <div className="mt-3">
-              <p className="text-sm font-semibold">1,234 likes</p>
+              <p className="text-sm font-semibold">
+                {isLiked ? '1,235' : '1,234'} likes
+              </p>
               <p className="text-sm mt-1">
                 <span className="font-semibold">Username</span>{" "}
                 Beautiful capture of the moment! 📸✨
               </p>
-              <p className="text-xs text-gray-500 mt-2">View all 56 comments</p>
+              {/* <p className="text-xs text-gray-500 mt-2">View all 56 comments</p> */}
             </div>
           </div>
         </div>
