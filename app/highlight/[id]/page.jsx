@@ -1,16 +1,19 @@
 'use client'
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { EventHeader } from '../../components/header'
 import { Post1, Post2, Post3 } from '../../assets'
 import Image from 'next/image'
 import NavFooter from '../../components/navfooter'
 import { ArrowLeft, CloudDownload, Heart, Share2, MessageCircle } from 'lucide-react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import Button from '../../components/button'
 
-const DetailsPage = ({ params }) => {
+const DetailsPage = () => {
   const router = useRouter()
+  const params = useParams()
+  const [selectedPost, setSelectedPost] = useState(null)
+  const [otherPosts, setOtherPosts] = useState([])
 
   const allPosts = [
     {
@@ -120,9 +123,15 @@ const DetailsPage = ({ params }) => {
     }
   ]
 
-  // Find the selected post
-  const selectedPost = allPosts.find(post => post.id === Number(params.id))
-  const otherPosts = allPosts.filter(post => post.id !== Number(params.id))
+  useEffect(() => {
+    if (!params?.id) return;
+    
+    const current = allPosts.find(post => post.id === Number(params.id))
+    const others = allPosts.filter(post => post.id !== Number(params.id))
+    
+    setSelectedPost(current)
+    setOtherPosts(others)
+  }, [params?.id])
 
   const handleBack = () => {
     router.back()
@@ -131,24 +140,23 @@ const DetailsPage = ({ params }) => {
   if (!selectedPost) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Image not found</div>
+        <div className="text-xl">Loading...</div>
       </div>
     )
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className='flex justify-between items-center py-2 px-4 bg-white shadow-sm'>
-        <Button isBack variant="arrow" className="mr-4" />
+      <div className='flex justify-center items-center py-2 px-4 bg-white shadow-sm'>
         <EventHeader />
-        <div className="w-8" /> {/* Empty div for flex spacing */}
+        <div className="w-8" />
       </div>
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="bg-white rounded-xl overflow-hidden">
           {/* User Info */}
-          <div className="p-4 flex items-center border-b">
+          <div className="p-2 flex items-center ">
             <div className="h-10 w-10 rounded-full bg-gray-200 overflow-hidden">
               <Image 
                 src={selectedPost.image} 
@@ -177,15 +185,12 @@ const DetailsPage = ({ params }) => {
           </div>
 
           {/* Actions */}
-          <div className="p-4 border-t">
+          <div className="p-4 ">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <button className="hover:text-red-500 transition-colors">
                   <Heart size={24} />
                 </button>
-                {/* <button className="hover:text-blue-500 transition-colors">
-                  <MessageCircle size={24} />
-                </button> */}
                 <button className="hover:text-green-500 transition-colors">
                   <Share2 size={24} />
                 </button>
@@ -206,7 +211,7 @@ const DetailsPage = ({ params }) => {
         </div>
 
         {/* More Photos Section */}
-        <div className="mt-8">
+        <div className="mt-8 mb-[90px]">
           <h2 className="text-xl font-semibold mb-4">More Photos</h2>
           <div className="grid grid-cols-3 gap-4">
             {otherPosts.slice(0, 6).map((post) => (

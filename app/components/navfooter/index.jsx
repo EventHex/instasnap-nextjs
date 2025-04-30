@@ -5,16 +5,27 @@ import { HomeIcon, HighlightIcon, ContributeIcon, PostIcon, NotificationIcon } f
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-
+import { EventHexlogo } from '../../assets';
 const NavigationBar = () => {
   const pathname = usePathname();
-  const [activeTab, setActiveTab] = useState('highlights');
+  const [activeTab, setActiveTab] = useState('');
   
   // Update active tab based on current pathname
   useEffect(() => {
+    // Create a mapping between path segments and nav item IDs
+    const pathToIdMap = {
+      'home': 'home',
+      'highlight': 'highlights',
+      'contribute': 'contribute',
+      'post': 'post',
+      'notification': 'notifications'
+    };
+    
     const path = pathname.split('/')[1] || 'home';
-    if (navItems.some(item => item.id === path)) {
-      setActiveTab(path);
+    const mappedId = pathToIdMap[path];
+    
+    if (mappedId) {
+      setActiveTab(mappedId);
     }
   }, [pathname]);
   
@@ -59,6 +70,10 @@ const NavigationBar = () => {
           </Link>
         ))}
       </nav>
+      <footer className='w-full bg-white gap-2 flex py-3 justify-center items-center'>
+        <h1 className='font-[400] fornt-inter  flex justify-center text-[12px]'>Powered By </h1>
+       <p className='flex items-center gap-[3px]'> <Image src={EventHexlogo} alt="EventHexlogo" /> <span className='font-[500] text-[12px]'> EventHex </span> </p>
+      </footer>
     </div>
   );
 };

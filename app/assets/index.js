@@ -31,6 +31,7 @@ import Placeholder from './image/Placeholder_Image.webp'
 import Post1 from './image/Post1.svg'
 import Post2 from './image/Post2.svg'
 import Post3 from './image/Post3.svg'
+import EventHexlogo from './icons/EventhexLogo.svg'
 export {
   Logo,
   Phone,
@@ -64,5 +65,6 @@ export {
   PotraitPlaceholder,
   Post1,
   Post2,
-  Post3
+  Post3,
+  EventHexlogo
 };

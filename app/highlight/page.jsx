@@ -99,7 +99,7 @@ const Page = () => {
   return (
     <div className="">
       <div className='flex justify-center items-center py-2'>
-        <EventHeader />
+        <EventHeader  name={'highlight'} />
       </div> 
       
       <div className="grid grid-cols-3 mb-[60px] gap-1">
