@@ -1,156 +1,305 @@
 'use client'
 
-import { Copy, ChevronLeft, Upload, Check } from 'lucide-react';
-import React, { useState } from 'react';
+import {
+  Copy,
+  ChevronLeft,
+  Upload,
+  Check,
+  CloudDownload,
+  Image as ImageIcon,
+  Linkedin,
+  X as XIcon
+} from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 import NavigationBar from '../components/navfooter';
 import { Post1, Post2, Post3 } from '../assets';
-import Button from '../components/button'
+import Button from '../components/button';
 import Image from 'next/image';
 
+// --- Mock Data for Modal --- 
+const mockYourPhotos = Array.from({ length: 12 }, (_, i) => ({ 
+    id: `my-${i + 1}`, 
+    src: `https://picsum.photos/seed/mine${i + 1}/200/200` 
+}));
+const mockEventHighlights = Array.from({ length: 15 }, (_, i) => ({ 
+    id: `hl-${i + 1}`, 
+    src: `https://picsum.photos/seed/highlight${i + 1}/200/200` 
+}));
+// --- End Mock Data ---
+
 const SocialShare = () => {
-  const [text, setText] = useState("Can't wait to apply what I learned at the KEDDA Dental Expo! 🦷✨ The future of dental technology is bright. 🚀 #KeddaDentalExpo #Learning 🇺🇸 #InternationalDentalTechExpo");
-  const [characterCount, setCharacterCount] = useState(169);
+  const [text, setText] = useState("Can't wait to apply what I learned at the KEDDA Dental Expo! 🦷✨ The future of dental technology is bright. 🚀 #KeddaDentalExpo #Learning 📚 #InternationalDentalTechExpo");
+  const [characterCount, setCharacterCount] = useState(text.length);
   const maxCharacters = 3000;
+
+  // State for the main page photo selection (max 3)
+  const [photos, setPhotos] = useState([]); // Start empty or with initial selection if needed
+
+  // State for the modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('Your Photos'); // 'Your Photos' or 'Event Highlights'
+  const [modalSelectedPhotos, setModalSelectedPhotos] = useState({}); // Track selections within the modal {id: src}
 
   const handleTextChange = (e) => {
     const newText = e.target.value;
-    setText(newText);
-    setCharacterCount(newText.length);
+    if (newText.length <= maxCharacters) {
+      setText(newText);
+      setCharacterCount(newText.length);
+    }
   };
+
   const handleGoBack = () => {
-    // Using the browser's history API to go back to the previous page
     window.history.back();
   };
 
-
-  const [photos, setPhotos] = useState([
-    { id: 1, src: Post1, selected: true },
-    { id: 2, src: Post2, selected: false },
-    { id: 3, src: Post3, selected: false },
-  ]);
-  
-  const togglePhotoSelection = (id) => {
-    setPhotos(photos.map(photo => 
-      photo.id === id ? { ...photo, selected: !photo.selected } : photo
-    ));
+  // --- Main Page Photo Selection --- 
+  // (This might be needed if you want to deselect directly on the main page)
+  const toggleMainPhotoSelection = (id) => {
+    setPhotos(currentPhotos => currentPhotos.filter(p => p.id !== id));
   };
-  
-  const selectedCount = photos.filter(photo => photo.selected).length;
+  const selectedCount = photos.length; // Count based on the main photos array
+
+  // --- Modal Logic --- 
+  const openModal = () => {
+     // Initialize modal selection based on current main page selection
+    const initialModalSelection = photos.reduce((acc, photo) => {
+      acc[photo.id] = photo.src;
+      return acc;
+    }, {});
+    setModalSelectedPhotos(initialModalSelection);
+    setIsModalOpen(true);
+    setActiveTab('Your Photos'); // Default tab
+  };
+  const closeModal = () => setIsModalOpen(false);
+
+  const handleModalPhotoSelect = (id, src) => {
+    setModalSelectedPhotos(prev => {
+      const newSelection = { ...prev };
+      if (newSelection[id]) {
+        delete newSelection[id]; // Deselect
+      } else {
+         // Allow selecting more than 3 in modal, but enforce on Done
+        newSelection[id] = src; // Select
+      }
+      return newSelection;
+    });
+  };
+
+  const handleModalDone = () => {
+    // Convert selected modal photos object back to array, respecting max 3
+    const selectedArray = Object.entries(modalSelectedPhotos)
+      .map(([id, src]) => ({ id, src }))
+      .slice(0, 3); // Enforce max 3 limit here
+    setPhotos(selectedArray);
+    closeModal();
+  };
+
+  const getModalPhotosForTab = () => {
+    return activeTab === 'Your Photos' ? mockYourPhotos : mockEventHighlights;
+  };
+  // --- End Modal Logic --- 
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(text)
+      .then(() => {
+        console.log('Text copied to clipboard');
+      })
+      .catch(err => {
+        console.error('Failed to copy text: ', err);
+      });
+  };
+
+  const handleDownload = () => {
+    console.log('Download initiated for selected photos:', photos.filter(p => p.selected));
+  };
+
+  const handlePost = () => {
+    console.log('Post via LinkedIn action triggered');
+  };
 
   return (
-    <div className="max-w-md mx-auto bg-white rounded-lg">
-      <div className="p-4 border-gray-100">
-        <div className="flex items-center">
-          <Button isBack className="mr-4" variant="chevron" />
-          <h1 className="text-xl font-semibold text-center flex-grow">Social Share</h1>
-        </div>
-      </div>
-
-      <div className="p-4">
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-gray-800 text-[14px] font-medium">Share your thoughts</span>
-          <Button 
-            variant="ghost" 
-            icon={<Copy size={20} strokeWidth={1} />}
-            className="text-blue-500"
-          >
-            Copy
-          </Button>
-        </div>
-
-        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50 mb-4">
-          <textarea
-            value={text}
-            onChange={handleTextChange}
-            className="w-full bg-transparent outline-none resize-none"
-            rows={4}
-          ></textarea>
-          <div className="text-right text-xs text-gray-500">
-            {characterCount}/{maxCharacters}
-          </div>
-        </div>
-
-        <button className="w-full py-2 border border-gray-200 rounded-lg text-gray-600 flex items-center justify-center">
-          <span className="text-amber-400 mr-2">✨</span>
-          Rewrite with AI
+    <div className="flex flex-col max-w-md mx-auto bg-white h-screen">
+      <div className="p-4 flex items-center border-b border-gray-200 sticky top-0 bg-white z-10">
+        <button onClick={handleGoBack} className="p-1 mr-4">
+          <ChevronLeft size={24} strokeWidth={2} className="text-gray-700" />
         </button>
+        <h1 className="text-lg font-semibold text-center flex-grow text-gray-800">Social Share</h1>
+        <div className="w-8"></div>
       </div>
-      <div>
-      <div className="max-w-md mx-auto bg-white rounded-lg ">
-      <div className="p-4">
-        <div className="flex justify-between items-center mb-3">
-          <div className="flex items-center gap-2">
-            <h2 className="text-base font-medium text-gray-800">Photos (max 3)</h2>
-            <span className="text-sm text-gray-500">
-              {selectedCount}/3 selected
-            </span>
+
+      <div className="flex-grow overflow-y-auto p-4 pb-[100px]">
+        <div className="mb-5">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-gray-800 text-sm font-medium">Share your thoughts</span>
+            <button onClick={handleCopy} className="flex items-center text-blue-600 text-sm font-medium p-1">
+              <Copy size={16} className="mr-1" />
+              Copy
+            </button>
           </div>
-          <button className="flex items-center text-blue-600 font-medium text-sm">
-            <Upload size={16} className="mr-1" />
-            Download
+
+          <div className="border border-gray-200 rounded-lg p-3 bg-gray-50 mb-3">
+            <textarea
+              value={text}
+              onChange={handleTextChange}
+              className="w-full bg-transparent outline-none resize-none text-sm text-gray-800 min-h-[80px]"
+              maxLength={maxCharacters}
+              placeholder="What's on your mind?"
+            ></textarea>
+            <div className="text-right text-xs text-gray-500 mt-1">
+              {characterCount}/{maxCharacters}
+            </div>
+          </div>
+
+          <button className="w-full py-2.5 border border-gray-200 rounded-lg text-gray-700 text-sm font-medium flex items-center justify-center hover:bg-gray-50 transition-colors">
+            <span className="mr-2">✨</span>
+            Rewrite with AI
           </button>
         </div>
 
-        <div className="grid grid-cols-3 gap-2 mb-4">
-          {photos.map((photo) => (
-            <div key={photo.id} className="relative rounded-lg overflow-hidden border border-gray-200">
-              <Image 
-                src={photo.src} 
-                alt={`Photo ${photo.id}`} 
-                width={200}
-                height={200}
-                className="w-full h-24 object-cover"
-                priority
-              />
-              <button
-                className={`absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center ${
-                  photo.selected ? 'bg-blue-500 text-white' : 'bg-white text-gray-500'
-                }`}
-                onClick={() => togglePhotoSelection(photo.id)}
-                disabled={!photo.selected && selectedCount >= 3}
+        <div className="mb-5">
+          <div className="flex justify-between items-center mb-3">
+            <h2 className="text-sm font-medium text-gray-800">Photos (max 3)</h2>
+            <button onClick={handleDownload} className="flex items-center text-blue-600 font-medium text-sm p-1">
+              <CloudDownload size={16} className="mr-1" />
+              Download
+            </button>
+          </div>
+
+          <div className={`grid grid-cols-3 gap-2 mb-4 ${selectedCount === 0 ? 'min-h-[80px] bg-gray-100 rounded-lg flex items-center justify-center' : ''}`}>
+            {selectedCount === 0 && (
+              <p className="text-xs text-gray-500">No photos selected</p>
+            )}
+            {photos.map((photo) => (
+              <div
+                key={photo.id}
+                className="relative rounded-lg overflow-hidden border border-gray-200 aspect-square cursor-pointer group"
+                onClick={() => toggleMainPhotoSelection(photo.id)}
               >
-                {photo.selected ? (
-                  <Check size={14} />
-                ) : (
-                  <span className="text-sm">{photo.id}</span>
-                )}
+                <Image
+                  src={photo.src}
+                  alt={`Selected Photo ${photo.id}`}
+                  fill
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <XIcon size={24} className="text-white"/>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <Button
+            onClick={openModal}
+            variant="outline"
+            className="w-full text-black mb-3"
+            icon={<ImageIcon size={18} className="mr-2" strokeWidth={1.5} />}
+          >
+            Choose
+          </Button>
+
+          <Button
+            onClick={handlePost}
+            variant="default"
+            className="w-full bg-blue-600 hover:bg-blue-700"
+            icon={<Linkedin size={18} className="mr-2" fill="white" strokeWidth={0} />}
+          >
+            Post via LinkedIn
+          </Button>
+        </div>
+      </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 z-40 flex flex-col justify-end">
+          <div 
+            className="absolute inset-0 bg-black/40 animate-fadeIn backdrop-blur-sm" 
+            onClick={closeModal}
+          />
+
+          <div 
+            className="relative z-50 bg-white rounded-t-2xl pt-4 pb-6 max-h-[80vh] flex flex-col animate-slideUp"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center px-4 pb-2 border-b border-gray-200">
+              <button onClick={closeModal} className="p-2 text-gray-500 hover:text-gray-800">
+                <XIcon size={20}/>
+              </button>
+              <h3 className="text-base font-semibold">Choose Photos</h3>
+              <button 
+                onClick={handleModalDone} 
+                className={`text-sm font-semibold p-2 ${Object.keys(modalSelectedPhotos).length > 0 ? 'text-blue-600' : 'text-gray-400 cursor-not-allowed'}`}
+                disabled={Object.keys(modalSelectedPhotos).length === 0}
+              >
+                Done ({Object.keys(modalSelectedPhotos).length})
               </button>
             </div>
-          ))}
-        </div>
-<div className='flex gap-5 mt-5 flex-col '>
-        <Button 
-          variant="outline"
-          icon={
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-              <circle cx="8.5" cy="8.5" r="1.5"></circle>
-              <polyline points="21 15 16 10 5 21"></polyline>
-            </svg>
-          }
-        >
-          Choose
-        </Button>
+            
+            <div className="flex border-b border-gray-200 mt-2">
+              <button 
+                className={`flex-1 py-2 px-4 text-sm font-medium text-center ${activeTab === 'Your Photos' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:bg-gray-50'}`}
+                onClick={() => setActiveTab('Your Photos')}
+              >
+                Your Photos
+              </button>
+              <button 
+                className={`flex-1 py-2 px-4 text-sm font-medium text-center ${activeTab === 'Event Highlights' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:bg-gray-50'}`}
+                onClick={() => setActiveTab('Event Highlights')}
+              >
+                Event Highlights
+              </button>
+            </div>
 
-        <Button 
-          variant="default"
-          icon={
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" />
-            </svg>
-          }
-        >
-          Post via LinkedIn
-        </Button>
+            <div className="flex-grow overflow-y-auto px-4 pt-4">
+              <div className="grid grid-cols-3 gap-2">
+                {getModalPhotosForTab().map((photo) => {
+                  const isSelected = !!modalSelectedPhotos[photo.id];
+                  return (
+                    <div 
+                      key={photo.id} 
+                      className={`relative rounded-md overflow-hidden aspect-square cursor-pointer border-2 ${isSelected ? 'border-blue-500 ring-2 ring-blue-300' : 'border-transparent'}`}
+                      onClick={() => handleModalPhotoSelect(photo.id, photo.src)}
+                    >
+                      <Image 
+                        src={photo.src} 
+                        alt={activeTab === 'Your Photos' ? `My photo ${photo.id}` : `Highlight ${photo.id}`}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 33vw, 33vw"
+                      />
+                      {isSelected && (
+                        <div className="absolute top-1 right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center border-2 border-white shadow">
+                          <Check size={12} className="text-white" strokeWidth={3}/>
+                        </div>
+                      )}
+                      {isSelected && <div className="absolute inset-0 bg-white/20"></div>}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+          </div> 
         </div>
-      </div>
-    </div>
-      </div>
-      <div>
-        <NavigationBar/>
+      )}
+
+      <div className="sticky bottom-0 w-full bg-white z-10 border-t border-gray-100">
+        <NavigationBar />
       </div>
     </div>
   );
 };
+
+// Add basic CSS for animations (ensure Tailwind config supports them or add to global.css)
+/*
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.animate-fadeIn { animation: fadeIn 0.3s ease-out forwards; }
+.animate-slideUp { animation: slideUp 0.3s ease-out forwards; }
+*/
 
 export default SocialShare;
