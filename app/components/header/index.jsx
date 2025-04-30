@@ -18,11 +18,11 @@ const Header = () => {
   )
 }
 
-const EventHeader = () => {
+const EventHeader = ({name}) => {
   return (
     <div>
       <h1 className="text-[15px] font-[600]">
-        Event Highlights
+       {name}
       </h1>
     </div>
   )

@@ -172,7 +172,7 @@ const Register = () => {
                     <button
                       type="button"
                       onClick={handleSendCode}
-                      className="px-2 py-2 border-[#E2E4E9] border border-l-0 text-[#375DFB] rounded-r-lg flex items-center justify-center"
+                      className="px-1 border-[#E2E4E9] border border-l-0 text-[#375DFB] rounded-r-lg flex items-center justify-center"
                     >
                       {codeSent ? (
                       <div className="  ">

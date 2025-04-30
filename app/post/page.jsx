@@ -12,10 +12,10 @@ import {
 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import NavigationBar from '../components/navfooter';
-import { Post1, Post2, Post3 } from '../assets';
+import { Post1, Post2, Post3, LinkedIn } from '../assets';
 import Button from '../components/button';
 import Image from 'next/image';
-
+import { EventHeader} from '../components/header';
 // --- Mock Data for Modal --- 
 const mockYourPhotos = Array.from({ length: 12 }, (_, i) => ({ 
     id: `my-${i + 1}`, 
@@ -119,12 +119,14 @@ const SocialShare = () => {
 
   return (
     <div className="flex flex-col max-w-md mx-auto bg-white h-screen">
-      <div className="p-4 flex items-center border-b border-gray-200 sticky top-0 bg-white z-10">
+      <div className="p-4 flex  items-center border-b border-gray-200 sticky top-0 bg-white z-10">
         <button onClick={handleGoBack} className="p-1 mr-4">
           <ChevronLeft size={24} strokeWidth={2} className="text-gray-700" />
         </button>
-        <h1 className="text-lg font-semibold text-center flex-grow text-gray-800">Social Share</h1>
-        <div className="w-8"></div>
+        <div className="w-full flex justify-center  ">
+          <EventHeader name={"Social Share"}/>
+        </div>
+        {/* <h1 className="text-lg font-semibold text-center flex-grow text-gray-800">Social Share</h1> */}
       </div>
 
       <div className="flex-grow overflow-y-auto p-4 pb-[100px]">
@@ -192,7 +194,8 @@ const SocialShare = () => {
             onClick={openModal}
             variant="outline"
             className="w-full text-black mb-3"
-            icon={<ImageIcon size={18} className="mr-2" strokeWidth={1.5} />}
+            // icon={<ImageIcon size={18} className="mr-2" strokeWidth={1.5} />}
+            
           >
             Choose
           </Button>
@@ -201,7 +204,8 @@ const SocialShare = () => {
             onClick={handlePost}
             variant="default"
             className="w-full bg-blue-600 hover:bg-blue-700"
-            icon={<Linkedin size={18} className="mr-2" fill="white" strokeWidth={0} />}
+            icon={LinkedIn }
+            // icon={<Linkedin size={18} className="mr-2" fill="white" strokeWidth={0} />}
           >
             Post via LinkedIn
           </Button>
@@ -288,18 +292,5 @@ const SocialShare = () => {
   );
 };
 
-// Add basic CSS for animations (ensure Tailwind config supports them or add to global.css)
-/*
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-@keyframes slideUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
-}
-.animate-fadeIn { animation: fadeIn 0.3s ease-out forwards; }
-.animate-slideUp { animation: slideUp 0.3s ease-out forwards; }
-*/
 
 export default SocialShare;

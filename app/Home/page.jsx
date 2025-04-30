@@ -8,10 +8,31 @@ import Frame from "../assets/image/Frame.svg";
 import EventHex from "../assets/icons/Vector (90).svg";
 import ShineAI from "../assets/icons/Vector(16).svg";
 import Navbar from "../components/navfooter";
-import { Marquee3D } from "../components/ui/card";
 import { CloudDownload, Share2, View, X } from "lucide-react";
 import Button from '../components/button'
 import Masonry from 'react-masonry-css';
+
+// Fixed Marquee3D Component
+const Marquee3D = () => {
+  // Sample items for the marquee - replace with your actual implementation
+  const items = Array.from({ length: 10 }, (_, index) => ({
+    id: `marquee-item-${index}`,
+    content: `Item ${index + 1}`
+  }));
+
+  return (
+    <div className="marquee-container">
+      <div className="marquee">
+        {items.map((item) => (
+          // Added key prop to fix the React warning
+          <div key={item.id} className="marquee-item">
+            {item.content}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 const Home = () => {
   const [isClient, setIsClient] = useState(false);
@@ -192,10 +213,9 @@ const Home = () => {
         </div>
       )}
       
-
-{/* <div>
-  <Marquee3D />
-</div> */}
+      {/* <div>
+        <Marquee3D />
+      </div> */}
 
       {/* Modal */}
       {showModal && selectedPost && (

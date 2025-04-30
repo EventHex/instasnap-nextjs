@@ -4,6 +4,7 @@ import NavFooter from '../components/navfooter';
 import { UploadCloud, X, CheckCircle, AlertCircle, Clock, Image as ImageIcon } from 'lucide-react';
 import Image from 'next/image';
 import Button from '../components/button'; // Assuming Button component exists and works
+import { EventHeader } from '../components/header';
 
 const MAX_FILES = 10;
 
@@ -136,7 +137,10 @@ const ContributePage = () => {
         <div className="flex flex-col min-h-screen">
             {/* Optional Header can go here */}
             <div className="flex-grow p-4 md:p-6 mb-[70px] overflow-y-auto"> {/* Adjust margin for footer */}
-                <h1 className="text-2xl font-semibold mb-4 text-center text-gray-800">Contribute Your Photos</h1>
+                <div className="w-full flex justify-center ">
+                <EventHeader name={"Contribute"}/>
+
+                </div>
                 <p className="text-center text-gray-600 mb-6 text-sm">Upload up to {MAX_FILES} photos. Approved photos will appear in the public gallery.</p>
 
                 {/* Upload Area */} 

@@ -1,13 +1,13 @@
 import React from 'react';
 import Navbar from '../components/navfooter';
+import { EventHeader } from '../components/header';
 const NotificationCard = () => {
   return (
     <div className='flex justify-center items-center'>
     <div className="w-full p-5  rounded-xl  overflow-hidden">
         <div className='flex justify-center items-center'>
-            <h1 className='text-[15px] font-inter font-[600]'>
-                Notification
-            </h1>
+        <EventHeader name={'notification'} />
+
         </div>
       <div className="space-y-4   mt-5">
         <div className='p-5 rounded-[16px] border-2 border-gray-200 w-full'>
