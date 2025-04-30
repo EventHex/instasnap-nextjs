@@ -24,21 +24,9 @@ const SocialShare = () => {
 
 
   const [photos, setPhotos] = useState([
-    { 
-      id: 1, 
-      src: '/images/post1.jpg',
-      selected: true 
-    },
-    { 
-      id: 2, 
-      src: '/images/post2.jpg', 
-      selected: false 
-    },
-    { 
-      id: 3, 
-      src: '/images/post3.jpg', 
-      selected: false 
-    },
+    { id: 1, src: Post1, selected: true },
+    { id: 2, src: Post2, selected: false },
+    { id: 3, src: Post3, selected: false },
   ]);
   
   const togglePhotoSelection = (id) => {

@@ -6,7 +6,7 @@ const index = (props) => {
     <div className="flex flex-col relative max-w-[700px] w-full">
       <div className="rounded-b-[30px] relative aspect-video">
         <Image
-          className="rounded-b-[30px] object-cover"
+          className="rounded-b-[30px] object-fill"
           src={props.Banner}
           alt="Banner image"
           fill
