@@ -28,10 +28,9 @@ import India from './icons/india.svg'
 import DownArrow from './icons/Downarrow.svg'
 import Placeholder from './image/Placeholder_Image.webp'
  import PotraitPlaceholder from './image/360_F_345059232_CPieT8RIWOUk4JqBkkWkIETYAkmz2b75.jpg' 
- import japan from './icons/japan.svg'
- import palastine from './icons/palastine.svg'
- import uk from './icons/UK.svg'
-
+import Post1 from './image/Post1.svg'
+import Post2 from './image/Post2.svg'
+import Post3 from './image/Post3.svg'
 export {
   Logo,
   Phone,
@@ -63,8 +62,7 @@ export {
   DownArrow,
   Placeholder,
   PotraitPlaceholder,
-  japan,
-  palastine,
-  uk
-
+  Post1,
+  Post2,
+  Post3
 };

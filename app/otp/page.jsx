@@ -33,7 +33,7 @@ const Otp = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between w-full">
+    <div className=" flex flex-col justify-between w-full">
       <div>
         <Banners Banner={Banner} />
         <div className="flex flex-col items-center justify-center mt-6 gap-6 w-full">
