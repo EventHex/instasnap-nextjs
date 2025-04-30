@@ -176,9 +176,9 @@ const Home = () => {
       )}
       
 
-{/* <div>
+<div>
   <Marquee3D />
-</div> */}
+</div>
 
       {/* Modal */}
       {showModal && selectedPost && (

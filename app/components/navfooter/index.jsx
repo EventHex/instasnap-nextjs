@@ -6,6 +6,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { EventHexlogo } from '../../assets';
+import { motion } from 'framer-motion';
+
 const NavigationBar = () => {
   const pathname = usePathname();
   const [activeTab, setActiveTab] = useState('');
@@ -44,14 +46,23 @@ const NavigationBar = () => {
           <Link 
             href={item.path} 
             key={item.id}
-            className="flex flex-col items-center relative"
+            className="flex flex-col items-center relative touch-none"
             onClick={() => setActiveTab(item.id)}
           >
-            <div className={`p-2 rounded-full ${
-              activeTab === item.id 
-                ? 'bg-blue-500 text-white' 
-                : 'text-gray-600'
-            }`}>
+            <motion.div 
+              className={`p-2 rounded-full ${
+                activeTab === item.id 
+                  ? 'bg-blue-500 text-white' 
+                  : 'text-gray-600'
+              }`}
+              whileTap={{ scale: 0.85 }}
+              whileHover={{ scale: 1.1 }}
+              transition={{ 
+                type: "spring", 
+                stiffness: 400, 
+                damping: 17
+              }}
+            >
               <Image 
                 src={item.icon} 
                 alt={item.label} 
@@ -59,21 +70,50 @@ const NavigationBar = () => {
                 height={20} 
                 className={activeTab === item.id ? 'invert' : ''}
               />
-            </div>
-            <span className={`text-xs mt-1 ${
-              activeTab === item.id 
-                ? 'text-blue-500 font-medium' 
-                : 'text-gray-600'
-            }`}>
+            </motion.div>
+            <motion.span 
+              className={`text-xs mt-1 ${
+                activeTab === item.id 
+                  ? 'text-blue-500 font-medium' 
+                  : 'text-gray-600'
+              }`}
+              animate={activeTab === item.id ? { y: [0, -2, 0] } : {}}
+              transition={activeTab === item.id ? { 
+                duration: 0.3,
+                ease: "easeInOut"
+              } : {}}
+            >
               {item.label}
-            </span>
+            </motion.span>
+            {/* {activeTab === item.id && (
+              <motion.div
+                className="absolute -bottom-2 w-1 h-1 bg-blue-500 rounded-full"
+                layoutId="activeIndicator"
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0 }}
+                transition={{ duration: 0.3 }}
+              />
+            )} */}
           </Link>
         ))}
       </nav>
-      <footer className='w-full bg-white gap-2 flex py-3 justify-center items-center'>
-        <h1 className='font-[400] fornt-inter  flex justify-center text-[12px]'>Powered By </h1>
-       <p className='flex items-center gap-[3px]'> <Image src={EventHexlogo} alt="EventHexlogo" /> <span className='font-[500] text-[12px]'> EventHex </span> </p>
-      </footer>
+      <motion.footer 
+        className='w-full bg-white gap-2 flex py-3 justify-center items-center'
+        whileHover={{ backgroundColor: "#f9fafb" }}
+        transition={{ duration: 0.2 }}
+      >
+        <h1 className='font-[400] fornt-inter flex justify-center text-[12px]'>Powered By </h1>
+        <motion.p 
+          className='flex items-center gap-[3px]'
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          transition={{ duration: 0.2 }}
+        > 
+          <Image src={EventHexlogo} alt="EventHexlogo" /> 
+          <span className='font-[500] text-[12px]'> EventHex </span> 
+        </motion.p>
+      </motion.footer>
     </div>
   );
 };
