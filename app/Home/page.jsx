@@ -10,6 +10,7 @@ import ShineAI from "../assets/icons/Vector(16).svg";
 import Navbar from "../components/navfooter";
 import { Marquee3D } from "../components/ui/card";
 import { CloudDownload, Share2, View, X } from "lucide-react";
+import Button from '../components/button'
 
 const Home = () => {
   const [isClient, setIsClient] = useState(false);
@@ -96,7 +97,7 @@ const Home = () => {
   };
 
   return (
-    <div className="w-full mb-[70px] ">
+    <div className="w-full flex flex-col gap-5 mb-[70px] ">
       <div className="flex flex-col items-center justify-center">
         <Banners profile={Profileimg} Banner={Banner} />
 
@@ -110,16 +111,19 @@ const Home = () => {
         </div>
       </div>
       <div className="">
-        <div className="flex items-center justify-center">
+        <div className="flex items-center  justify-center">
           {/* Main Div */}
-          <div className="w-full max-w-4xl bg-white flex justify-between  items-center py-[8px] px-[20px] boarder-[#E2E4E9] ">
+          <div className="w-full max-w-4xl bg-white flex justify-between items-center py-[8px] px-[20px] boarder-[#E2E4E9] ">
             {/* Text on the Left */}
             <h1 className="text-2xl font-[500px] text-[16px] ">Your Photos</h1>
 
-            {/* Button on the Right */}
-            <button className="bg-[#375DFB] text-white font-[500] text-[14px] py-2 px-6 rounded-[8px]">
-              Reacheck
-            </button>
+            {/* Replaced button with Button component */}
+            <Button 
+              width="w-auto"
+              className="bg-[#375DFB] hover:bg-[#2440c4] text-[14px] font-[500] py-2 px-6"
+            >
+              Recheck
+            </Button>
           </div>
         </div>
       </div>
