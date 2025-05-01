@@ -1,10 +1,22 @@
+'use client'
+import React, { useEffect } from 'react';
 import Image from "next/image";
 import Link from "next/link"; // Added missing import for Link
 import { Banner, HumanSelfi, Sparkle } from "./assets";
 import SnapButton from "./components/button";
+import instance from './instance';
 
 
 export default function Home() {
+ 
+useEffect(() => {
+  const fetchUser = async () => {
+    const  res = await instance.get('/event-highlight?event=68108d0ee0a74e8e9be98f6c')
+    console.log(res)
+  }
+  fetchUser()
+}, [])
+  
   return (
     <div className="w-full ">
       <div className="flex flex-col  items-center justify-center">

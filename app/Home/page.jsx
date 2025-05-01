@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useEffect, useRef } from "react";
-import { Banner, Post1, Post2, Post3, Profileimg } from "../assets";
+import { Banner, PenIcon, Post1, Post2, Post3, Profileimg } from "../assets";
 import Banners from "../components/banner";
 import AiInput from "../components/aiInput";
 import Image from "next/image";
@@ -285,6 +285,8 @@ const Home = () => {
         <Banners 
           profile={userSelfie || Profileimg} 
           Banner={Banner} 
+          // editIcon={PenIcon}
+          editIconimage={PenIcon}
         />
 
         <div className="max-w-md mt-16">

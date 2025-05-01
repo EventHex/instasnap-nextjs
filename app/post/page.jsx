@@ -136,7 +136,7 @@ const SocialShare = () => {
     <div className="flex justify-center w-full">
       <div className="flex flex-col w-full max-w-[768px] mx-auto bg-white">
         <div className="p-4 flex items-center border-b border-gray-200 sticky top-0 bg-white z-10">
-          <button onClick={handleGoBack} className="p-1 mr-4">
+          <button onClick={handleGoBack} className="p-1 ">
             <ChevronLeft size={24} strokeWidth={2} className="text-gray-700" />
           </button>
           <div className="w-full flex justify-center">

@@ -27,7 +27,16 @@ const index = (props) => {
           />
           <Link href="/start" >
            <div className='absolute bottom-0 top-[80%] transform -translate-x-1/2 rounded-full bg-white  w-10 h-10 '>
-              <Image src={PenIcon} alt="Edit profile" fill className='rounded-full p-2' />
+           {
+            props.editIconimage ? (
+              <Image src={props.editIconimage} alt="Edit profile" fill className='rounded-full p-2' />
+            ) : (
+              <p>
+                {props.editIcon}
+              </p>
+            )
+
+           }
             </div>
             </Link>
         </div>
