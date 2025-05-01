@@ -40,7 +40,8 @@ const NavigationBar = () => {
   ];
   
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200">
+    <div className="fixed bottom-0 left-0 right-0 flex justify-center w-full">
+    <div className="max-w-[768px] w-full bg-white border-t border-gray-200">
       <nav className="flex justify-between items-center px-4 py-2">
         {navItems.map((item) => (
           <Link 
@@ -85,16 +86,6 @@ const NavigationBar = () => {
             >
               {item.label}
             </motion.span>
-            {/* {activeTab === item.id && (
-              <motion.div
-                className="absolute -bottom-2 w-1 h-1 bg-blue-500 rounded-full"
-                layoutId="activeIndicator"
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0 }}
-                transition={{ duration: 0.3 }}
-              />
-            )} */}
           </Link>
         ))}
       </nav>
@@ -103,18 +94,19 @@ const NavigationBar = () => {
         whileHover={{ backgroundColor: "#f9fafb" }}
         transition={{ duration: 0.2 }}
       >
-        <h1 className='font-[400] fornt-inter flex justify-center text-[12px]'>Powered By </h1>
+        <h1 className='font-normal text-xs'>Powered By </h1>
         <motion.p 
           className='flex items-center gap-[3px]'
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           transition={{ duration: 0.2 }}
         > 
-          <Image src={EventHexlogo} alt="EventHexlogo" /> 
-          <span className='font-[500] text-[12px]'> EventHex </span> 
+          <Image src={EventHexlogo} alt="EventHexlogo" width={16} height={16} /> 
+          <span className='font-medium text-xs'> EventHex </span> 
         </motion.p>
       </motion.footer>
     </div>
+  </div>
   );
 };
 
