@@ -108,10 +108,16 @@ const SocialShare = () => {
   };
   // --- End Modal Logic --- 
 
+  const [copyText, setCopyText] = useState("Copy");
+
   const handleCopy = () => {
     navigator.clipboard.writeText(text)
       .then(() => {
         console.log('Text copied to clipboard');
+        setCopyText("Copied");
+        setTimeout(() => {
+          setCopyText("Copy");
+        }, 2000);
       })
       .catch(err => {
         console.error('Failed to copy text: ', err);
@@ -144,7 +150,7 @@ const SocialShare = () => {
               <span className="text-gray-800 text-sm font-medium">Share your thoughts</span>
               <button onClick={handleCopy} className="flex items-center text-blue-600 text-sm font-medium p-1">
                 <Copy size={16} className="mr-1" />
-                Copy
+                {copyText}
               </button>
             </div>
 
