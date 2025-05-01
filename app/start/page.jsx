@@ -2,14 +2,15 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { FaceIdBase } from '../assets';
 import StartButton from '../components/Button';
 
 const Index = () => {
+  const router = useRouter();
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
-  const audioRef = useRef(null);
   const [cam, setCam] = useState(false);
   const [loading, setLoading] = useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
@@ -65,12 +66,6 @@ const Index = () => {
   const takePhoto = () => {
     if (!videoRef.current) return;
     
-    // Play capture sound
-    if (audioRef.current) {
-      audioRef.current.currentTime = 0;
-      audioRef.current.play().catch(e => console.error("Audio play failed:", e));
-    }
-    
     // Create canvas to capture the image
     if (!canvasRef.current) {
       canvasRef.current = document.createElement('canvas');
@@ -96,6 +91,17 @@ const Index = () => {
       streamRef.current.getTracks().forEach(track => track.stop());
     }
   };
+
+  // Function to navigate to home page with the captured image
+  const navigateToHome = () => {
+    // Save image to sessionStorage or localStorage to persist across routes
+    if (capturedImage) {
+      sessionStorage.setItem('userSelfie', capturedImage);
+      
+      // Navigate to home page
+      router.push('/home');
+    }
+  };
   
   // Handle button click based on current state
   const handleButtonClick = () => {
@@ -104,6 +110,9 @@ const Index = () => {
     if (cam && !capturedImage) {
       // If camera is active and no image captured yet, take photo
       takePhoto();
+    } else if (capturedImage) {
+      // If image is captured, navigate to home
+      navigateToHome();
     } else {
       // Otherwise start camera
       startCamera();
@@ -173,12 +182,6 @@ const Index = () => {
           />
         </div>
       </div>
-      
-      {/* Audio element for camera shutter sound */}
-      <audio ref={audioRef} preload="auto">
-        <source src="/camera-shutter.mp3" type="audio/mpeg" />
-        <source src="/camera-shutter.wav" type="audio/wav" />
-      </audio>
     </div>
   );
 };

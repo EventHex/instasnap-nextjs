@@ -36,7 +36,7 @@ const NavigationBar = () => {
     { id: 'highlights', label: 'Highlights', icon: HighlightIcon, path: '/highlight' },
     { id: 'contribute', label: 'Contribute', icon: ContributeIcon, path: '/contribute' },
     { id: 'post', label: 'Post', icon: PostIcon, path: '/post' },
-    { id: 'notifications', label: 'Notifications', icon: NotificationIcon, path: '/notification' }
+    // { id: 'notifications', label: 'Notifications', icon: NotificationIcon, path: '/notification' }
   ];
   
   return (
