@@ -2,10 +2,12 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { FaceIdBase } from '../assets';
 import StartButton from '../components/Button';
 
 const Index = () => {
+  const router = useRouter();
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
@@ -96,6 +98,17 @@ const Index = () => {
       streamRef.current.getTracks().forEach(track => track.stop());
     }
   };
+
+  // Function to navigate to home page with the captured image
+  const navigateToHome = () => {
+    // Save image to sessionStorage or localStorage to persist across routes
+    if (capturedImage) {
+      sessionStorage.setItem('userSelfie', capturedImage);
+      
+      // Navigate to home page
+      router.push('/home');
+    }
+  };
   
   // Handle button click based on current state
   const handleButtonClick = () => {
@@ -104,6 +117,9 @@ const Index = () => {
     if (cam && !capturedImage) {
       // If camera is active and no image captured yet, take photo
       takePhoto();
+    } else if (capturedImage) {
+      // If image is captured, navigate to home
+      navigateToHome();
     } else {
       // Otherwise start camera
       startCamera();

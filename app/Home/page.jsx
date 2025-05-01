@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Banner, Post1, Post2, Post3, Profileimg } from "../assets";
 import Banners from "../components/banner";
 import AiInput from "../components/aiInput";
@@ -11,7 +11,7 @@ import Navbar from "../components/navfooter";
 import { CloudDownload, Share2, View, X } from "lucide-react";
 import Button from '../components/button'
 import Masonry from 'react-masonry-css';
-
+import Instance from '../instance'
 // Fixed Marquee3D Component
 const Marquee3D = () => {
   // Sample items for the marquee - replace with your actual implementation
@@ -19,7 +19,15 @@ const Marquee3D = () => {
     id: `marquee-item-${index}`,
     content: `Item ${index + 1}`
   }));
-
+useEffect(() => {
+  console.log(Instance, 'Instance');
+  
+  const fetchUser = async () => {
+    const  res = await Instance.get('')
+    console.log(res)
+  }
+  fetchUser()
+}, [])
   return (
     <div className="marquee-container">
       <div className="marquee">
@@ -38,9 +46,23 @@ const Home = () => {
   const [isClient, setIsClient] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [userSelfie, setUserSelfie] = useState(null);
+  const [imagesLoaded, setImagesLoaded] = useState({});
+  const modalRef = useRef(null);
 
   useEffect(() => {
     setIsClient(true);
+    
+    // Retrieve the selfie image from sessionStorage
+    const storedSelfie = sessionStorage.getItem('userSelfie');
+    if (storedSelfie) {
+      setUserSelfie(storedSelfie);
+    }
+    
+    // Cleanup function to prevent memory leaks
+    return () => {
+      // Cleanup any resources if needed
+    };
   }, []);
 
   if (!isClient) {
@@ -54,31 +76,54 @@ const Home = () => {
     date: `2024-0${Math.floor(i / 4) + 1}-${String(i % 28 + 1).padStart(2, '0')}`, // Placeholder dates
   }));
 
-  // View post function (assuming image is now a URL string)
+  // View post function (with cleanup)
   const Viewpost = (post) => {
-    setSelectedPost(post); // post object now contains the URL string
-    setShowModal(true);
+    // Reset any previous modal state to prevent race conditions
+    if (showModal) {
+      setShowModal(false);
+      setTimeout(() => {
+        setSelectedPost(post);
+        setShowModal(true);
+      }, 50);
+    } else {
+      setSelectedPost(post);
+      setShowModal(true);
+    }
   };
 
-  // Close modal function
+  // Close modal function with cleanup
   const closeModal = () => {
-    setSelectedPost(null);
     setShowModal(false);
+    // Use a timeout to remove the post after animation completes
+    setTimeout(() => {
+      setSelectedPost(null);
+    }, 300); // Match this with your animation duration
   };
 
-  // Share functionality (needs adjustment if image is now just a URL)
+  // Handle image load status
+  const handleImageLoad = (id) => {
+    setImagesLoaded(prev => ({ ...prev, [id]: true }));
+  };
+
+  // Handle image loading error
+  const handleImageError = (id) => {
+    console.error(`Failed to load image ${id}`);
+    // You might want to set a placeholder or fallback image here
+  };
+
+  // Share functionality with proper error handling
   const handleShare = async (imageUrl) => {
     try {
       if (navigator.share) {
         await navigator.share({
           title: 'Check out this photo!',
           text: 'Found this amazing photo on InstaSnap',
-          url: imageUrl, // Use the image URL directly
+          url: imageUrl,
         });
       } else {
         // Fallback
         const tempInput = document.createElement('input');
-        tempInput.value = imageUrl; // Copy the image URL
+        tempInput.value = imageUrl;
         document.body.appendChild(tempInput);
         tempInput.select();
         document.execCommand('copy');
@@ -87,35 +132,27 @@ const Home = () => {
       }
     } catch (error) {
       console.error('Error sharing:', error);
+      if (error.name !== 'AbortError') {
+        // Only show error if it's not just the user canceling
+        alert('Failed to share: ' + error.message);
+      }
     }
   };
 
-  // Download functionality (needs adjustment for external URLs)
+  // Download functionality with proper error handling
   const handleDownload = async (imageUrl) => {
     try {
-      // Fetch the image as a blob
-      const response = await fetch(imageUrl);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const blob = await response.blob();
-
-      // Create a temporary link to trigger download
-      const url = window.URL.createObjectURL(blob);
+      // Create a download link without fetching to avoid CORS issues
       const link = document.createElement('a');
-      link.href = url;
-      // Extract a filename or generate one
-      const filename = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
-      link.download = `instasnap-${filename}-${Date.now()}.jpg`;
+      link.href = imageUrl;
+      link.setAttribute('download', `instasnap-${Date.now()}.jpg`);
+      link.setAttribute('target', '_blank');
       document.body.appendChild(link);
       link.click();
-
-      // Clean up
       document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Error downloading:', error);
-      alert('Failed to download image.'); // Inform user
+      alert('Failed to download image. You may need to right-click and save manually.');
     }
   };
 
@@ -128,9 +165,12 @@ const Home = () => {
   };
 
   return (
-    <div className="w-full flex flex-col gap-5 mb-[70px] ">
+    <div className="w-full flex flex-col gap-5 mb-[70px]">
       <div className="flex flex-col items-center justify-center">
-        <Banners profile={Profileimg} Banner={Banner} />
+        <Banners 
+          profile={userSelfie || Profileimg} 
+          Banner={Banner} 
+        />
 
         <div className="max-w-md mt-16">
           <AiInput
@@ -142,13 +182,13 @@ const Home = () => {
         </div>
       </div>
       <div className="">
-        <div className="flex items-center  justify-center">
+        <div className="flex items-center justify-center">
           {/* Main Div */}
-          <div className="w-full max-w-4xl bg-white flex justify-between items-center py-[8px] px-[20px] boarder-[#E2E4E9] ">
+          <div className="w-full max-w-4xl bg-white flex justify-between items-center py-[8px] px-[20px] boarder-[#E2E4E9]">
             {/* Text on the Left */}
-            <h1 className="text-2xl font-[500px] text-[16px] ">Your Photos</h1>
+            <h1 className="text-2xl font-[500px] text-[16px]">Your Photos</h1>
 
-            {/* Replaced button with Button component */}
+            {/* Button component */}
             <Button 
               width="w-auto"
               className="bg-[#375DFB] hover:bg-[#2440c4] text-[14px] font-[500] py-2 px-6"
@@ -160,25 +200,35 @@ const Home = () => {
         </div>
       </div>
       {data.length !== 0 ? (
-        <Masonry
-          breakpointCols={breakpointColumnsObj}
-          className="flex w-full max-w-4xl mx-auto px-4 mt-4 gap-1"
-          columnClassName="bg-clip-padding"
-        >
-          {data.map((item) => (
-            <div className="bg-white rounded-lg overflow-hidden mb-1" key={item.id}>
+       <Masonry
+       breakpointCols={breakpointColumnsObj}
+       className="flex w-full max-w-4xl mx-auto px-4 mt-4 gap-1"
+       columnClassName="bg-clip-padding"
+     >
+       {data.map((item) => (
+          <div className="bg-white rounded-lg overflow-hidden mb-1" key={item.id}>
+          <div className="w-full relative">
+            <div className="relative group w-full">
               <Image
-                onClick={() => Viewpost(item)}
+                onClick={() => viewPost(item)}
                 src={item.image}
                 alt={`Post ${item.id}`}
-                className="w-full h-auto cursor-pointer hover:opacity-90 transition-opacity"
+                className="w-full h-auto cursor-pointer transition-none"
                 width={400}
                 height={400}
                 sizes="(max-width: 700px) 50vw, (max-width: 1100px) 33vw, 33vw"
+                onLoad={() => handleImageLoad(item.id)}
+                onError={() => handleImageError(item.id)}
+                priority={true}
+                loading="eager"
               />
+              {/* Black overlay that appears on hover */}
+              <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-30 transition-none cursor-pointer"></div>
             </div>
-          ))}
-        </Masonry>
+          </div>
+        </div>
+       ))}
+     </Masonry>
       ) : (
         <div className="">
           <div className="flex flex-col items-center justify-center p-6 bg-[#F6F8FA] w-full">
@@ -213,14 +263,11 @@ const Home = () => {
           </div>
         </div>
       )}
-      
-      {/* <div>
-        <Marquee3D />
-      </div> */}
 
-      {/* Modal */}
+      {/* Modal with cleanup handling */}
       {showModal && selectedPost && (
         <div
+          ref={modalRef}
           className="fixed inset-0 flex-col gap-3 bg-black/60 z-50 flex items-center justify-center p-4 animate-fadeIn"
           onClick={closeModal}
         >
@@ -235,31 +282,46 @@ const Home = () => {
             >
               <X size={24} />
             </button>
-            <div className="relative aspect-w-1 aspect-h-1 w-full bg-white/5 backdrop-blur-sm rounded-lg
-              overflow-hidden shadow-2xl transform transition-all duration-1000">
-              <Image
-                src={selectedPost.image}
-                alt="Selected post"
-                className="w-full h-full object-contain transition-all duration-800
-                  hover:scale-105"
-                layout="fill"
-                priority
-              />
+            <div className="relative bg-white/5 backdrop-blur-sm rounded-lg
+              overflow-hidden shadow-2xl transform transition-all duration-300"
+              style={{ aspectRatio: '1 / 1' }}
+            >
+              {selectedPost && (
+                <div className="w-full h-full flex items-center justify-center">
+                  {/* Use regular img tag instead of Next.js Image to avoid layout issues */}
+                  <img
+                    src={selectedPost.image}
+                    alt="Selected post"
+                    className="max-w-full max-h-full object-contain transition-all duration-300"
+                    loading="eager"
+                    onError={(e) => {
+                      console.error('Error loading modal image');
+                      e.target.src = 'https://via.placeholder.com/400?text=Image+Error';
+                    }}
+                  />
+                </div>
+              )}
             </div>
           </div>
           <div className="w-full max-w-4xl px-4 flex justify-between items-center">
             <div>
-              <p className="text-white text-[14px] font-[500]">{selectedPost.date}</p>
+              <p className="text-white text-[14px] font-[500]">{selectedPost?.date}</p>
             </div>
             <div className="flex items-center gap-5 justify-center">
               <button
-                onClick={() => handleShare(selectedPost.image)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleShare(selectedPost.image);
+                }}
                 className="text-white hover:text-blue-400 transition-colors duration-300 flex items-center gap-2"
               >
                 <Share2 size={24} />
               </button>
               <button
-                onClick={() => handleDownload(selectedPost.image)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDownload(selectedPost.image);
+                }}
                 className="text-white hover:text-blue-400 transition-colors duration-300 flex items-center gap-2"
               >
                 <CloudDownload size={24} />
