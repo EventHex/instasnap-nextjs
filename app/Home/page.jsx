@@ -152,6 +152,7 @@ const Home = () => {
             <Button 
               width="w-auto"
               className="bg-[#375DFB] hover:bg-[#2440c4] text-[14px] font-[500] py-2 px-6"
+              onClick={() => window.location.reload()}
             >
               Recheck
             </Button>
