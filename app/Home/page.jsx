@@ -12,6 +12,65 @@ import { CloudDownload, Share2, View, X } from "lucide-react";
 import Button from '../components/button'
 import Masonry from 'react-masonry-css';
 import Instance from '../instance'
+
+// Add image compression utility without changing any existing functionality
+const compressImage = (base64Image, maxSizeMB = 0.5) => {
+  return new Promise((resolve, reject) => {
+    const img = new window.Image();
+    img.onload = () => {
+      // Create canvas
+      const canvas = document.createElement('canvas');
+      let width = img.width;
+      let height = img.height;
+      
+      // Set canvas dimensions (maintain original size but limit very large images)
+      if (width > 800 || height > 800) {
+        const aspectRatio = width / height;
+        if (width > height) {
+          width = 800;
+          height = width / aspectRatio;
+        } else {
+          height = 800;
+          width = height * aspectRatio;
+        }
+      }
+      
+      canvas.width = width;
+      canvas.height = height;
+      
+      // Draw image to canvas
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      
+      // Start with a lower quality to reduce size
+      let quality = 0.7;
+      let compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+      
+      // Convert base64 size to bytes (approximate)
+      const getBase64SizeInBytes = (base64String) => {
+        const base64WithoutHeader = base64String.split(',')[1];
+        return (base64WithoutHeader.length * 3) / 4;
+      };
+      
+      const maxSizeBytes = maxSizeMB * 1024 * 1024;
+      
+      // Progressively lower quality until under max size
+      while (getBase64SizeInBytes(compressedBase64) > maxSizeBytes && quality > 0.1) {
+        quality -= 0.1;
+        compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+      }
+      
+      resolve(compressedBase64);
+    };
+    
+    img.onerror = error => {
+      reject(error);
+    };
+    
+    img.src = base64Image;
+  });
+};
+
 // Fixed Marquee3D Component
 const Marquee3D = () => {
   // Sample items for the marquee - replace with your actual implementation
@@ -19,15 +78,37 @@ const Marquee3D = () => {
     id: `marquee-item-${index}`,
     content: `Item ${index + 1}`
   }));
+
 useEffect(() => {
-  console.log(Instance, 'Instance');
-  
   const fetchUser = async () => {
-    const  res = await Instance.get('')
-    console.log(res)
-  }
-  fetchUser()
+    try {
+      // Get the selfie from sessionStorage
+      const storedSelfie = sessionStorage.getItem('userSelfie');
+      
+      // Compress the image if it exists
+      let imageToSend = null;
+      if (storedSelfie) {
+        try {
+          imageToSend = await compressImage(storedSelfie, 2);
+        } catch (err) {
+          console.error('Error compressing image in Marquee3D:', err);
+          imageToSend = storedSelfie; // Fallback to original if compression fails
+        }
+      }
+      
+      // Make API request with the compressed selfie
+      const res = await Instance.post('/mobile/instasnap/match', {
+        selfieImage: imageToSend
+      });
+      console.log(res,'data gotted');
+    } catch (error) {
+      console.error('Error fetching user match:', error);
+    }
+  };
+  
+  fetchUser();
 }, [])
+
   return (
     <div className="marquee-container">
       <div className="marquee">
@@ -48,6 +129,7 @@ const Home = () => {
   const [showModal, setShowModal] = useState(false);
   const [userSelfie, setUserSelfie] = useState(null);
   const [imagesLoaded, setImagesLoaded] = useState({});
+  const [apiImages, setApiImages] = useState([]); // New state for API images
   const modalRef = useRef(null);
 
   useEffect(() => {
@@ -58,6 +140,46 @@ const Home = () => {
     if (storedSelfie) {
       setUserSelfie(storedSelfie);
     }
+
+    // Move the API call here
+    const fetchUser = async () => {
+      try {
+        const storedSelfie = sessionStorage.getItem('userSelfie');
+        console.log('Fetching user data with selfie:', storedSelfie ? 'Present' : 'Not present');
+        
+        // Compress the image if it exists
+        let imageToSend = null;
+        if (storedSelfie) {
+          try {
+            imageToSend = await compressImage(storedSelfie, 2);
+          } catch (err) {
+            console.error('Error compressing image in Home component:', err);
+            imageToSend = storedSelfie; // Fallback to original if compression fails
+          }
+        }
+        
+        const res = await Instance.post('/mobile/instasnap/match', {
+          selfieImage: imageToSend
+        });
+        
+        console.log('API Response:', res.data);
+        
+        // Check if the API returned images and update state
+        if (res.data && res.data.photos && Array.isArray(res.data.photos)) {
+          // Map the API response to match our expected format
+          const formattedImages = res.data.photos.map((photo, index) => ({
+            id: index + 1,
+            image: photo.url || photo.imageUrl || photo.image, // Adapt based on your API response structure
+            date: photo.date || new Date().toISOString().split('T')[0] // Use date from API or fallback to today
+          }));
+          setApiImages(formattedImages);
+        }
+      } catch (error) {
+        console.error('Error fetching user match:', error);
+      }
+    };
+    
+    fetchUser();
     
     // Cleanup function to prevent memory leaks
     return () => {
@@ -69,15 +191,8 @@ const Home = () => {
     return null; // or a loading state
   }
 
-  // Updated data with placeholder images
-  const data = Array.from({ length: 13 }, (_, i) => ({
-    id: i + 1,
-    image: `https://picsum.photos/seed/${i + 1}/400/${Math.floor(Math.random() * 201) + 300}`, // Random height between 300-500
-    date: `2024-0${Math.floor(i / 4) + 1}-${String(i % 28 + 1).padStart(2, '0')}`, // Placeholder dates
-  }));
-
   // View post function (with cleanup)
-  const Viewpost = (post) => {
+  const viewPost = (post) => {
     // Reset any previous modal state to prevent race conditions
     if (showModal) {
       setShowModal(false);
@@ -175,8 +290,8 @@ const Home = () => {
         <div className="max-w-md mt-16">
           <AiInput
             icon={ShineAI}
-            message="Our AI couldn't find any photos of you"
-            number={0}
+            message={apiImages.length > 0 ? `Our AI found ${apiImages.length} photos of you` : "Our AI couldn't find any photos of you"}
+            number={apiImages.length}
             label="Photos"
           />
         </div>
@@ -199,36 +314,36 @@ const Home = () => {
           </div>
         </div>
       </div>
-      {data.length !== 0 ? (
+      {apiImages.length !== 0 ? (
        <Masonry
-       breakpointCols={breakpointColumnsObj}
-       className="flex w-full max-w-4xl mx-auto px-4 mt-4 gap-1"
-       columnClassName="bg-clip-padding"
-     >
-       {data.map((item) => (
-          <div className="bg-white rounded-lg overflow-hidden mb-1" key={item.id}>
-          <div className="w-full relative">
-            <div className="relative group w-full">
-              <Image
-                onClick={() => viewPost(item)}
-                src={item.image}
-                alt={`Post ${item.id}`}
-                className="w-full h-auto cursor-pointer transition-none"
-                width={400}
-                height={400}
-                sizes="(max-width: 700px) 50vw, (max-width: 1100px) 33vw, 33vw"
-                onLoad={() => handleImageLoad(item.id)}
-                onError={() => handleImageError(item.id)}
-                priority={true}
-                loading="eager"
-              />
-              {/* Black overlay that appears on hover */}
-              <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-30 transition-none cursor-pointer"></div>
+         breakpointCols={breakpointColumnsObj}
+         className="flex w-full max-w-4xl mx-auto px-4 mt-4 gap-1"
+         columnClassName="bg-clip-padding"
+       >
+         {apiImages.map((item) => (
+            <div className="bg-white rounded-lg overflow-hidden mb-1" key={item.id}>
+            <div className="w-full relative">
+              <div className="relative group w-full">
+                <Image
+                  onClick={() => viewPost(item)}
+                  src={item.image}
+                  alt={`Post ${item.id}`}
+                  className="w-full h-auto cursor-pointer transition-none"
+                  width={400}
+                  height={400}
+                  sizes="(max-width: 700px) 50vw, (max-width: 1100px) 33vw, 33vw"
+                  onLoad={() => handleImageLoad(item.id)}
+                  onError={() => handleImageError(item.id)}
+                  priority={true}
+                  loading="eager"
+                />
+                {/* Black overlay that appears on hover */}
+                <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-30 transition-none cursor-pointer"></div>
+              </div>
             </div>
           </div>
-        </div>
-       ))}
-     </Masonry>
+         ))}
+       </Masonry>
       ) : (
         <div className="">
           <div className="flex flex-col items-center justify-center p-6 bg-[#F6F8FA] w-full">

@@ -11,7 +11,6 @@ const Index = () => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
-  const audioRef = useRef(null);
   const [cam, setCam] = useState(false);
   const [loading, setLoading] = useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
@@ -66,12 +65,6 @@ const Index = () => {
   // Function to take a photo
   const takePhoto = () => {
     if (!videoRef.current) return;
-    
-    // Play capture sound
-    if (audioRef.current) {
-      audioRef.current.currentTime = 0;
-      audioRef.current.play().catch(e => console.error("Audio play failed:", e));
-    }
     
     // Create canvas to capture the image
     if (!canvasRef.current) {
@@ -189,12 +182,6 @@ const Index = () => {
           />
         </div>
       </div>
-      
-      {/* Audio element for camera shutter sound */}
-      <audio ref={audioRef} preload="auto">
-        <source src="/camera-shutter.mp3" type="audio/mpeg" />
-        <source src="/camera-shutter.wav" type="audio/wav" />
-      </audio>
     </div>
   );
 };
