@@ -37,7 +37,7 @@ const SocialShare = () => {
 
   // State for the modal
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('Your Photos'); // 'Your Photos' or 'Event Highlights'
+  const [activeTab, setActiveTab] = useState('Event Highlights'); // 'Your Photos' or 'Event Highlights'
   const [modalSelectedPhotos, setModalSelectedPhotos] = useState({}); // Track selections within the modal {id: src}
 
   const handleTextChange = (e) => {
@@ -68,7 +68,8 @@ const SocialShare = () => {
     }, {});
     setModalSelectedPhotos(initialModalSelection);
     setIsModalOpen(true);
-    setActiveTab('Your Photos'); // Default tab
+    // Keep the same activeTab as initialized (Event Highlights) instead of changing to 'Highlight'
+    // No need to call setActiveTab here if we want to keep the initial tab
   };
   const closeModal = () => setIsModalOpen(false);
 
