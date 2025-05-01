@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Banner, Profileimg, Flat, Suitcase, Gender, User, PenIcon, ErrorIcon ,VerifiedIcon} from "../assets";
 import Header from "../components/Header";
@@ -24,10 +24,10 @@ const Register = () => {
   const [submittedData, setSubmittedData] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedCode, setSelectedCode] = useState("91");
+  const [userSelfie, setUserSelfie] = useState(null);
   const [isGenderOpen, setIsGenderOpen] = useState(false);
-  // Add new state for showing verification input
+  const [isClient, setIsClient] = useState(false);
   const [showVerification, setShowVerification] = useState(false);
-  // Add state to track if code was sent
   const [codeSent, setCodeSent] = useState(false);
   const [codeSentError, setCodeSentError] = useState(false);
   const [codeSentSuccess, setCodeSentSuccess] = useState(false);
@@ -94,6 +94,14 @@ const Register = () => {
         countryCode: selectedCode,
       });
     }
+    const loginfunction = async () => {
+const res = await instance.post('auth/login-public', {
+ formData
+})
+console.log(res)
+    }
+    loginfunction()
+
   };
 
   // Update the handleSendCode function
@@ -113,9 +121,23 @@ const Register = () => {
   const handleVerify = () => {
     setCodeSentSuccess(true);
   }
+
+
+  useEffect(() => {
+    setIsClient(true);
+    
+    // Retrieve the selfie image from sessionStorage
+    const storedSelfie = sessionStorage.getItem('userSelfie');
+    if (storedSelfie) {
+      setUserSelfie(storedSelfie);
+    }
+  }, [])
   return (
     <div className="w-full flex justify-center flex-col items-center">
-      <Banners profile={Profileimg} Banner={Banner} />
+      <Banners
+          profile={userSelfie || Profileimg} 
+          editIconimage={PenIcon}
+          Banner={Banner} />
 
       <div>
         <div className="pt-12 px-4">

@@ -21,7 +21,7 @@ const Header = () => {
 const EventHeader = ({name}) => {
   return (
     <div>
-      <h1 className="text-[15px] font-[600]">
+      <h1 className="text-[14px]  font-inter font-[600]">
        {name}
       </h1>
     </div>

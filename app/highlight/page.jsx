@@ -27,7 +27,12 @@ const Page = () => {
 
   return (
     // Add padding and flex structure for header/footer
-    <div className="flex justify-center w-full">
+    <div className="flex  flex-col justify-center w-full">
+      <div className='w-full justify-center p-4 items-center flex'>
+<EventHeader name='Highlight'/>
+
+      </div>
+
       <div className="flex flex-col w-full max-w-[768px] mx-auto">
         {/* Sticky Header */}
         <div className='sticky top-0 z-10 bg-white shadow-sm w-full'>

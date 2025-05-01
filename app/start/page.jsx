@@ -97,9 +97,8 @@ const Index = () => {
     // Save image to sessionStorage or localStorage to persist across routes
     if (capturedImage) {
       sessionStorage.setItem('userSelfie', capturedImage);
-      
-      // Navigate to home page
-      router.push('/home');
+  
+      router.push('/register');
     }
   };
   
