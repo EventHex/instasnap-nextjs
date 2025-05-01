@@ -134,116 +134,118 @@ const ContributePage = () => {
     // --- END DEBUG LOG ---
 
     return (
-        <div className="flex flex-col min-h-screen">
-            {/* Optional Header can go here */}
-            <div className="flex-grow p-4 md:p-6 mb-[70px] overflow-y-auto"> {/* Adjust margin for footer */}
-                <div className="w-full flex justify-center ">
-                <EventHeader name={"Contribute"}/>
-
-                </div>
-                <p className="text-center text-gray-600 mb-6 text-sm">Upload up to {MAX_FILES} photos. Approved photos will appear in the public gallery.</p>
-
-                {/* Upload Area */} 
-                <div
-                    className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center mb-6 cursor-pointer hover:border-blue-500 bg-gray-50 hover:bg-gray-100 transition-colors duration-200"
-                    onClick={() => fileInputRef.current?.click()} // Trigger hidden input
-                >
-                    <input
-                        ref={fileInputRef}
-                        type="file"
-                        multiple
-                        accept="image/*" // Accept only image files
-                        onChange={handleFileChange}
-                        className="hidden"
-                        disabled={isUploading} // Disable while uploading
-                    />
-                    <UploadCloud className="mx-auto h-12 w-12 text-gray-400 mb-2" />
-                    <p className="text-sm text-gray-700 font-medium">Click or drag & drop to upload</p>
-                    <p className="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to 10MB (Max {MAX_FILES} files)</p>
-                </div>
-
-                {/* Upload Status Messages */} 
-                {uploadStatus.message && (
-                    <div className={`p-3 rounded-md mb-4 text-sm ${uploadStatus.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} flex items-center`}>
-                         {uploadStatus.type === 'success' ? <CheckCircle className="w-5 h-5 mr-2" /> : <AlertCircle className="w-5 h-5 mr-2" />}
-                         {uploadStatus.message}
-                    </div>
-                )}
-
-                {/* Previews Section */} 
-                {previews.length > 0 && (
-                     <div className="mb-6">
-                        <h2 className="text-lg font-medium mb-3 text-gray-700">Selected ({previews.length}/{MAX_FILES})</h2>
-                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
-                            {previews.map((previewUrl, index) => (
-                                <div key={index} className="relative aspect-square rounded-md overflow-hidden border border-gray-200 group">
-                                    <Image 
-                                        src={previewUrl}
-                                        alt={`Preview ${index + 1}`}
-                                        fill
-                                        className="object-cover"
-                                    />
-                                    <button 
-                                        onClick={() => !isUploading && handleRemovePreview(index)} // Prevent removal during upload
-                                        className="absolute top-1 right-1 bg-black/50 text-white rounded-full p-0.5 opacity-75 group-hover:opacity-100 hover:bg-red-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                                        title="Remove image"
-                                        disabled={isUploading}
-                                    >
-                                        <X size={14} strokeWidth={3} />
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
-
-                {/* Upload Button */} 
-                 {selectedFiles.length > 0 && (
-                    <Button 
-                        onClick={handleUpload}
+        <div className="flex justify-center w-full">
+        <div className="flex flex-col min-h-screen w-full max-w-[768px] mx-auto">
+          {/* Optional Header can go here */}
+          <div className="flex-grow p-4 md:p-6 mb-[70px] overflow-y-auto w-full"> {/* Adjust margin for footer */}
+            <div className="w-full flex justify-center">
+              <EventHeader name={"Contribute"}/>
+            </div>
+            
+            <p className="text-center text-gray-600 mb-6 text-sm">Upload up to {MAX_FILES} photos. Approved photos will appear in the public gallery.</p>
+  
+            {/* Upload Area */} 
+            <div
+              className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center mb-6 cursor-pointer hover:border-blue-500 bg-gray-50 hover:bg-gray-100 transition-colors duration-200"
+              onClick={() => fileInputRef.current?.click()} // Trigger hidden input
+            >
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                accept="image/*" // Accept only image files
+                onChange={handleFileChange}
+                className="hidden"
+                disabled={isUploading} // Disable while uploading
+              />
+              <UploadCloud className="mx-auto h-12 w-12 text-gray-400 mb-2" />
+              <p className="text-sm text-gray-700 font-medium">Click or drag & drop to upload</p>
+              <p className="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to 10MB (Max {MAX_FILES} files)</p>
+            </div>
+  
+            {/* Upload Status Messages */} 
+            {uploadStatus.message && (
+              <div className={`p-3 rounded-md mb-4 text-sm ${uploadStatus.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} flex items-center`}>
+                {uploadStatus.type === 'success' ? <CheckCircle className="w-5 h-5 mr-2" /> : <AlertCircle className="w-5 h-5 mr-2" />}
+                {uploadStatus.message}
+              </div>
+            )}
+  
+            {/* Previews Section */} 
+            {previews.length > 0 && (
+              <div className="mb-6">
+                <h2 className="text-lg font-medium mb-3 text-gray-700">Selected ({previews.length}/{MAX_FILES})</h2>
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+                  {previews.map((previewUrl, index) => (
+                    <div key={index} className="relative aspect-square rounded-md overflow-hidden border border-gray-200 group">
+                      <Image 
+                        src={previewUrl}
+                        alt={`Preview ${index + 1}`}
+                        fill
+                        className="object-cover"
+                      />
+                      <button 
+                        onClick={() => !isUploading && handleRemovePreview(index)} // Prevent removal during upload
+                        className="absolute top-1 right-1 bg-black/50 text-white rounded-full p-0.5 opacity-75 group-hover:opacity-100 hover:bg-red-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Remove image"
                         disabled={isUploading}
-                        className="w-full md:w-auto px-8 mt-4"
-                        icon={!isUploading ? <UploadCloud size={18} className="mr-2"/> : null}
-                    >
-                       {isUploading ? (
-                           <>
-                             <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                             </svg>
-                              Uploading...
-                           </>
-                       ) : (
-                           `Upload ${selectedFiles.length} Photo${selectedFiles.length > 1 ? 's' : ''}`
-                       )}
-                    </Button>
-                 )}
-
-                {/* Your Uploads Section */}
-                <div className="mt-6">
-                    <h2 className="text-lg font-medium mb-3 text-gray-700">Your Uploads</h2>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                        {uploadedImages.map((image) => (
-                            <div key={image.id} className="relative aspect-square rounded-md overflow-hidden border border-gray-200 group">
-                                <Image 
-                                    src={image.url} 
-                                    alt={`Uploaded ${image.id}`}
-                                    fill
-                                    className="object-cover bg-gray-100"
-                                />
-                                 {/* Status Badge */}
-                                 {renderStatusBadge(image.status)}
-                            </div>
-                        ))}
+                      >
+                        <X size={14} strokeWidth={3} />
+                      </button>
                     </div>
+                  ))}
                 </div>
-
+              </div>
+            )}
+  
+            {/* Upload Button */} 
+            {selectedFiles.length > 0 && (
+              <Button 
+                onClick={handleUpload}
+                disabled={isUploading}
+                className="w-full md:w-auto px-8 mt-4"
+                icon={!isUploading ? <UploadCloud size={18} className="mr-2"/> : null}
+              >
+                {isUploading ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Uploading...
+                  </>
+                ) : (
+                  `Upload ${selectedFiles.length} Photo${selectedFiles.length > 1 ? 's' : ''}`
+                )}
+              </Button>
+            )}
+  
+            {/* Your Uploads Section */}
+            <div className="mt-6">
+              <h2 className="text-lg font-medium mb-3 text-gray-700">Your Uploads</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                {uploadedImages.map((image) => (
+                  <div key={image.id} className="relative aspect-square rounded-md overflow-hidden border border-gray-200 group">
+                    <Image 
+                      src={image.url} 
+                      alt={`Uploaded ${image.id}`}
+                      fill
+                      className="object-cover bg-gray-100"
+                    />
+                    {/* Status Badge */}
+                    {renderStatusBadge(image.status)}
+                  </div>
+                ))}
+              </div>
             </div>
-            {/* Footer */}
-            <div className="sticky bottom-0 z-10 w-full bg-white border-t border-gray-100">
-                <NavFooter />
-            </div>
+          </div>
+          
+          {/* Footer */}
+          <div className="sticky bottom-0 z-10 w-full bg-white border-t border-gray-100">
+            <NavFooter />
+          </div>
         </div>
+      </div>
     );
 };
 
