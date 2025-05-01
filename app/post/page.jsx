@@ -118,175 +118,172 @@ const SocialShare = () => {
   };
 
   return (
-    <div className="flex flex-col max-w-md mx-auto bg-white h-screen">
-      <div className="p-4 flex  items-center border-b border-gray-200 sticky top-0 bg-white z-10">
-        <button onClick={handleGoBack} className="p-1 mr-4">
-          <ChevronLeft size={24} strokeWidth={2} className="text-gray-700" />
-        </button>
-        <div className="w-full flex justify-center  ">
-          <EventHeader name={"Social Share"}/>
-        </div>
-        {/* <h1 className="text-lg font-semibold text-center flex-grow text-gray-800">Social Share</h1> */}
-      </div>
-
-      <div className="flex-grow overflow-y-auto p-4 pb-[100px]">
-        <div className="mb-5">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-gray-800 text-sm font-medium">Share your thoughts</span>
-            <button onClick={handleCopy} className="flex items-center text-blue-600 text-sm font-medium p-1">
-              <Copy size={16} className="mr-1" />
-              Copy
-            </button>
-          </div>
-
-          <div className="border border-gray-200 rounded-lg p-3 bg-gray-50 mb-3">
-            <textarea
-              value={text}
-              onChange={handleTextChange}
-              className="w-full bg-transparent outline-none resize-none text-sm text-gray-800 min-h-[80px]"
-              maxLength={maxCharacters}
-              placeholder="What's on your mind?"
-            ></textarea>
-            <div className="text-right text-xs text-gray-500 mt-1">
-              {characterCount}/{maxCharacters}
-            </div>
-          </div>
-
-          <button className="w-full py-2.5 border border-gray-200 rounded-lg text-gray-700 text-sm font-medium flex items-center justify-center hover:bg-gray-50 transition-colors">
-            <span className="mr-2">✨</span>
-            Rewrite with AI
+    <div className="flex justify-center w-full">
+      <div className="flex flex-col w-full max-w-[768px] mx-auto bg-white">
+        <div className="p-4 flex items-center border-b border-gray-200 sticky top-0 bg-white z-10">
+          <button onClick={handleGoBack} className="p-1 mr-4">
+            <ChevronLeft size={24} strokeWidth={2} className="text-gray-700" />
           </button>
+          <div className="w-full flex justify-center">
+            <EventHeader name={"Social Share"}/>
+          </div>
         </div>
 
-        <div className="mb-5">
-          <div className="flex justify-between items-center mb-3">
-            <h2 className="text-sm font-medium text-gray-800">Photos (max 3)</h2>
-            <button onClick={handleDownload} className="flex items-center text-blue-600 font-medium text-sm p-1">
-              <CloudDownload size={16} className="mr-1" />
-              Download
+        <div className="flex-grow overflow-y-auto p-4 pb-[100px]">
+          <div className="mb-5">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-gray-800 text-sm font-medium">Share your thoughts</span>
+              <button onClick={handleCopy} className="flex items-center text-blue-600 text-sm font-medium p-1">
+                <Copy size={16} className="mr-1" />
+                Copy
+              </button>
+            </div>
+
+            <div className="border border-gray-200 rounded-lg p-3 bg-gray-50 mb-3">
+              <textarea
+                value={text}
+                onChange={handleTextChange}
+                className="w-full bg-transparent outline-none resize-none text-sm text-gray-800 min-h-[80px]"
+                maxLength={maxCharacters}
+                placeholder="What's on your mind?"
+              ></textarea>
+              <div className="text-right text-xs text-gray-500 mt-1">
+                {characterCount}/{maxCharacters}
+              </div>
+            </div>
+
+            <button className="w-full py-2.5 border border-gray-200 rounded-lg text-gray-700 text-sm font-medium flex items-center justify-center hover:bg-gray-50 transition-colors">
+              <span className="mr-2">✨</span>
+              Rewrite with AI
             </button>
           </div>
 
-          <div className={`grid grid-cols-3 gap-2 mb-4 ${selectedCount === 0 ? 'min-h-[80px] bg-gray-100 rounded-lg flex items-center justify-center' : ''}`}>
-            {selectedCount === 0 && (
-              <p className="text-xs text-gray-500">No photos selected</p>
-            )}
-            {photos.map((photo) => (
-              <div
-                key={photo.id}
-                className="relative rounded-lg overflow-hidden border border-gray-200 aspect-square cursor-pointer group"
-                onClick={() => toggleMainPhotoSelection(photo.id)}
-              >
-                <Image
-                  src={photo.src}
-                  alt={`Selected Photo ${photo.id}`}
-                  fill
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <XIcon size={24} className="text-white"/>
+          <div className="mb-5">
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="text-sm font-medium text-gray-800">Photos (max 3)</h2>
+              <button onClick={handleDownload} className="flex items-center text-blue-600 font-medium text-sm p-1">
+                <CloudDownload size={16} className="mr-1" />
+                Download
+              </button>
+            </div>
+
+            <div className={`grid grid-cols-3 gap-2 mb-4 ${selectedCount === 0 ? 'min-h-[80px] bg-gray-100 rounded-lg flex items-center justify-center' : ''}`}>
+              {selectedCount === 0 && (
+                <p className="text-xs text-gray-500">No photos selected</p>
+              )}
+              {photos.map((photo) => (
+                <div
+                  key={photo.id}
+                  className="relative rounded-lg overflow-hidden border border-gray-200 aspect-square cursor-pointer group"
+                  onClick={() => toggleMainPhotoSelection(photo.id)}
+                >
+                  <Image
+                    src={photo.src}
+                    alt={`Selected Photo ${photo.id}`}
+                    fill
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <XIcon size={24} className="text-white"/>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <Button
+              onClick={openModal}
+              variant="outline"
+              className="w-full text-black mb-3"
+            >
+              Choose
+            </Button>
+
+            <Button
+              onClick={handlePost}
+              variant="default"
+              className="w-full bg-blue-600 hover:bg-blue-700"
+              icon={LinkedIn}
+            >
+              Post via LinkedIn
+            </Button>
+          </div>
+        </div>
+
+        {isModalOpen && (
+          <div className="fixed  max-w-[768px] mx-auto inset-0 z-40 flex flex-col justify-end">
+            <div 
+              className="absolute   inset-0 bg-black/40 animate-fadeIn backdrop-blur-xs" 
+              onClick={closeModal}
+            />
+
+            <div 
+              className="relative z-50 bg-white rounded-t-2xl pt-4 pb-6 max-h-[80vh] flex flex-col animate-slideUp"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center px-4 pb-2 border-b border-gray-200">
+                <button onClick={closeModal} className="p-2 text-gray-500 hover:text-gray-800">
+                  <XIcon size={20}/>
+                </button>
+                <h3 className="text-[14px] font-[400]">Choose Photos</h3>
+                <button 
+                  onClick={handleModalDone} 
+                  className={`text-[14px] font-[400] p-2 ${Object.keys(modalSelectedPhotos).length > 0 ? 'text-blue-600' : 'text-gray-400 cursor-not-allowed'}`}
+                  disabled={Object.keys(modalSelectedPhotos).length === 0}
+                >
+                  Done ({Object.keys(modalSelectedPhotos).length})
+                </button>
+              </div>
+              
+              <div className="flex border-b border-gray-200 mt-2">
+                <button 
+                  className={`flex-1 py-2 px-4 text-sm font-medium text-center ${activeTab === 'Your Photos' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:bg-gray-50'}`}
+                  onClick={() => setActiveTab('Your Photos')}
+                >
+                  Your Photos
+                </button>
+                <button 
+                  className={`flex-1 py-2 px-4 text-sm font-medium text-center ${activeTab === 'Event Highlights' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:bg-gray-50'}`}
+                  onClick={() => setActiveTab('Event Highlights')}
+                >
+                  Event Highlights
+                </button>
+              </div>
+
+              <div className="flex-grow overflow-y-auto px-4 pt-4">
+                <div className="grid grid-cols-3 gap-2">
+                  {getModalPhotosForTab().map((photo) => {
+                    const isSelected = !!modalSelectedPhotos[photo.id];
+                    return (
+                      <div 
+                        key={photo.id} 
+                        className={`relative rounded-md overflow-hidden aspect-square cursor-pointer border-2 ${isSelected ? 'border-blue-500 ring-2 ring-blue-300' : 'border-transparent'}`}
+                        onClick={() => handleModalPhotoSelect(photo.id, photo.src)}
+                      >
+                        <Image 
+                          src={photo.src} 
+                          alt={activeTab === 'Your Photos' ? `My photo ${photo.id}` : `Highlight ${photo.id}`}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 33vw, 33vw"
+                        />
+                        {isSelected && (
+                          <div className="absolute top-1 right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center border-2 border-white shadow">
+                            <Check size={12} className="text-white" strokeWidth={3}/>
+                          </div>
+                        )}
+                        {isSelected && <div className="absolute inset-0 bg-white/20"></div>}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
-            ))}
+            </div> 
           </div>
+        )}
 
-          <Button
-            onClick={openModal}
-            variant="outline"
-            className="w-full text-black mb-3"
-            // icon={<ImageIcon size={18} className="mr-2" strokeWidth={1.5} />}
-            
-          >
-            Choose
-          </Button>
-
-          <Button
-            onClick={handlePost}
-            variant="default"
-            className="w-full bg-blue-600 hover:bg-blue-700"
-            icon={LinkedIn }
-            // icon={<Linkedin size={18} className="mr-2" fill="white" strokeWidth={0} />}
-          >
-            Post via LinkedIn
-          </Button>
+        <div className="sticky bottom-0 w-full bg-white z-10 border-t border-gray-100">
+          <NavigationBar />
         </div>
-      </div>
-
-      {isModalOpen && (
-        <div className="fixed inset-0 z-40 flex flex-col justify-end">
-          <div 
-            className="absolute inset-0 bg-black/40 animate-fadeIn backdrop-blur-sm" 
-            onClick={closeModal}
-          />
-
-          <div 
-            className="relative z-50 bg-white rounded-t-2xl pt-4 pb-6 max-h-[80vh] flex flex-col animate-slideUp"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex justify-between items-center px-4 pb-2 border-b border-gray-200">
-              <button onClick={closeModal} className="p-2 text-gray-500 hover:text-gray-800">
-                <XIcon size={20}/>
-              </button>
-              <h3 className="text-base font-semibold">Choose Photos</h3>
-              <button 
-                onClick={handleModalDone} 
-                className={`text-sm font-semibold p-2 ${Object.keys(modalSelectedPhotos).length > 0 ? 'text-blue-600' : 'text-gray-400 cursor-not-allowed'}`}
-                disabled={Object.keys(modalSelectedPhotos).length === 0}
-              >
-                Done ({Object.keys(modalSelectedPhotos).length})
-              </button>
-            </div>
-            
-            <div className="flex border-b border-gray-200 mt-2">
-              <button 
-                className={`flex-1 py-2 px-4 text-sm font-medium text-center ${activeTab === 'Your Photos' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:bg-gray-50'}`}
-                onClick={() => setActiveTab('Your Photos')}
-              >
-                Your Photos
-              </button>
-              <button 
-                className={`flex-1 py-2 px-4 text-sm font-medium text-center ${activeTab === 'Event Highlights' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:bg-gray-50'}`}
-                onClick={() => setActiveTab('Event Highlights')}
-              >
-                Event Highlights
-              </button>
-            </div>
-
-            <div className="flex-grow overflow-y-auto px-4 pt-4">
-              <div className="grid grid-cols-3 gap-2">
-                {getModalPhotosForTab().map((photo) => {
-                  const isSelected = !!modalSelectedPhotos[photo.id];
-                  return (
-                    <div 
-                      key={photo.id} 
-                      className={`relative rounded-md overflow-hidden aspect-square cursor-pointer border-2 ${isSelected ? 'border-blue-500 ring-2 ring-blue-300' : 'border-transparent'}`}
-                      onClick={() => handleModalPhotoSelect(photo.id, photo.src)}
-                    >
-                      <Image 
-                        src={photo.src} 
-                        alt={activeTab === 'Your Photos' ? `My photo ${photo.id}` : `Highlight ${photo.id}`}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 33vw, 33vw"
-                      />
-                      {isSelected && (
-                        <div className="absolute top-1 right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center border-2 border-white shadow">
-                          <Check size={12} className="text-white" strokeWidth={3}/>
-                        </div>
-                      )}
-                      {isSelected && <div className="absolute inset-0 bg-white/20"></div>}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-          </div> 
-        </div>
-      )}
-
-      <div className="sticky bottom-0 w-full bg-white z-10 border-t border-gray-100">
-        <NavigationBar />
       </div>
     </div>
   );
