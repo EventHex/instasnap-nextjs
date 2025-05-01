@@ -35,6 +35,9 @@ const SocialShare = () => {
   // State for the main page photo selection (max 3)
   const [photos, setPhotos] = useState([]); // Start empty or with initial selection if needed
 
+  // State for user uploaded photos
+  const [userUploadedPhotos, setUserUploadedPhotos] = useState([]);
+
   // State for the modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('Event Highlights'); // 'Your Photos' or 'Event Highlights'
@@ -96,7 +99,12 @@ const SocialShare = () => {
   };
 
   const getModalPhotosForTab = () => {
-    return activeTab === 'Your Photos' ? mockYourPhotos : mockEventHighlights;
+    if (activeTab === 'Your Photos') {
+      // Combine mock photos with user uploaded photos
+      return [...userUploadedPhotos, ...mockYourPhotos];
+    } else {
+      return mockEventHighlights;
+    }
   };
   // --- End Modal Logic --- 
 
@@ -236,12 +244,42 @@ const SocialShare = () => {
               </div>
               
               <div className="flex border-b border-gray-200 mt-2">
-                <button 
-                  className={`flex-1 py-2 px-4 text-sm font-medium text-center ${activeTab === 'Your Photos' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:bg-gray-50'}`}
-                  onClick={() => setActiveTab('Your Photos')}
-                >
-                  Your Photos
-                </button>
+                <div className="flex-1 relative">
+                  <button 
+                    className={`w-full py-2 px-4 text-sm font-medium text-center ${activeTab === 'Your Photos' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:bg-gray-50'}`}
+                    onClick={() => setActiveTab('Your Photos')}
+                  >
+                    Your Photos
+                  </button>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                    onChange={(e) => {
+                      // Handle file selection
+                      if (e.target.files && e.target.files.length > 0) {
+                        setActiveTab('Your Photos');
+                        // Convert FileList to array of objects
+                        const newFiles = Array.from(e.target.files).map((file, index) => ({
+                          id: `upload-${Date.now()}-${index}`,
+                          src: URL.createObjectURL(file),
+                          file: file // Store the actual file if needed
+                        }));
+                        
+                        // Add to userUploadedPhotos state
+                        setUserUploadedPhotos(prev => [...newFiles, ...prev]);
+                        
+                        // Also select the newly added photos in the modal
+                        const newSelections = {};
+                        newFiles.forEach(file => {
+                          newSelections[file.id] = file.src;
+                        });
+                        setModalSelectedPhotos(prev => ({...prev, ...newSelections}));
+                      }
+                    }}
+                  />
+                </div>
                 <button 
                   className={`flex-1 py-2 px-4 text-sm font-medium text-center ${activeTab === 'Event Highlights' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:bg-gray-50'}`}
                   onClick={() => setActiveTab('Event Highlights')}
