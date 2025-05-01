@@ -29,9 +29,12 @@ const index = (props) => {
            <div className='absolute bottom-0 top-[80%] transform -translate-x-1/2 rounded-full bg-white  w-10 h-10 '>
            {
             props.editIconimage ? (
+              <Link href="/edit">
               <Image src={props.editIconimage} alt="Edit profile" fill className='rounded-full p-2' />
+              </Link>
             ) : (
-              <p>
+              
+              <p className='flex items-center justify-center shadow-md bg-white rounded-full w-10 h-10'>
                 {props.editIcon}
               </p>
             )

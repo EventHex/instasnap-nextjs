@@ -136,6 +136,7 @@ console.log(res)
     <div className="w-full flex justify-center flex-col items-center">
       <Banners
           profile={userSelfie || Profileimg} 
+          editIconimage={PenIcon}
           Banner={Banner} />
 
       <div>
