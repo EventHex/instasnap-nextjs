@@ -132,6 +132,19 @@ console.log(res)
       setUserSelfie(storedSelfie);
     }
   }, [])
+
+useEffect(() => {
+const loginfunction = async () => {
+  const res = await instance.post('auth/login-public', {
+    formData
+  })
+  console.log(res)
+}
+loginfunction()
+  
+}, [])
+
+
   return (
     <div className="w-full flex justify-center flex-col items-center">
       <Banners
