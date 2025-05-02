@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect } from 'react';
+import React, {useState ,useEffect } from 'react';
 import Image from "next/image";
 import Link from "next/link"; // Added missing import for Link
 import { Banner, HumanSelfi, Sparkle } from "./assets";
@@ -8,15 +8,29 @@ import instance from './instance';
 
 
 export default function Home() {
- 
-useEffect(() => {
-  const fetchUser = async () => {
-    const  res = await instance.get('/event-highlight?event=68108d0ee0a74e8e9be98f6c')
-    console.log(res)
-  }
-  fetchUser()
-}, [])
-  
+const [domain, setDomain] = useState('')
+const [eventId, setEventId] = useState(null);
+
+  useEffect(() => {
+    const fetchEventDomain = async () => {
+      try {
+        const domain = 'testnest.instasnap.ai';
+        const res = await instance.get(`auth/domain-event?domain=${domain}`);
+        console.log(res, 'get event id?');
+        
+        // Extract the event ID from the response data
+        if (res.data && res.data.domainData && res.data.domainData.event) {
+          const id = res.data.domainData.event._id;
+          setEventId(id); // Set the event ID to state
+          console.log('Event ID:', id);
+        }
+      } catch (error) {
+        console.error('Error fetching event domain:', error);
+      }
+    };
+    
+    fetchEventDomain();
+  }, []);
   return (
     <div className="w-full ">
       <div className="flex flex-col  items-center justify-center">
