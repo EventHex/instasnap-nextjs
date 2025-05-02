@@ -5,11 +5,12 @@ import Link from "next/link"; // Added missing import for Link
 import { Banner, HumanSelfi, Sparkle } from "./assets";
 import SnapButton from "./components/button";
 import instance from './instance';
+import { useEvent } from './context'; // Import your custom hook
 
 
 export default function Home() {
+  const {  setEventId } = useEvent();
 const [domain, setDomain] = useState('')
-const [eventId, setEventId] = useState(null);
 
   useEffect(() => {
     const fetchEventDomain = async () => {
@@ -21,8 +22,7 @@ const [eventId, setEventId] = useState(null);
         // Extract the event ID from the response data
         if (res.data && res.data.domainData && res.data.domainData.event) {
           const id = res.data.domainData.event._id;
-          setEventId(id); // Set the event ID to state
-          console.log('Event ID:', id);
+          setEventId(id)
         }
       } catch (error) {
         console.error('Error fetching event domain:', error);
