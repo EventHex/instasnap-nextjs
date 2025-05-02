@@ -10,14 +10,19 @@ export const EventContext = createContext();
 export const EventProvider = ({ children }) => {
   // Define state with initial value (null for no event selected)
   const [event, setEventId] = useState(null);
+  const [iswhatsupauth, setIswhatsupauth] = useState(false);
+  const [registredUser, setRegistredUser] = useState(false);
 
   // Create the value object to be provided
   const contextValue = {
     event,
     setEventId,
+    iswhatsupauth,
+    setIswhatsupauth,
+    registredUser,
+    setRegistredUser,
   };
 
-  // Return the provider with the value
   return (
     <EventContext.Provider value={contextValue}>
       {children}

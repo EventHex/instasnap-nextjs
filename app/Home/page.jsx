@@ -140,46 +140,12 @@ const Home = () => {
     if (storedSelfie) {
       setUserSelfie(storedSelfie);
     }
+    const matchImages = async () => {
+    const response = await Instance.post(`/mobile/instasnap/match ${storedSelfie}`);
+    console.log(response,'response');
+    }
 
-    // Move the API call here
-    const fetchUser = async () => {
-      try {
-        const storedSelfie = sessionStorage.getItem('userSelfie');
-        console.log('Fetching user data with selfie:', storedSelfie ? 'Present' : 'Not present');
-        
-        // Compress the image if it exists
-        let imageToSend = null;
-        if (storedSelfie) {
-          try {
-            imageToSend = await compressImage(storedSelfie, 2);
-          } catch (err) {
-            console.error('Error compressing image in Home component:', err);
-            imageToSend = storedSelfie; // Fallback to original if compression fails
-          }
-        }
-        
-        const res = await Instance.post('/mobile/instasnap/match', {
-          selfieImage: imageToSend
-        });
-        
-        console.log('API Response:', res.data);
-        
-        // Check if the API returned images and update state
-        if (res.data && res.data.photos && Array.isArray(res.data.photos)) {
-          // Map the API response to match our expected format
-          const formattedImages = res.data.photos.map((photo, index) => ({
-            id: index + 1,
-            image: photo.url || photo.imageUrl || photo.image, // Adapt based on your API response structure
-            date: photo.date || new Date().toISOString().split('T')[0] // Use date from API or fallback to today
-          }));
-          setApiImages(formattedImages);
-        }
-      } catch (error) {
-        console.error('Error fetching user match:', error);
-      }
-    };
-    
-    fetchUser();
+    matchImages();
     
     // Cleanup function to prevent memory leaks
     return () => {

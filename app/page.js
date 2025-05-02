@@ -9,21 +9,19 @@ import { useEvent } from './context';
 
 export default function Home() {
   const {setEventId, event} = useEvent();
+  const { iswhatsupauth, setIswhatsupauth} = useEvent();
   const [domain, setDomain] = useState('');
   
-  // First useEffect to fetch the event ID
   useEffect(() => {
     const fetchEventDomain = async () => {
       try {
         const domain = 'testing.instasnap.ai';
         const res = await instance.get(`auth/domain-event?domain=${domain}`);
-        // console.log(res, 'get event id?');
         // Extract the event ID from the response data
         if (res.data && res.data.domainData && res.data.domainData.event) {
           const id = res.data.domainData.event._id;
           console.log(id, 'event id');
           setEventId(id);
-          // Don't try to log event here as it won't be updated yet
         }
       } catch (error) {
         console.error('Error fetching event domain:', error);
@@ -33,24 +31,31 @@ export default function Home() {
     fetchEventDomain();
   }, [setEventId]); 
   
-  
-  
+  // Only run the photo permission API call when event has a value
   useEffect(() => {
-const photopermission = async () => {
-  const response = await instance.get(`/photo-permission?event=${event}`);
-  console.log(response, 'photo permission');
-}
+    const photopermission = async () => {
+      // Only make the API call if event exists and is not null
+      if (event) {
+        try {
+          const response = await instance.get(`/photo-permission?event=${event}`);
+          console.log(response.data.response[0].isWhatsappAuth, 'photo permission sdf');
+          if (response.data.response && response.data.response[0]) {
+            setIswhatsupauth(response.data.response[0].isWhatsappAuth);
+          }
+          console.log(response, 'photo permission');
+        } catch (error) {
+          console.error('Error fetching photo permission:', error);
+        }
+      }
+    }
 
-photopermission();
-
+    photopermission();
   }, [event]);
   
-  // Second useEffect to log the event when it changes
+  // Debugging useEffect to log the event when it changes
   useEffect(() => {
-    if (event) {
-      console.log(event, 'event id');
-    }
-  }, [event]); // This will run whenever event changes
+    console.log(event, 'event id changed to');
+  }, [event]);
 
   return (
     <div className="w-full ">
