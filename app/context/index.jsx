@@ -9,11 +9,11 @@ export const EventContext = createContext();
 // Create a provider component
 export const EventProvider = ({ children }) => {
   // Define state with initial value (null for no event selected)
-  const [eventId, setEventId] = useState(null);
+  const [event, setEventId] = useState(null);
 
   // Create the value object to be provided
   const contextValue = {
-    eventId,
+    event,
     setEventId,
   };
 
