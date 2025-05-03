@@ -6,10 +6,11 @@ import { Banner, HumanSelfi, Sparkle } from "./assets";
 import SnapButton from "./components/button";
 import instance from './instance';
 import { useEvent } from './context';
-
+import HomeLoader from './components/loader/homeLoader';
 export default function Home() {
   const {setEventId, event} = useEvent();
   const { iswhatsupauth, setIswhatsupauth} = useEvent();
+  const [isLoading, setIsLoading] = useState(true);
 
   
   useEffect(() => {
@@ -20,11 +21,14 @@ export default function Home() {
         // Extract the event ID from the response data
         if (res.data && res.data.domainData && res.data.domainData.event) {
           const id = res.data.domainData.event._id;
-          // console.log(id, 'event id');
+          console.log(id, 'event id');
           setEventId(id);
+          sessionStorage.setItem('eventId', id);
         }
       } catch (error) {
         console.error('Error fetching event domain:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
     
@@ -40,8 +44,9 @@ export default function Home() {
           const response = await instance.get(`/photo-permission?event=${event}`);
           if (response.data.response && response.data.response[0]) {
             setIswhatsupauth(response.data.response[0].isWhatsappAuth);
+            sessionStorage.setItem('isWhatsappAuth', response.data.response[0].isWhatsappAuth);
           }
-          // console.log(response, 'whatsapp auth');
+          console.log(response, 'whatsapp auth');
         } catch (error) {
           console.error('Error fetching photo permission:', error);
         }
@@ -51,7 +56,11 @@ export default function Home() {
     photopermission();
   }, [event]);
   
-
+  if (isLoading) {
+    return (
+   <HomeLoader/>
+    );
+  }
 
   return (
     <div className="w-full ">

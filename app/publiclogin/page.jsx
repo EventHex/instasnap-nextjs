@@ -90,23 +90,10 @@ const Page = () => {
 
     useEffect(() => {
         setIsClient(true);
-    
-        // Retrieve stored data from sessionStorage
-        const storedSelfie = sessionStorage.getItem("userSelfie");
-        const storedPhone = sessionStorage.getItem("userPhone");
-        const storedName = sessionStorage.getItem("userName");
-        
+        // Retrieve the selfie image from sessionStorage
+        const storedSelfie = sessionStorage.getItem('userSelfie');
         if (storedSelfie) {
-          setUserSelfie(storedSelfie);
-        }
-        
-        if (storedPhone) {
-          setPhonenumber(storedPhone);
-          setFormData(prev => ({...prev, phone: storedPhone}));
-        }
-        
-        if (storedName) {
-          setUsername(storedName);
+            setUserSelfie(storedSelfie);
         }
     }, []);
       
@@ -126,15 +113,11 @@ const Page = () => {
           });
           console.log("API response:", res);
           
-          // Save the updated user information
-          sessionStorage.setItem("userPhone", phonenumber);
-          sessionStorage.setItem("userName", username);
-          
-          // Save the registration ID to state
+          // Save the registration ID to state and sessionStorage
           const registrationId = res.data.ticketsRegistration._id;
           console.log('Registration ID:', registrationId);
           setRegistredUser(registrationId);
-          console.log('Updated registredUser state:', registrationId);
+          sessionStorage.setItem('registredUser', registrationId);
           
           if (res.status === 200) {
             router.push('/home');

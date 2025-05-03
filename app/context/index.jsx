@@ -1,7 +1,7 @@
 // EventContext.js
 'use client'
 
-import React, { createContext, useState, useContext } from "react";
+import React, { createContext, useState, useContext, useEffect } from "react";
 
 // Create the context
 export const EventContext = createContext();
@@ -11,7 +11,20 @@ export const EventProvider = ({ children }) => {
   // Define state with initial value (null for no event selected)
   const [event, setEventId] = useState(null);
   const [iswhatsupauth, setIswhatsupauth] = useState(false);
-  const [registredUser, setRegistredUser] = useState(false);
+  const [registredUser, setRegistredUser] = useState(null);
+
+  // Initialize from sessionStorage on mount
+  useEffect(() => {
+    const storedEvent = sessionStorage.getItem('eventId');
+    const storedRegistredUser = sessionStorage.getItem('registredUser');
+    
+    if (storedEvent) {
+      setEventId(storedEvent);
+    }
+    if (storedRegistredUser) {
+      setRegistredUser(storedRegistredUser);
+    }
+  }, []);
 
   // Create the value object to be provided
   const contextValue = {

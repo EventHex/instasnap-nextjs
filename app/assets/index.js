@@ -33,7 +33,7 @@ import Post2 from './image/Post2.svg'
 import Post3 from './image/Post3.svg'
 import EventHexlogo from './icons/EventhexLogo.svg'
 import LinkedIn from './icons/linkedin.svg'
-
+import SearchingGif from './icons/searching.gif'
 
 export {
   Logo,
@@ -70,5 +70,6 @@ export {
   Post2,
   Post3,
   EventHexlogo,
-  LinkedIn
+  LinkedIn,
+  SearchingGif
 }
