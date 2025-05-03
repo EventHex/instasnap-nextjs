@@ -13,6 +13,7 @@ import Button from '../components/button'
 import Masonry from 'react-masonry-css';
 import Instance from '../instance'
 import { useEvent } from '../context';
+import Loader from '../components/loader'
 
 // Add image compression utility without changing any existing functionality
 const compressImage = (base64Image, maxSizeMB = 0.5) => {
@@ -134,6 +135,7 @@ const Home = () => {
   const [userSelfie, setUserSelfie] = useState(null);
   const [imagesLoaded, setImagesLoaded] = useState({});
   const [apiImages, setApiImages] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const modalRef = useRef(null);
 
   useEffect(() => {
@@ -148,6 +150,7 @@ const Home = () => {
     if (isClient && event && registredUser) {
       const matchImages = async () => {
         console.log(event,registredUser,'event and registredUser');
+        setIsLoading(true);
         
         try {
           const formData = new FormData();
@@ -178,6 +181,8 @@ const Home = () => {
         } catch (error) {
           console.error('Error in matchImages:', error);
           // You might want to show an error message to the user here
+        } finally {
+          setIsLoading(false);
         }
       }
 
@@ -194,6 +199,16 @@ const Home = () => {
 
   if (!isClient) {
     return null; // or a loading state
+  }
+
+  if (isLoading) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center">
+        {/* <Loader /> */}
+
+        <h1>Loading...</h1>
+      </div>
+    );
   }
 
   // View post function (with cleanup)
@@ -290,7 +305,7 @@ const Home = () => {
         <Banners 
           profile={userSelfie || Profileimg} 
           Banner={Banner} 
-          // editIcon={PenIcon}
+    
           editIconimage={PenIcon}
         />
 
@@ -352,32 +367,34 @@ const Home = () => {
          ))}
        </Masonry>
       ) : (
-        <div className="">
-          <div className="flex flex-col items-center justify-center p-6 bg-[#F6F8FA] w-full">
-            <p className="text-[#0A0D14] text-[18px] font-[500] text-center">
-              Oops! Our AI couldn't find any Highlights for you yet.
+        <div className="w-full max-w-4xl mx-auto">
+          <div className="flex flex-col items-center justify-center p-8 bg-[#F6F8FA] rounded-lg">
+            <p className="text-[#0A0D14] text-[18px] font-[500] text-center mb-4">
+              Oops! Our AI couldn't find any photos of you yet.
             </p>
-            <div className="flex items-center justify-center bg-gray-100">
+            <div className="flex items-center justify-center bg-gray-100 rounded-lg p-4 mb-6">
               <Image
                 src={Frame}
-                alt="Frame"
+                alt="No photos found"
                 className="w-full h-full object-contain"
+                width={200}
+                height={200}
               />
             </div>
             <div className="flex flex-col items-center w-full max-w-xs">
-              <p className="font-[500] text-[14px] text-[#525866] mb-2 text-center">Don't worry! This could be because:</p>
-              <ul className="list-disc pl-15 text-[#525866] w-full">
-                <li className="font-[400] text-[12px]">Your Photos are Still Processing</li>
+              <p className="font-[500] text-[14px] text-[#525866] mb-4 text-center">Don't worry! This could be because:</p>
+              <ul className="list-disc pl-5 text-[#525866] w-full space-y-2">
+                <li className="font-[400] text-[12px]">Your photos are still processing</li>
                 <li className="font-[400] text-[12px]">
                   You might be early – new photos are added regularly
                 </li>
               </ul>
             </div>
-            <div className="flex items-center justify-center mt-6">
+            <div className="flex items-center justify-center mt-8">
               <p className="text-[12px] text-[#525866] font-[500] flex items-center">
                 Powered By
                 <span className="flex items-center ml-2">
-                  <Image src={EventHex} alt="Frame" className="w-4 h-4 mr-1" />
+                  <Image src={EventHex} alt="EventHex" className="w-4 h-4 mr-1" />
                   EventHex
                 </span>
               </p>
