@@ -6,10 +6,11 @@ import { Banner, HumanSelfi, Sparkle } from "./assets";
 import SnapButton from "./components/button";
 import instance from './instance';
 import { useEvent } from './context';
-
+import HomeLoader from './components/loader/homeLoader';
 export default function Home() {
   const {setEventId, event} = useEvent();
   const { iswhatsupauth, setIswhatsupauth} = useEvent();
+  const [isLoading, setIsLoading] = useState(true);
 
   
   useEffect(() => {
@@ -22,9 +23,12 @@ export default function Home() {
           const id = res.data.domainData.event._id;
           // console.log(id, 'event id');
           setEventId(id);
+          sessionStorage.setItem('eventId', id);
         }
       } catch (error) {
         console.error('Error fetching event domain:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
     
@@ -51,7 +55,11 @@ export default function Home() {
     photopermission();
   }, [event]);
   
-
+  if (isLoading) {
+    return (
+   <HomeLoader/>
+    );
+  }
 
   return (
     <div className="w-full ">
