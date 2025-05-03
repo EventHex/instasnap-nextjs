@@ -44,6 +44,7 @@ export default function Home() {
           const response = await instance.get(`/photo-permission?event=${event}`);
           if (response.data.response && response.data.response[0]) {
             setIswhatsupauth(response.data.response[0].isWhatsappAuth);
+            sessionStorage.setItem('isWhatsappAuth', response.data.response[0].isWhatsappAuth);
           }
           // console.log(response, 'whatsapp auth');
         } catch (error) {
