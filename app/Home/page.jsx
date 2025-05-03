@@ -126,9 +126,6 @@ useEffect(() => {
 };
 
 const Home = () => {
-  const { event,registredUser } = useEvent();
-  console.log('Component mounted with:', { event, registredUser });
-
   const [isClient, setIsClient] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -137,6 +134,8 @@ const Home = () => {
   const [apiImages, setApiImages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showLoading, setShowLoading] = useState(true);
+  const [event, setEvent] = useState(null);
+  const [registredUser, setRegistredUser] = useState(null);
   const modalRef = useRef(null);
 
   useEffect(() => {
@@ -189,22 +188,31 @@ const Home = () => {
     console.log('useEffect triggered with:', { isClient, event, registredUser });
     setIsClient(true);
     const storedSelfie = sessionStorage.getItem('userSelfie');
+    const storedEvent = sessionStorage.getItem('event');
+    const storedRegistredUser = sessionStorage.getItem('registredUser');
+    console.log(storedSelfie,storedEvent,storedRegistredUser,'storedSelfie,storedEvent,storedRegistredUser');
     if (storedSelfie) {
       setUserSelfie(storedSelfie);
     }
+    if (storedEvent) {
+      setEvent(storedEvent);
+    }
+    if (storedRegistredUser) {
+      setRegistredUser(storedRegistredUser);
+    }
 
     // Only make the API call if we have both event and registredUser and we're on the client side
-    if (isClient && event && registredUser) {
+    if (isClient && storedEvent && storedRegistredUser) {
       matchImages();
     } else if (isClient) {
-      console.warn('Missing required data for match API:', { event, registredUser });
+      console.warn('Missing required data for match API:', { storedEvent, storedRegistredUser });
     }
     
     // Cleanup function to prevent memory leaks
     return () => {
       // Cleanup any resources if needed
     };
-  }, [event, registredUser, isClient]); 
+  }, [isClient]); 
 
   if (!isClient) {
     return null; // or a loading state

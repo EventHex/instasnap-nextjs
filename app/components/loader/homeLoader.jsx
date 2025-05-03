@@ -46,10 +46,10 @@ const InstaSnapLoader = () => {
     <div className="flex flex-col items-center justify-center w-full h-screen bg-gradient-to-br from-blue-100 to-white">
       {/* Logo */}
       <div className="mb-8 flex items-center">
-        <span className="text-xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500">
+        <span className="text-xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-blue-300 via-gray-300 to-indigo-300">
           InstaSnap
         </span>
-        <Sparkles className=" animate-bounce ml-2 text-yellow-400" size={24} />
+        <Sparkles className=" animate-bounce ml-2 text-yellow-300" size={24} />
       </div>
       
       {/* Main content container */}
@@ -58,7 +58,7 @@ const InstaSnapLoader = () => {
         <div className="absolute inset-0 border-2 border-gray-100 rounded-xl overflow-hidden">
           {/* Loading content gradient */}
           <div 
-            className="absolute inset-0 bg-gradient-to-br from-pink-300 via-purple-50 to-blue-50" 
+            className="absolute inset-0 bg-gradient-to-br from-blue-300 via-purple-50 to-blue-50" 
             style={{ clipPath: `inset(0 ${100 - cutPosition}% 0 0)` }}
           />
           
