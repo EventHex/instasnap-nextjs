@@ -33,13 +33,15 @@ const Otp = () => {
             </div>
 
             <div className="w-full flex justify-center font-[700] text-[16px]">
-              <SignInButton buttonName="Sign in" />
+              <SignInButton
+              className="w-full "
+              buttonName="Sign in" />
             </div>
           </div>
         </div>
       </div>
 
-      <p className="text-sm text-gray-600 text-center font-[400] text-[14px] p-6">
+      {/* <p className="text-sm text-gray-600 text-center font-[400] text-[14px] p-6">
         New user?{" "}
         <a
           href="/signup"
@@ -47,7 +49,7 @@ const Otp = () => {
         >
           Sign up
         </a>
-      </p>
+      </p> */}
     </div>
   );
 };

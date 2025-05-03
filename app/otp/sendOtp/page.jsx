@@ -32,8 +32,10 @@ const SendOtp = () => {
             type="number"
           />
         </div>
-        <div className="w-full flex justify-center font-[700] text-[16px] mt-5">
-          <VerifyButton buttonName="Verify" />
+        <div className="w-full flex  px-[50px]  font-[700] text-[16px] mt-5">
+          <VerifyButton  
+          className="w-full"
+          buttonName="Verify" />
         </div>
         <div className="w-full flex flex-col items-center font-[400] text-[14px] mt-5 text-[#525866]">
           <p>Experiencing issues receiving the code?</p>

@@ -12,6 +12,7 @@ import { CloudDownload, Share2, View, X } from "lucide-react";
 import Button from '../components/button'
 import Masonry from 'react-masonry-css';
 import Instance from '../instance'
+import { useEvent } from '../context';
 
 // Add image compression utility without changing any existing functionality
 const compressImage = (base64Image, maxSizeMB = 0.5) => {
@@ -98,7 +99,7 @@ useEffect(() => {
       
       // Make API request with the compressed selfie
       const res = await Instance.post('/mobile/instasnap/match', {
-        selfieImage: imageToSend
+       
       });
       console.log(res,'data gotted');
     } catch (error) {
@@ -124,68 +125,72 @@ useEffect(() => {
 };
 
 const Home = () => {
+  const { event,registredUser } = useEvent();
+  console.log('Component mounted with:', { event, registredUser });
+
   const [isClient, setIsClient] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [userSelfie, setUserSelfie] = useState(null);
   const [imagesLoaded, setImagesLoaded] = useState({});
-  const [apiImages, setApiImages] = useState([]); // New state for API images
+  const [apiImages, setApiImages] = useState([]);
   const modalRef = useRef(null);
 
   useEffect(() => {
+    console.log('useEffect triggered with:', { isClient, event, registredUser });
     setIsClient(true);
-    
-    // Retrieve the selfie image from sessionStorage
     const storedSelfie = sessionStorage.getItem('userSelfie');
     if (storedSelfie) {
       setUserSelfie(storedSelfie);
     }
 
-    // Move the API call here
-    const fetchUser = async () => {
-      try {
-        const storedSelfie = sessionStorage.getItem('userSelfie');
-        console.log('Fetching user data with selfie:', storedSelfie ? 'Present' : 'Not present');
+    // Only make the API call if we have both event and registredUser and we're on the client side
+    if (isClient && event && registredUser) {
+      const matchImages = async () => {
+        console.log(event,registredUser,'event and registredUser');
         
-        // Compress the image if it exists
-        let imageToSend = null;
-        if (storedSelfie) {
-          try {
-            imageToSend = await compressImage(storedSelfie, 2);
-          } catch (err) {
-            console.error('Error compressing image in Home component:', err);
-            imageToSend = storedSelfie; // Fallback to original if compression fails
+        try {
+          const formData = new FormData();
+          formData.append('eventId', event);
+          formData.append('userId', registredUser);
+          
+          if (userSelfie) {
+            // Convert base64 to blob
+            const base64Response = await fetch(userSelfie);
+            const blob = await base64Response.blob();
+            formData.append('file', blob, 'selfie.jpg');
           }
+          
+          const response = await Instance.post(`/mobile/instasnap/match`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          });
+          
+          if (response.data && response.data.FaceMatches) {
+            setApiImages(response.data.FaceMatches.map(match => ({
+              id: match.imageId,
+              image: match.image,
+              date: new Date(match.matchDate).toLocaleDateString()
+            })));
+          }
+          console.log('Match API response:', response.data);
+        } catch (error) {
+          console.error('Error in matchImages:', error);
+          // You might want to show an error message to the user here
         }
-        
-        const res = await Instance.post('/mobile/instasnap/match', {
-          selfieImage: imageToSend
-        });
-        
-        console.log('API Response:', res.data);
-        
-        // Check if the API returned images and update state
-        if (res.data && res.data.photos && Array.isArray(res.data.photos)) {
-          // Map the API response to match our expected format
-          const formattedImages = res.data.photos.map((photo, index) => ({
-            id: index + 1,
-            image: photo.url || photo.imageUrl || photo.image, // Adapt based on your API response structure
-            date: photo.date || new Date().toISOString().split('T')[0] // Use date from API or fallback to today
-          }));
-          setApiImages(formattedImages);
-        }
-      } catch (error) {
-        console.error('Error fetching user match:', error);
       }
-    };
-    
-    fetchUser();
+
+      matchImages();
+    } else if (isClient) {
+      console.warn('Missing required data for match API:', { event, registredUser });
+    }
     
     // Cleanup function to prevent memory leaks
     return () => {
       // Cleanup any resources if needed
     };
-  }, []);
+  }, [event, registredUser, isClient]); 
 
   if (!isClient) {
     return null; // or a loading state

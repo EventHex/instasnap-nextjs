@@ -1,15 +1,28 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Banner, Profileimg, Flat, Suitcase, Gender, User, PenIcon, ErrorIcon ,VerifiedIcon} from "../assets";
+import {
+  Banner,
+  Profileimg,
+  Flat,
+  Suitcase,
+  Gender,
+  User,
+  PenIcon,
+  ErrorIcon,
+  VerifiedIcon,
+} from "../assets";
 import Header from "../components/Header";
 import Banners from "../components/banner";
 import Input from "../components/input";
 import Dropdown from "../components/dropdown";
 import Button from "../components/button";
 import Image from "next/image";
+import instance from "../instance";
+import { useEvent } from "../context"; // Import the context hook
 
 const Register = () => {
+  const { event  } = useEvent();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -31,6 +44,7 @@ const Register = () => {
   const [codeSent, setCodeSent] = useState(false);
   const [codeSentError, setCodeSentError] = useState(false);
   const [codeSentSuccess, setCodeSentSuccess] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const countryCodes = [
     { code: "91", country: "India" },
@@ -79,29 +93,37 @@ const Register = () => {
   };
 
   // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (isFormValid()) {
-      // Store the submitted data
+   
       setSubmittedData({
         ...formData,
         countryCode: selectedCode,
       });
 
-      // You can add additional logic here (e.g., API calls)
+ 
+      try {
+        const res = await instance.post("auth/login-public", {
+          mobile: formData.phone,
+          phoneCode: selectedCode,
+          fullName: formData.firstName,
+          event: event,
+        });
+        console.log("API response:", res);
+        // Handle successful response here
+        // For example, you could redirect to another page
+      } catch (error) {
+        console.error("Error calling API:", error);
+        // Handle error here
+      }
+
+      // You can add additional logic here
       console.log("Form submitted:", {
         ...formData,
         countryCode: selectedCode,
       });
     }
-    const loginfunction = async () => {
-const res = await instance.post('auth/login-public', {
- formData
-})
-console.log(res)
-    }
-    loginfunction()
-
   };
 
   // Update the handleSendCode function
@@ -116,28 +138,31 @@ console.log(res)
 
   const SendCode = () => {
     setCodeSentError(true);
-  }
-  
+  };
+
   const handleVerify = () => {
     setCodeSentSuccess(true);
-  }
-
+  };
 
   useEffect(() => {
     setIsClient(true);
-    
+
     // Retrieve the selfie image from sessionStorage
-    const storedSelfie = sessionStorage.getItem('userSelfie');
+    const storedSelfie = sessionStorage.getItem("userSelfie");
     if (storedSelfie) {
       setUserSelfie(storedSelfie);
     }
-  }, [])
+    
+    // Removed API call from useEffect since it's now in handleSubmit
+  }, []);
+
   return (
     <div className="w-full flex justify-center flex-col items-center">
       <Banners
-          profile={userSelfie || Profileimg} 
-          editIconimage={PenIcon}
-          Banner={Banner} />
+        profile={userSelfie || Profileimg}
+        editIconimage={PenIcon}
+        Banner={Banner}
+      />
 
       <div>
         <div className="pt-12 px-4">
@@ -187,7 +212,7 @@ console.log(res)
                         placeholder="Enter your number"
                         value={formData.phone}
                         onChange={handleChange}
-                        className="w-full border-[#E2E4E9] border-r-0 py-3 pl-10 pr-4 border focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full border-[#E2E4E9]  text-black border-r-0 py-3 pl-10 pr-4 border focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                       <div className="absolute left-3 top-1/2 -translate-y-1/2"></div>
                     </div>
@@ -197,17 +222,17 @@ console.log(res)
                       className="px-1 border-[#E2E4E9] border border-l-0 text-[#375DFB] rounded-r-lg flex items-center justify-center"
                     >
                       {codeSent ? (
-                      <div className="  ">
-                        <Image
-                          width={20}
-                          height={20}
-                          className=""
-                          src={codeSentSuccess ? VerifiedIcon : PenIcon}
-                          alt={codeSentSuccess ? "UserIcon" : "PenIcon"}
-                        />
+                        <div className="  ">
+                          <Image
+                            width={20}
+                            height={20}
+                            className=""
+                            src={codeSentSuccess ? VerifiedIcon : PenIcon}
+                            alt={codeSentSuccess ? "UserIcon" : "PenIcon"}
+                          />
                         </div>
                       ) : (
-                        'send code'
+                        "send code"
                       )}
                     </button>
                   </div>
@@ -225,14 +250,14 @@ console.log(res)
                             type="tel"
                             name="verificationCode"
                             placeholder="Enter verification code"
-                            value={formData.verificationCode || ''}
+                            value={formData.verificationCode || ""}
                             onChange={handleChange}
                             className="w-full border-[#E2E4E9] border-r-0 rounded-l-lg py-3 pl-10 pr-4 border focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />
                           <div className="absolute left-3 top-1/2 -translate-y-1/2"></div>
                         </div>
                         <button
-                        onClick={handleVerify}
+                          onClick={handleVerify}
                           type="button"
                           className="px-2 py-2 border-[#E2E4E9] bg-[#F6F8FA] border border-l text-[#CDD0D5] hover:bg-[#375DFB] hover:text-white rounded-r-lg"
                         >
@@ -241,24 +266,33 @@ console.log(res)
                       </div>
                     </div>
                     <div className="flex">
-                  {codeSentError?
-                  <div className="flex w-full gap-2">
-                  <p className="flex justify-start  gap-2">
-                  <Image
-                  width={20}
-                  height={20}
-                  className="w-5 h-5"
-                  src={ErrorIcon}
-                  alt="ErrorIcon"
-                  />
-                  <p className="text-[#525866] font-inter font-[400] text-[14px]">A new OTP has been sent to your registered number</p>
-                  </p>
-                  </div>:
-                  
-                  <p className=" font-inter  text-[#525866] font-[400] text-[14px]">Experiencing issues receiving the code?  <span  onClick={SendCode} className="text-[#525866] font-inter font-[400] text-[14px] underline" >Resend code</span> </p>
-                }
-              
-                </div>
+                      {codeSentError ? (
+                        <div className="flex w-full gap-2">
+                          <p className="flex justify-start  gap-2">
+                            <Image
+                              width={20}
+                              height={20}
+                              className="w-5 h-5"
+                              src={ErrorIcon}
+                              alt="ErrorIcon"
+                            />
+                            <p className="text-[#525866] font-inter font-[400] text-[14px]">
+                              A new OTP has been sent to your registered number
+                            </p>
+                          </p>
+                        </div>
+                      ) : (
+                        <p className=" font-inter  text-[#525866] font-[400] text-[14px]">
+                          Experiencing issues receiving the code?{" "}
+                          <span
+                            onClick={SendCode}
+                            className="text-[#525866] font-inter font-[400] text-[14px] underline"
+                          >
+                            Resend code
+                          </span>{" "}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </>
               )}
@@ -269,6 +303,7 @@ console.log(res)
               value={formData.firstName}
               onChange={handleChange}
               icon={User}
+              disabled={!isLoggedIn}
             />
 
             <Input
@@ -277,6 +312,7 @@ console.log(res)
               value={formData.designation}
               onChange={handleChange}
               icon={Suitcase}
+              disabled={!isLoggedIn}
             />
 
             <Input
@@ -285,6 +321,7 @@ console.log(res)
               value={formData.companyName}
               onChange={handleChange}
               icon={Flat}
+              disabled={!isLoggedIn}
             />
 
             <Dropdown
@@ -295,10 +332,15 @@ console.log(res)
               isOpen={isGenderOpen}
               onToggle={() => setIsGenderOpen(!isGenderOpen)}
               onSelect={handleGenderSelect}
+              disabled={!isLoggedIn}
             />
 
             <div className="w-full my-5 flex justify-center">
-              <Button type="submit" disabled={!isFormValid()}>
+              <Button
+                type="submit"
+                onClick={handleSubmit}
+                disabled={!isFormValid()}
+              >
                 Find my photos
               </Button>
             </div>

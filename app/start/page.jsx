@@ -5,8 +5,9 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { FaceIdBase } from '../assets';
 import StartButton from '../components/Button';
-
+import { useEvent } from '../context';
 const Index = () => {
+  const { iswhatsupauth, setIswhatsupauth} = useEvent();
   const router = useRouter();
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -97,8 +98,12 @@ const Index = () => {
     // Save image to sessionStorage or localStorage to persist across routes
     if (capturedImage) {
       sessionStorage.setItem('userSelfie', capturedImage);
-  
-      router.push('/register');
+      if (iswhatsupauth === true  ) {
+        
+        router.push('/register');
+      } else {
+        router.push('/publiclogin');
+      }
     }
   };
   

@@ -1,28 +1,64 @@
 'use client'
-import React, { useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import Image from "next/image";
-import Link from "next/link"; // Added missing import for Link
+import Link from "next/link";
 import { Banner, HumanSelfi, Sparkle } from "./assets";
 import SnapButton from "./components/button";
 import instance from './instance';
-
+import { useEvent } from './context';
 
 export default function Home() {
- 
-useEffect(() => {
-  const fetchUser = async () => {
-    const  res = await instance.get('/event-highlight?event=68108d0ee0a74e8e9be98f6c')
-    console.log(res)
-  }
-  fetchUser()
-}, [])
+  const {setEventId, event} = useEvent();
+  const { iswhatsupauth, setIswhatsupauth} = useEvent();
+
   
+  useEffect(() => {
+    const fetchEventDomain = async () => {
+      try {
+        const domain = 'testing.instasnap.ai';
+        const res = await instance.get(`auth/domain-event?domain=${domain}`);
+        // Extract the event ID from the response data
+        if (res.data && res.data.domainData && res.data.domainData.event) {
+          const id = res.data.domainData.event._id;
+          // console.log(id, 'event id');
+          setEventId(id);
+        }
+      } catch (error) {
+        console.error('Error fetching event domain:', error);
+      }
+    };
+    
+    fetchEventDomain();
+  }, [setEventId]); 
+  
+  // Only run the photo permission API call when event has a value
+  useEffect(() => {
+    const photopermission = async () => {
+      // Only make the API call if event exists and is not null
+      if (event) {
+        try {
+          const response = await instance.get(`/photo-permission?event=${event}`);
+          if (response.data.response && response.data.response[0]) {
+            setIswhatsupauth(response.data.response[0].isWhatsappAuth);
+          }
+          // console.log(response, 'whatsapp auth');
+        } catch (error) {
+          console.error('Error fetching photo permission:', error);
+        }
+      }
+    }
+
+    photopermission();
+  }, [event]);
+  
+
+
   return (
     <div className="w-full ">
-      <div className="flex flex-col  items-center justify-center">
+      <div className="flex flex-col items-center justify-center">
         <div className="w-full max-w-6xl">
           <Image
-            className=" rounded-b-[30px]  w-full object-fill"
+            className=" rounded-b-[30px] w-full object-fill"
             src={Banner}
             alt="Banner"
             width={1200}
@@ -56,7 +92,6 @@ useEffect(() => {
                   buttonName="Snap a Selfie"
                   alt="sparkle"
                   className="bg-[#375DFB] text-white rounded-[10px] flex justify-center items-center py-1 px-6 w-[80%] hover:text-black hover:border-[#375DFB] border border-transparent transition-all hover:bg-white duration-300"
-
                 />
               </Link>
               <div className="w-[90%] mt-1">
