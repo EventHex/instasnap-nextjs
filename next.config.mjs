@@ -14,6 +14,18 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'app-api.eventhex.ai',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'api.instasnap.live68149714c4b9b3811e79475c',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };
