@@ -136,7 +136,54 @@ const Home = () => {
   const [imagesLoaded, setImagesLoaded] = useState({});
   const [apiImages, setApiImages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [showLoading, setShowLoading] = useState(true);
   const modalRef = useRef(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowLoading(false);
+    }, 10000); // 10 seconds timeout
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  const matchImages = async () => {
+    console.log(event,registredUser,'event and registredUser');
+    setIsLoading(true);
+    
+    try {
+      const formData = new FormData();
+      formData.append('eventId', event);
+      formData.append('userId', registredUser);
+      
+      if (userSelfie) {
+        // Convert base64 to blob
+        const base64Response = await fetch(userSelfie);
+        const blob = await base64Response.blob();
+        formData.append('file', blob, 'selfie.jpg');
+      }
+      
+      const response = await Instance.post(`/mobile/instasnap/match`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      
+      if (response.data && response.data.FaceMatches) {
+        setApiImages(response.data.FaceMatches.map(match => ({
+          id: match.imageId,
+          image: match.image,
+          date: new Date(match.matchDate).toLocaleDateString()
+        })));
+      }
+      console.log('Match API response:', response.data);
+    } catch (error) {
+      console.error('Error in matchImages:', error);
+      // You might want to show an error message to the user here
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     console.log('useEffect triggered with:', { isClient, event, registredUser });
@@ -148,44 +195,6 @@ const Home = () => {
 
     // Only make the API call if we have both event and registredUser and we're on the client side
     if (isClient && event && registredUser) {
-      const matchImages = async () => {
-        console.log(event,registredUser,'event and registredUser');
-        setIsLoading(true);
-        
-        try {
-          const formData = new FormData();
-          formData.append('eventId', event);
-          formData.append('userId', registredUser);
-          
-          if (userSelfie) {
-            // Convert base64 to blob
-            const base64Response = await fetch(userSelfie);
-            const blob = await base64Response.blob();
-            formData.append('file', blob, 'selfie.jpg');
-          }
-          
-          const response = await Instance.post(`/mobile/instasnap/match`, formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data'
-            }
-          });
-          
-          if (response.data && response.data.FaceMatches) {
-            setApiImages(response.data.FaceMatches.map(match => ({
-              id: match.imageId,
-              image: match.image,
-              date: new Date(match.matchDate).toLocaleDateString()
-            })));
-          }
-          console.log('Match API response:', response.data);
-        } catch (error) {
-          console.error('Error in matchImages:', error);
-          // You might want to show an error message to the user here
-        } finally {
-          setIsLoading(false);
-        }
-      }
-
       matchImages();
     } else if (isClient) {
       console.warn('Missing required data for match API:', { event, registredUser });
@@ -201,12 +210,18 @@ const Home = () => {
     return null; // or a loading state
   }
 
+  if (showLoading) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center">
+        <Loader/>
+      </div>
+    );
+  }
+
   if (isLoading) {
     return (
       <div className="w-full h-screen flex items-center justify-center">
-        {/* <Loader /> */}
-
-        <h1>Loading...</h1>
+        <Loader/>
       </div>
     );
   }
@@ -329,9 +344,11 @@ const Home = () => {
             <Button 
               width="w-auto"
               className="bg-[#375DFB] hover:bg-[#2440c4] text-[14px] font-[500] py-2 px-6"
-              onClick={() => window.location.reload()}
+              onClick={matchImages}
+              disabled={isLoading}
             >
-              Recheck
+              {isLoading ? <Loader /> : 'Recheck'}
+              {/* {isLoading ? 'Loading...' : 'Recheck'} */}
             </Button>
           </div>
         </div>
@@ -343,7 +360,7 @@ const Home = () => {
          columnClassName="bg-clip-padding"
        >
          {apiImages.map((item) => (
-            <div className="bg-white rounded-lg overflow-hidden mb-1" key={item.id}>
+            <div className="bg-white rounded-lg overflow-hidden mb-11" key={item.id}>
             <div className="w-full relative">
               <div className="relative group w-full">
                 <Image
