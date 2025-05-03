@@ -21,7 +21,7 @@ export default function Home() {
         // Extract the event ID from the response data
         if (res.data && res.data.domainData && res.data.domainData.event) {
           const id = res.data.domainData.event._id;
-          // console.log(id, 'event id');
+          console.log(id, 'event id');
           setEventId(id);
           sessionStorage.setItem('eventId', id);
         }
@@ -46,7 +46,7 @@ export default function Home() {
             setIswhatsupauth(response.data.response[0].isWhatsappAuth);
             sessionStorage.setItem('isWhatsappAuth', response.data.response[0].isWhatsappAuth);
           }
-          // console.log(response, 'whatsapp auth');
+          console.log(response, 'whatsapp auth');
         } catch (error) {
           console.error('Error fetching photo permission:', error);
         }

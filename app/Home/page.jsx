@@ -134,10 +134,15 @@ const Home = () => {
   const [apiImages, setApiImages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showLoading, setShowLoading] = useState(true);
-  const [event, setEvent] = useState(null);
-  const [registredUser, setRegistredUser] = useState(null);
+  const { event, registredUser } = useEvent();
   const modalRef = useRef(null);
 
+  // Set isClient to true on mount
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Handle loading timeout
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowLoading(false);
@@ -147,7 +152,7 @@ const Home = () => {
   }, []);
 
   const matchImages = async () => {
-    console.log(event,registredUser,'event and registredUser');
+    console.log(event, registredUser, 'event and registredUser');
     setIsLoading(true);
     
     try {
@@ -178,44 +183,32 @@ const Home = () => {
       console.log('Match API response:', response.data);
     } catch (error) {
       console.error('Error in matchImages:', error);
-      // You might want to show an error message to the user here
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Handle API call when event and registredUser are available
   useEffect(() => {
-    console.log('useEffect triggered with:', { isClient, event, registredUser });
-    setIsClient(true);
-    const storedSelfie = sessionStorage.getItem('userSelfie');
-    const storedEvent = sessionStorage.getItem('event');
-    const storedRegistredUser = sessionStorage.getItem('registredUser');
-    console.log(storedSelfie,storedEvent,storedRegistredUser,'storedSelfie,storedEvent,storedRegistredUser');
-    if (storedSelfie) {
-      setUserSelfie(storedSelfie);
-    }
-    if (storedEvent) {
-      setEvent(storedEvent);
-    }
-    if (storedRegistredUser) {
-      setRegistredUser(storedRegistredUser);
-    }
-
-    // Only make the API call if we have both event and registredUser and we're on the client side
-    if (isClient && storedEvent && storedRegistredUser) {
+    if (isClient && event && registredUser) {
       matchImages();
     } else if (isClient) {
-      console.warn('Missing required data for match API:', { storedEvent, storedRegistredUser });
+      console.warn('Missing required data for match API:', { event, registredUser });
     }
-    
-    // Cleanup function to prevent memory leaks
-    return () => {
-      // Cleanup any resources if needed
-    };
-  }, [isClient]); 
+  }, [isClient, event, registredUser]);
+
+  // Handle userSelfie from sessionStorage
+  useEffect(() => {
+    if (isClient) {
+      const storedSelfie = sessionStorage.getItem('userSelfie');
+      if (storedSelfie) {
+        setUserSelfie(storedSelfie);
+      }
+    }
+  }, [isClient]);
 
   if (!isClient) {
-    return null; // or a loading state
+    return null;
   }
 
   if (showLoading) {
