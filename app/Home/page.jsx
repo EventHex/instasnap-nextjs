@@ -146,7 +146,7 @@ const Home = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowLoading(false);
-    }, 10000); // 10 seconds timeout
+    }, 1000); // 10 seconds timeout
 
     return () => clearTimeout(timer);
   }, []);
@@ -227,24 +227,23 @@ const Home = () => {
     );
   }
 
-  // View post function (with cleanup)
+  // View post function (keeping your existing implementation)
   const viewPost = (post) => {
-    // Reset any previous modal state to prevent race conditions
-    if (showModal) {
-      setShowModal(false);
-      setTimeout(() => {
-        setSelectedPost(post);
-        setShowModal(true);
-      }, 50);
-    } else {
-      setSelectedPost(post);
+    console.log('function working');
+    
+    // Set the selected post first
+    setSelectedPost(post);
+    
+    // Then show the modal with a slight delay to ensure state is updated
+    setTimeout(() => {
       setShowModal(true);
-    }
+    }, 10);
   };
 
-  // Close modal function with cleanup
+  // Fixed closeModal function
   const closeModal = () => {
     setShowModal(false);
+    
     // Use a timeout to remove the post after animation completes
     setTimeout(() => {
       setSelectedPost(null);
@@ -349,7 +348,6 @@ const Home = () => {
               disabled={isLoading}
             >
               {isLoading ? <Loader /> : 'Recheck'}
-              {/* {isLoading ? 'Loading...' : 'Recheck'} */}
             </Button>
           </div>
         </div>
@@ -363,12 +361,17 @@ const Home = () => {
          {apiImages.map((item) => (
             <div className="bg-white rounded-lg overflow-hidden mb-11" key={item.id}>
             <div className="w-full relative">
-              <div className="relative group w-full">
+              <div 
+                className="relative group w-full cursor-pointer" 
+                onClick={() => {
+                  console.log('Image container clicked');
+                  viewPost(item);
+                }}
+              >
                 <Image
-                  onClick={() => viewPost(item)}
                   src={item.image}
                   alt={`Post ${item.id}`}
-                  className="w-full h-auto cursor-pointer transition-none"
+                  className="w-full h-auto transition-none"
                   width={400}
                   height={400}
                   sizes="(max-width: 700px) 50vw, (max-width: 1100px) 33vw, 33vw"
@@ -378,7 +381,7 @@ const Home = () => {
                   loading="eager"
                 />
                 {/* Black overlay that appears on hover */}
-                <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-30 transition-none cursor-pointer"></div>
+                <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-30 transition-none"></div>
               </div>
             </div>
           </div>
@@ -421,7 +424,7 @@ const Home = () => {
         </div>
       )}
 
-      {/* Modal with cleanup handling */}
+      {/* Modal implementation (keeping your existing structure) */}
       {showModal && selectedPost && (
         <div
           ref={modalRef}
@@ -433,7 +436,10 @@ const Home = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <button
-              onClick={closeModal}
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent event bubbling
+                closeModal();
+              }}
               className="absolute top-4 right-4 text-white hover:text-gray-300 z-10
                 transform transition-all duration-300 hover:rotate-90"
             >
@@ -467,7 +473,7 @@ const Home = () => {
             <div className="flex items-center gap-5 justify-center">
               <button
                 onClick={(e) => {
-                  e.stopPropagation();
+                  e.stopPropagation(); // Prevent event bubbling
                   handleShare(selectedPost.image);
                 }}
                 className="text-white hover:text-blue-400 transition-colors duration-300 flex items-center gap-2"
@@ -476,7 +482,7 @@ const Home = () => {
               </button>
               <button
                 onClick={(e) => {
-                  e.stopPropagation();
+                  e.stopPropagation(); // Prevent event bubbling
                   handleDownload(selectedPost.image);
                 }}
                 className="text-white hover:text-blue-400 transition-colors duration-300 flex items-center gap-2"
