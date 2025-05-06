@@ -8,28 +8,35 @@ import NavFooter from "../components/navfooter";
 import Link from "next/link";
 import Masonry from "react-masonry-css"; // Import Masonry
 import instance from "../instance";
+import Loader from "../components/loader";
 
 const Page = () => {
   const [limit, setLimit] = useState(30);
   const [skip, setSkip] = useState(0);
   const [postData, setPostData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const highlight = async () => {
-      const event = sessionStorage.getItem("eventId");
-      console.log(event, "event");
+      setIsLoading(true);
+      try {
+        const event = sessionStorage.getItem("eventId");
+        const response = await instance(
+          `event-highlight?event=${event}&limit=${limit}&skip=${skip}`
+        );
 
-      const response = await instance(
-        `event-highlight?event=${event}&limit=${limit}&skip=${skip}`
-      );
-
-      if (response.data.success) {
-        const formattedData = response.data.response.map((item) => ({
-          id: item._id,
-          image: `https://api.instasnap.live${item.image}`,
-          date: new Date(item.createdAt).toLocaleDateString(),
-        }));
-        setPostData(formattedData);
+        if (response.data.success) {
+          const formattedData = response.data.response.map((item) => ({
+            id: item._id,
+            image: `https://event-manager.syd1.digitaloceanspaces.com/${item.image}`,
+            date: new Date(item.createdAt).toLocaleDateString(),
+          }));
+          setPostData(formattedData);
+        }
+      } catch (error) {
+        console.error("Error fetching highlights:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -60,37 +67,41 @@ const Page = () => {
         </div>
 
         {/* Scrollable Content Area with Masonry */}
-        <div className="flex-grow p-2 md:p-4 mb-[70px] w-full">
-          <Masonry
-            breakpointCols={breakpointColumnsObj}
-            className="flex w-full gap-2 md:gap-4"
-            columnClassName="bg-clip-padding"
-          >
-            {/* Map over postData to render items */}
-            {postData.map((post) => (
-              <Link
-                key={post.id}
-                href={`/highlight/${post.id}`}
-                className="block relative cursor-pointer group overflow-hidden rounded-lg mb-2 md:mb-4 shadow hover:shadow-md transition-shadow duration-300"
-              >
-                <Image
-                  src={post.image}
-                  alt={`Highlight ${post.id}`}
-                  width={300}
-                  height={300}
-                  className="w-full h-auto object-cover transition-transform duration-300 ease-in-out group-hover:scale-[1.03]"
-                  sizes="(max-width: 700px) 50vw, (max-width: 1100px) 33vw, 25vw"
-                  priority={post.id <= 8}
-                />
-                {/* Subtle gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out" />
-                {/* Date text with improved transition */}
-                <p className="absolute bottom-2 left-2 text-white text-xs font-medium opacity-0 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-in-out">
-                  {post.date}
-                </p>
-              </Link>
-            ))}
-          </Masonry>
+        <div className=" w-full">
+          {isLoading ? (
+            <Loader />
+          ) : (
+            <Masonry
+              breakpointCols={breakpointColumnsObj}
+              className="flex w-full gap-2 md:gap-4"
+              columnClassName="bg-clip-padding"
+            >
+              {/* Map over postData to render items */}
+              {postData.map((post) => (
+                <Link
+                  key={post.id}
+                  href={`/highlight/${post.id}`}
+                  className="block relative cursor-pointer group overflow-hidden rounded-lg mb-2 md:mb-4 shadow hover:shadow-md transition-shadow duration-300"
+                >
+                  <Image
+                    src={post.image}
+                    alt={`Highlight ${post.id}`}
+                    width={300}
+                    height={300}
+                    className="w-full h-auto object-cover transition-transform duration-300 ease-in-out group-hover:scale-[1.03]"
+                    sizes="(max-width: 700px) 50vw, (max-width: 1100px) 33vw, 25vw"
+                    priority={post.id <= 8}
+                  />
+                  {/* Subtle gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out" />
+                  {/* Date text with improved transition */}
+                  <p className="absolute bottom-2 left-2 text-white text-xs font-medium opacity-0 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-in-out">
+                    {post.date}
+                  </p>
+                </Link>
+              ))}
+            </Masonry>
+          )}
         </div>
 
         {/* Sticky Footer */}

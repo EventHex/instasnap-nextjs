@@ -26,6 +26,12 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'event-manager.syd1.digitaloceanspaces.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };

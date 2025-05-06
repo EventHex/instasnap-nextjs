@@ -7,7 +7,8 @@ import { FaceIdBase } from '../assets';
 import StartButton from '../components/Button';
 import { useEvent } from '../context';
 const Index = () => {
-  const { iswhatsupauth, setIswhatsupauth} = useEvent();
+  // Initialize isWhatsappAuth as true instead of false
+  const [isWhatsappAuth, setIsWhatsappAuth] = useState(true);
   const router = useRouter();
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -16,6 +17,11 @@ const Index = () => {
   const [loading, setLoading] = useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
 
+  useEffect(() => {
+    sessionStorage.setItem('isWhatsappAuth', 'true');
+    setIsWhatsappAuth(true);
+  }, []);
+  
   // Function to start the camera
   const startCamera = async () => {
     setLoading(true);
@@ -98,8 +104,10 @@ const Index = () => {
     // Save image to sessionStorage or localStorage to persist across routes
     if (capturedImage) {
       sessionStorage.setItem('userSelfie', capturedImage);
-      if (iswhatsupauth === true  ) {
-        
+      // Use the correct variable name with capital W and since we hardcoded it to true,
+      // this condition will always route to the register page
+      if (isWhatsappAuth === true) {
+        // This route will now be accessed
         router.push('/register');
       } else {
         router.push('/publiclogin');
