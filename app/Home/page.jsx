@@ -179,17 +179,27 @@ const Home = () => {
   }, []);
 
   const matchImages = async () => {
-    console.log(event, registredUser, "event and registredUser");
-    setIsLoading(true);
+    const eventId = sessionStorage.getItem("eventId");
+    const userId = sessionStorage.getItem("userId");
+    const image = sessionStorage.getItem("userSelfie");
+    
+    console.log(eventId, userId, "eventId and userId", image, "image");
+    
+    if (!eventId || !userId) {
+      alert("Missing required data. Please try again.");
+      setIsLoading(false);
+      return;
+    }
 
     try {
+      setIsLoading(true);
       const formData = new FormData();
-      formData.append("eventId", event);
-      formData.append("userId", registredUser);
+      formData.append("eventId", eventId);
+      formData.append("userId", userId);
 
-      if (userSelfie) {
+      if (image) {
         // Convert base64 to blob
-        const base64Response = await fetch(userSelfie);
+        const base64Response = await fetch(image);
         const blob = await base64Response.blob();
         formData.append("file", blob, "selfie.jpg");
       }
@@ -216,6 +226,7 @@ const Home = () => {
       console.log("Match API response:", response.data);
     } catch (error) {
       console.error("Error in matchImages:", error);
+      alert("Failed to match images. Please try again.");
     } finally {
       setIsLoading(false);
     }
