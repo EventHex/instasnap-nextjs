@@ -28,7 +28,7 @@ const Page = () => {
         if (response.data.success) {
           const formattedData = response.data.response.map((item) => ({
             id: item._id,
-            image: `https://event-manager.syd1.digitaloceanspaces.com/${item.image}`,
+            image: `https://event-hex-saas.s3.amazonaws.com/${item.image}`,
             date: new Date(item.createdAt).toLocaleDateString(),
           }));
           setPostData(formattedData);

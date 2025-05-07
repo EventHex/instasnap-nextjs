@@ -20,8 +20,10 @@ import Button from "../components/button";
 import Image from "next/image";
 import instance from "../instance";
 import { useEvent } from "../context"; // Import the context hook
+import { useRouter } from "next/navigation";
 
 const Register = () => {
+  const router = useRouter();
   const { event  } = useEvent();
   const [formData, setFormData] = useState({
     firstName: "",
@@ -94,54 +96,123 @@ const Register = () => {
 
   // Handle form submission
   const handleSubmit = async (e) => {
+    console.log("handleSubmit");
     e.preventDefault();
     if (isFormValid()) {
-   
       setSubmittedData({
         ...formData,
         countryCode: selectedCode,
       });
 
- 
       try {
-        const res = await instance.post("auth/login-public", {
+        const res = await instance.post("/auth/signup-mobile-with-country", {
           mobile: formData.phone,
           phoneCode: selectedCode,
           fullName: formData.firstName,
           event: event,
+          designation: formData.designation,
+          companyName: formData.companyName,
+          gender: formData.gender
         });
         console.log("API response:", res);
-        // Handle successful response here
-        // For example, you could redirect to another page
+        if (res.data.success) {
+          setIsLoggedIn(true);
+          
+        }
       } catch (error) {
         console.error("Error calling API:", error);
-        // Handle error here
       }
-
-      // You can add additional logic here
-      console.log("Form submitted:", {
-        ...formData,
-        countryCode: selectedCode,
-      });
     }
   };
 
   // Update the handleSendCode function
-  const handleSendCode = () => {
+  const handleSendCode = async () => {
+   
+    
     if (formData.phone) {
-      setShowVerification(true);
-      setCodeSent(true);
-      // Add your send code logic here
-      console.log("Sending code to:", formData.phone);
+      try {
+        // First try to login
+        const loginResponse = await instance.post("/auth/login-mobile-with-country", {
+          phoneCode: selectedCode,
+          mobile: formData.phone,
+          event: event
+        });
+
+        if (loginResponse.data.success) {
+          setShowVerification(true);
+          setCodeSent(true);
+          setLoginFailed(false);
+          // router.push("/home");
+        
+        } else {
+          setLoginFailed(true);
+      
+        }
+      } catch (error) {
+        // If login fails with "No ticket registrations found", proceed with signup
+        if (error.response?.data?.message === "No ticket registrations found for this user.") {
+          setLoginFailed(true);
+          try {
+            const signupResponse = await instance.post("/auth/signup-mobile-with-country", {
+              phoneCode: selectedCode,
+              mobile: formData.phone,
+              event: event
+            });
+
+            if (signupResponse.data) {
+              setShowVerification(true);
+              setCodeSent(true);
+              console.log("Signup successful:", signupResponse.data);
+            }
+          } catch (signupError) {
+            console.error("Error during signup:", signupError);
+            setCodeSentError(true);
+          }
+        } else {
+          console.error("Error during login:", error);
+          setCodeSentError(true);
+        }
+      }
     }
   };
 
   const SendCode = () => {
-    setCodeSentError(true);
+    // setCodeSentError(true);
   };
 
-  const handleVerify = () => {
-    setCodeSentSuccess(true);
+  const handleVerify = async () => {
+    try {
+      console.log("handleVerify");
+      console.log("Phone:", formData.phone);
+      console.log("Verification Code:", formData.verificationCode);
+      console.log("Event:", event);
+      console.log("Phone Code:", selectedCode);
+      
+      const response = await instance.post("/auth/verify-otp-with-country", {
+        mobile: formData.phone,
+        otp: formData.verificationCode,
+        event: event,
+        phoneCode: selectedCode,
+      });
+  
+      if (response.data.success) {
+        setCodeSentSuccess(true);
+        console.log("OTP verified successfully:", response.data);
+        
+        // Store eventId and userId in session storage
+        sessionStorage.setItem("eventId", response.data.user.event);
+        sessionStorage.setItem("userId", response.data.user._id);
+        
+        // Get the image from session storage
+        const userImage = sessionStorage.getItem("userSelfie");
+        // Encode the image data for URL
+        const encodedImage = encodeURIComponent(userImage);
+        router.push("/home");
+      }
+    } catch (error) {
+      console.error("Error verifying OTP:", error);
+      setCodeSentError(true);
+    }
   };
 
   useEffect(() => {
@@ -153,7 +224,6 @@ const Register = () => {
       setUserSelfie(storedSelfie);
     }
     
-    // Removed API call from useEffect since it's now in handleSubmit
   }, []);
 
   return (

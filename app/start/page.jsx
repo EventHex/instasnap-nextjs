@@ -104,13 +104,16 @@ const Index = () => {
     // Save image to sessionStorage or localStorage to persist across routes
     if (capturedImage) {
       sessionStorage.setItem('userSelfie', capturedImage);
-      // Use the correct variable name with capital W and since we hardcoded it to true,
-      // this condition will always route to the register page
-      if (isWhatsappAuth === true) {
-        // This route will now be accessed
-        router.push('/register');
+      
+      // Check if userId exists in sessionStorage
+      const userId = sessionStorage.getItem('userId');
+      
+      if (userId) {
+        // If userId exists, navigate to home
+        router.push('/home');
       } else {
-        router.push('/publiclogin');
+        // If no userId, navigate to register
+        router.push('/register');
       }
     }
   };

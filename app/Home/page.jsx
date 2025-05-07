@@ -84,33 +84,7 @@ const Marquee3D = () => {
     content: `Item ${index + 1}`,
   }));
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        // Get the selfie from sessionStorage
-        const storedSelfie = sessionStorage.getItem("userSelfie");
 
-        // Compress the image if it exists
-        let imageToSend = null;
-        if (storedSelfie) {
-          try {
-            imageToSend = await compressImage(storedSelfie, 2);
-          } catch (err) {
-            console.error("Error compressing image in Marquee3D:", err);
-            imageToSend = storedSelfie; // Fallback to original if compression fails
-          }
-        }
-
-        // Make API request with the compressed selfie
-        const res = await Instance.post("/mobile/instasnap/match", {});
-        console.log(res, "data gotted");
-      } catch (error) {
-        console.error("Error fetching user match:", error);
-      }
-    };
-
-    fetchUser();
-  }, []);
 
   return (
     <div className="marquee-container">
@@ -139,6 +113,58 @@ const Home = () => {
   const modalRef = useRef(null);
 
   // Set isClient to true on mount
+  useEffect(() => {
+    const eventId = sessionStorage.getItem("eventId");
+    const userId = sessionStorage.getItem("userId");
+    const image = sessionStorage.getItem("userSelfie");
+  console.log(eventId, userId, "eventId and userId", image, "image");
+  
+    const fetchFaceMatch = async () => {
+      try {
+        setIsLoading(true);
+        const formData = new FormData();
+        formData.append("eventId", eventId);
+        formData.append("userId", userId);
+  
+        if (image) {
+          // Convert base64 to blob
+          const base64Response = await fetch(image);
+          const blob = await base64Response.blob();
+          formData.append("file", blob, "selfie.jpg");
+        }
+  
+        const response = await Instance.post(
+          `/mobile/instasnap/match`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+  
+        if (response.data && response.data.FaceMatches) {
+          setApiImages(
+            response.data.FaceMatches.map((match) => ({
+              id: match.imageId,
+              image: match.image,
+              date: new Date(match.matchDate).toLocaleDateString(),
+            }))
+          );
+        }
+        console.log("Match API response:", response.data);
+      } catch (error) {
+        console.error("Error in fetchFaceMatch:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (eventId && userId) {
+      fetchFaceMatch();
+    }
+  }, []);
+
   useEffect(() => {
     setIsClient(true);
   }, []);
