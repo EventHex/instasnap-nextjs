@@ -48,6 +48,10 @@ const Register = () => {
   const [codeSentSuccess, setCodeSentSuccess] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [signupotpbtn, setSignupotpbtn] = useState(false);
+  const [loginFailed, setLoginFailed] = useState(false);
+  
+  // Dedicated state for button text
+  const [buttonText, setButtonText] = useState("send code");
 
   const countryCodes = [
     { code: "91", country: "India" },
@@ -158,8 +162,6 @@ const Register = () => {
 
   // Update the handleSendCode function
   const handleSendCode = async () => {
-   
-    
     if (formData.phone) {
       try {
         // First try to login
@@ -169,27 +171,64 @@ const Register = () => {
           event: event
         });
 
+        console.log("Login response:", loginResponse.data);
+
         if (loginResponse.data.success) {
           setShowVerification(true);
           setCodeSent(true);
           setLoginFailed(false);
-
-
-
-          // router.push("/home");
-        
+          setButtonText(""); // Clear button text when code is sent successfully
         }
-        
         else {
           setLoginFailed(true);
-      
+          // Directly check for message in the response
+          if (loginResponse.data.message && 
+              (loginResponse.data.message.includes("No ticket") || 
+               loginResponse.data.message.includes("registrations") || 
+               loginResponse.data.message.includes("not found"))) {
+            setButtonText("sign up");
+            console.log("Changed button text to 'sign up' from unsuccessful login");
+            alert('You have no account. Please fill the fields below.');
+          }
         }
-
       } catch (error) {
-        // If login fails with "No ticket registrations found", proceed with signup
-        console.log("error", error);
-        if (error.response?.data?.message === "No ticket registrations found for this user.") {
-          alert('You have no account. Please fill the fields below.');
+        console.log("Error caught:", error);
+        
+        try {
+          // Log all possible paths to the error message
+          console.log("Error object:", error);
+          console.log("Error message:", error.message);
+          
+          if (error.response) {
+            console.log("Error response:", error.response);
+            console.log("Error response data:", error.response.data);
+            console.log("Error response message:", error.response.data?.message);
+            
+            // Try to find the error message in different potential locations
+            const errorMessage = 
+              error.response.data?.message || 
+              error.response.data?.error || 
+              error.response.statusText || 
+              error.message || 
+              "";
+              
+            console.log("Extracted error message:", errorMessage);
+            
+            // Very loose matching for any indication of "no user found" or similar
+            if (errorMessage.toLowerCase().includes("no") && 
+                (errorMessage.toLowerCase().includes("ticket") || 
+                 errorMessage.toLowerCase().includes("registrations") || 
+                 errorMessage.toLowerCase().includes("user") || 
+                 errorMessage.toLowerCase().includes("found"))) {
+              
+              // Directly set the button text
+              console.log("Setting button text to 'sign up'");
+              setButtonText("sign up");
+              alert('You have no account. Please fill the fields below.');
+            }
+          }
+        } catch (e) {
+          console.log("Error in error handling:", e);
         }
       }
     }
@@ -309,8 +348,9 @@ const Register = () => {
                       onClick={handleSendCode}
                       className="px-1 border-[#E2E4E9] border border-l-0 text-[#375DFB] rounded-r-lg flex items-center justify-center"
                     >
+                      {/* Debug: Current button text: {buttonText} */}
                       {codeSent ? (
-                        <div className="  ">
+                        <div className="">
                           <Image
                             width={20}
                             height={20}
@@ -320,7 +360,7 @@ const Register = () => {
                           />
                         </div>
                       ) : (
-                        "send code"
+                        buttonText // Use the dedicated button text state
                       )}
                     </button>
                   </div>
