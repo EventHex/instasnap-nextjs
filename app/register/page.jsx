@@ -145,11 +145,14 @@ const Register = () => {
         console.log("API response:", res);
         if (res.data.success) {
           setIsLoggedIn(true);
+          setShowVerification(true);
+          setCodeSent(true);
           // Store eventId and userId in session storage if provided in response
           if (res.data.user) {
             sessionStorage.setItem("eventId", res.data.user.event);
             sessionStorage.setItem("userId", res.data.user._id);
           }
+          // router.push("/home");
         }
       } catch (error) {
         console.error("Error calling API:", error);
@@ -249,18 +252,17 @@ const Register = () => {
         event: event,
         phoneCode: selectedCode,
       });
+      
       if (response.data.success) {
         setCodeSentSuccess(true);
         console.log("OTP verified successfully:", response.data);
         
         // Store eventId and userId in session storage
-        sessionStorage.setItem("eventId", response.data.user.event);
-        sessionStorage.setItem("userId", response.data.user._id);
+        if (response.data.user) {
+          sessionStorage.setItem("eventId", response.data.user.event);
+          sessionStorage.setItem("userId", response.data.user._id);
+        }
         
-        // Get the image from session storage
-        const userImage = sessionStorage.getItem("userSelfie");
-        // Encode the image data for URL
-        const encodedImage = encodeURIComponent(userImage);
         router.push("/home");
       }
     } catch (error) {
