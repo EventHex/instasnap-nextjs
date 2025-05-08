@@ -443,7 +443,7 @@ const Home = () => {
           {apiImages.map((item) => (
             <div
               className="bg-white rounded-lg overflow-hidden mb-11"
-              key={item.id}
+              key={`masonry-item-${item.id}`}
             >
               <div className="w-full relative">
                 <div
@@ -453,18 +453,24 @@ const Home = () => {
                     viewPost(item);
                   }}
                 >
-                  <Image
-                    src={item.image}
-                    alt={`Post ${item.id}`}
-                    className="w-full h-auto transition-none"
-                    width={400}
-                    height={400}
-                    sizes="(max-width: 700px) 50vw, (max-width: 1100px) 33vw, 33vw"
-                    onLoad={() => handleImageLoad(item.id)}
-                    onError={() => handleImageError(item.id)}
-                    priority={true}
-                    loading="eager"
-                  />
+                  {item.image ? (
+                    <Image
+                      src={item.image}
+                      alt={`Post ${item.id}`}
+                      className="w-full h-auto transition-none"
+                      width={400}
+                      height={400}
+                      sizes="(max-width: 700px) 50vw, (max-width: 1100px) 33vw, 33vw"
+                      onLoad={() => handleImageLoad(item.id)}
+                      onError={() => handleImageError(item.id)}
+                      priority={true}
+                      loading="eager"
+                    />
+                  ) : (
+                    <div className="w-full h-[400px] bg-gray-100 flex items-center justify-center">
+                      <p className="text-gray-500">Image not available</p>
+                    </div>
+                  )}
                   {/* Black overlay that appears on hover */}
                   <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-30 transition-none"></div>
                 </div>

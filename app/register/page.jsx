@@ -112,7 +112,7 @@ const Register = () => {
       try {
         // Get the image from session storage
         const userImage = sessionStorage.getItem("userSelfie");
-        console.log(event, userImage, selectedCode, 'gotted');
+        console.log("User image from session storage:", userImage ? "exists" : "not found");
         
         // Create FormData object
         const formDataToSend = new FormData();
@@ -127,15 +127,22 @@ const Register = () => {
         // Handle image from session storage
         if (userImage) {
           try {
+            console.log("Processing image...");
             // Convert base64 to blob
             const base64Response = await fetch(userImage);
             const blob = await base64Response.blob();
+            console.log("Image blob created:", blob.size, "bytes");
             formDataToSend.append('file', blob, 'selfie.jpg');
           } catch (error) {
             console.error('Error processing image:', error);
+            alert('Error processing your image. Please try again.');
+            return;
           }
+        } else {
+          console.warn("No user image found in session storage");
         }
         
+        console.log("Sending signup request...");
         const res = await instance.post("/auth/signup-mobile-with-country", formDataToSend, {
           headers: {
             'Content-Type': 'multipart/form-data',
@@ -151,11 +158,15 @@ const Register = () => {
           if (res.data.user) {
             sessionStorage.setItem("eventId", res.data.user.event);
             sessionStorage.setItem("userId", res.data.user._id);
+            console.log("Stored eventId and userId in session storage");
           }
-          // router.push("/home");
+        } else {
+          console.error("Signup failed:", res.data);
+          alert('Signup failed. Please try again.');
         }
       } catch (error) {
         console.error("Error calling API:", error);
+        alert('Error during signup. Please try again.');
       }
     }
   };
@@ -366,7 +377,6 @@ const Register = () => {
                 </div>
               </div>
 
-              {/* Verification Input - Only shown after sending code */}
               {showVerification && (
                 <>
                   <div className="flex flex-col gap-2">
@@ -416,7 +426,7 @@ const Register = () => {
                             className="text-[#525866] font-inter font-[400] text-[14px] underline"
                           >
                             Resend code
-                          </span>{" "}
+                          </span>
                         </p>
                       )}
                     </div>
