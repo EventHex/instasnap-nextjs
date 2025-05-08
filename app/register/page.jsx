@@ -47,6 +47,7 @@ const Register = () => {
   const [codeSentError, setCodeSentError] = useState(false);
   const [codeSentSuccess, setCodeSentSuccess] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [signupotpbtn, setSignupotpbtn] = useState(false);
 
   const countryCodes = [
     { code: "91", country: "India" },
@@ -105,19 +106,49 @@ const Register = () => {
       });
 
       try {
-        const res = await instance.post("/auth/signup-mobile-with-country", {
-          mobile: formData.phone,
-          phoneCode: selectedCode,
-          fullName: formData.firstName,
-          event: event,
-          designation: formData.designation,
-          companyName: formData.companyName,
-          gender: formData.gender
+        // Get the image from session storage
+        const userImage = sessionStorage.getItem("userSelfie");
+        console.log(event,userImage,selectedCode,'gotted');
+        
+        // Create FormData object
+        const formDataToSend = new FormData();
+        formDataToSend.append('mobile', formData.phone);
+        formDataToSend.append('phoneCode', selectedCode);
+        formDataToSend.append('fullName', formData.firstName);
+        formDataToSend.append('event', event);
+        formDataToSend.append('designation', formData.designation);
+        formDataToSend.append('companyName', formData.companyName);
+        formDataToSend.append('gender', formData.gender);
+        
+        // Handle image from session storage
+        if (userImage) {
+          // If the image is already a base64 string
+          if (userImage.startsWith('data:image')) {
+            const base64Response = await fetch(userImage);
+            const blob = await base64Response.blob();
+            formDataToSend.append('image', blob, 'user-image.jpg');
+          } else {
+            // If it's a URL or other format, try to fetch it
+            try {
+              const response = await fetch(userImage);
+              const blob = await response.blob();
+              formDataToSend.append('image', blob, 'user-image.jpg');
+            } catch (error) {
+              console.error('Error processing image:', error);
+              // If fetch fails, try to append the image data directly
+              formDataToSend.append('image', userImage);
+            }
+          }
+        }
+        
+        const res = await instance.post("/auth/signup-mobile-with-country", formDataToSend, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
         });
         console.log("API response:", res);
         if (res.data.success) {
           setIsLoggedIn(true);
-          
         }
       } catch (error) {
         console.error("Error calling API:", error);
@@ -142,35 +173,23 @@ const Register = () => {
           setShowVerification(true);
           setCodeSent(true);
           setLoginFailed(false);
+
+
+
           // router.push("/home");
         
-        } else {
+        }
+        
+        else {
           setLoginFailed(true);
       
         }
+
       } catch (error) {
         // If login fails with "No ticket registrations found", proceed with signup
+        console.log("error", error);
         if (error.response?.data?.message === "No ticket registrations found for this user.") {
-          setLoginFailed(true);
-          try {
-            const signupResponse = await instance.post("/auth/signup-mobile-with-country", {
-              phoneCode: selectedCode,
-              mobile: formData.phone,
-              event: event
-            });
-
-            if (signupResponse.data) {
-              setShowVerification(true);
-              setCodeSent(true);
-              console.log("Signup successful:", signupResponse.data);
-            }
-          } catch (signupError) {
-            console.error("Error during signup:", signupError);
-            setCodeSentError(true);
-          }
-        } else {
-          console.error("Error during login:", error);
-          setCodeSentError(true);
+          alert('You have no account. Please fill the fields below.');
         }
       }
     }
@@ -194,7 +213,6 @@ const Register = () => {
         event: event,
         phoneCode: selectedCode,
       });
-  
       if (response.data.success) {
         setCodeSentSuccess(true);
         console.log("OTP verified successfully:", response.data);

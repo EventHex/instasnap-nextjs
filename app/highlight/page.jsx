@@ -6,7 +6,7 @@ import { EventHeader } from "../components/header";
 import Image from "next/image";
 import NavFooter from "../components/navfooter";
 import Link from "next/link";
-import Masonry from "react-masonry-css"; // Import Masonry
+import Masonry from "react-masonry-css"; 
 import instance from "../instance";
 import Loader from "../components/loader";
 
