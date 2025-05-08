@@ -5,18 +5,9 @@ import { UploadCloud, X, CheckCircle, AlertCircle, Clock, Image as ImageIcon } f
 import Image from 'next/image';
 import Button from '../components/button'; // Assuming Button component exists and works
 import { EventHeader } from '../components/header';
+import instance from '../instance';
 
 const MAX_FILES = 10;
-
-// --- Mock Data for Previously Uploaded Images --- 
-// Replace this with actual API call in useEffect
-const mockUploadedImages = [
-    { id: 'img101', url: 'https://picsum.photos/seed/uploaded1/200/200', status: 'pending' },
-    { id: 'img102', url: 'https://picsum.photos/seed/uploaded2/200/300', status: 'approved' },
-    { id: 'img103', url: 'https://picsum.photos/seed/uploaded3/300/200', status: 'pending' },
-    { id: 'img104', url: 'https://picsum.photos/seed/uploaded4/250/250', status: 'approved' },
-];
-
 
 const ContributePage = () => {
     const [selectedFiles, setSelectedFiles] = useState([]);
@@ -27,17 +18,36 @@ const ContributePage = () => {
     const [isLoadingUploads, setIsLoadingUploads] = useState(true); // Loading state for uploads section
     const fileInputRef = useRef(null);
 
-    // --- Fetch Previously Uploaded Images (Placeholder) --- 
+    // Fetch Previously Uploaded Images from API
     useEffect(() => {
-        setIsLoadingUploads(true);
-        // Simulate fetching data from API
-        setTimeout(() => { 
-            // Replace with: fetch('/api/my-uploads').then(res => res.json()).then(data => setUploadedImages(data))
-            setUploadedImages(mockUploadedImages);
-            setIsLoadingUploads(false);
-        }, 1500); // Simulate network delay
+        const fetchContributes = async () => {
+            setIsLoadingUploads(true);
+            try {
+                const res = await instance.get("contribute");
+                console.log("API response:", res);
+                
+                if (res.data && res.data.success && res.data.response) {
+                    // Map the API response to the expected format
+                    const formattedImages = res.data.response.map(item => {
+                        // Ensure we have a valid URL by checking all possible image sources
+                        const imageUrl = item.thumbnail || item.compressed || item.image;
+                        return {
+                            id: item._id,
+                            url: imageUrl && imageUrl.startsWith('http') ? imageUrl : '/placeholder-image.jpg',
+                            status: item.approve ? 'approved' : 'pending'
+                        };
+                    });
+                    setUploadedImages(formattedImages);
+                }
+            } catch (error) {
+                console.error("Error fetching contributions:", error);
+            } finally {
+                setIsLoadingUploads(false);
+            }
+        };
+        
+        fetchContributes();
     }, []);
-    // --- End Fetch Logic --- 
 
     // Clean up preview URLs when component unmounts or previews change
     useEffect(() => {
@@ -129,10 +139,6 @@ const ContributePage = () => {
         }
     };
 
-    // --- DEBUG LOG --- 
-    console.log("Rendering 'Your Uploads' with state:", uploadedImages);
-    // --- END DEBUG LOG ---
-
     return (
         <div className="flex justify-center w-full">
         <div className="flex flex-col min-h-screen w-full max-w-[768px] mx-auto">
@@ -223,20 +229,34 @@ const ContributePage = () => {
             {/* Your Uploads Section */}
             <div className="mt-6">
               <h2 className="text-lg font-medium mb-3 text-gray-700">Your Uploads</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                {uploadedImages.map((image) => (
-                  <div key={image.id} className="relative aspect-square rounded-md overflow-hidden border border-gray-200 group">
-                    <Image 
-                      src={image.url} 
-                      alt={`Uploaded ${image.id}`}
-                      fill
-                      className="object-cover bg-gray-100"
-                    />
-                    {/* Status Badge */}
-                    {renderStatusBadge(image.status)}
-                  </div>
-                ))}
-              </div>
+              {isLoadingUploads ? (
+                <div className="flex justify-center items-center py-10">
+                  <svg className="animate-spin h-10 w-10 text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                </div>
+              ) : uploadedImages.length > 0 ? (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                  {uploadedImages.map((image) => (
+                    <div key={image.id} className="relative aspect-square rounded-md overflow-hidden border border-gray-200 group">
+                      <Image 
+                        src={image.url || '/placeholder-image.jpg'} 
+                        alt={`Uploaded ${image.id}`}
+                        fill
+                        className="object-cover bg-gray-100"
+                      />
+                      {/* Status Badge */}
+                      {renderStatusBadge(image.status)}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-10 text-gray-500">
+                  <ImageIcon className="mx-auto h-10 w-10 text-gray-300 mb-2" />
+                  <p>No uploads found</p>
+                </div>
+              )}
             </div>
           </div>
           
