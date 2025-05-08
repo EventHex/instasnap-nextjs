@@ -112,7 +112,7 @@ const Register = () => {
       try {
         // Get the image from session storage
         const userImage = sessionStorage.getItem("userSelfie");
-        console.log(event,userImage,selectedCode,'gotted');
+        console.log(event, userImage, selectedCode, 'gotted');
         
         // Create FormData object
         const formDataToSend = new FormData();
@@ -126,22 +126,13 @@ const Register = () => {
         
         // Handle image from session storage
         if (userImage) {
-          // If the image is already a base64 string
-          if (userImage.startsWith('data:image')) {
+          try {
+            // Convert base64 to blob
             const base64Response = await fetch(userImage);
             const blob = await base64Response.blob();
-            formDataToSend.append('image', blob, 'user-image.jpg');
-          } else {
-            // If it's a URL or other format, try to fetch it
-            try {
-              const response = await fetch(userImage);
-              const blob = await response.blob();
-              formDataToSend.append('image', blob, 'user-image.jpg');
-            } catch (error) {
-              console.error('Error processing image:', error);
-              // If fetch fails, try to append the image data directly
-              formDataToSend.append('image', userImage);
-            }
+            formDataToSend.append('file', blob, 'selfie.jpg');
+          } catch (error) {
+            console.error('Error processing image:', error);
           }
         }
         
@@ -150,9 +141,15 @@ const Register = () => {
             'Content-Type': 'multipart/form-data',
           },
         });
+        
         console.log("API response:", res);
         if (res.data.success) {
           setIsLoggedIn(true);
+          // Store eventId and userId in session storage if provided in response
+          if (res.data.user) {
+            sessionStorage.setItem("eventId", res.data.user.event);
+            sessionStorage.setItem("userId", res.data.user._id);
+          }
         }
       } catch (error) {
         console.error("Error calling API:", error);
