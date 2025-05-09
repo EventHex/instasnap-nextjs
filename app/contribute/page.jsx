@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import NavFooter from '../components/navfooter';
-import { UploadCloud, X, CheckCircle, AlertCircle, Clock, Image as ImageIcon } from 'lucide-react';
+import { UploadCloud, X, CheckCircle, AlertCircle, Clock, Image as ImageIcon, UploadCloudIcon, Upload, UploadIcon, LucideUploadCloud } from 'lucide-react';
 import Image from 'next/image';
 import Button from '../components/button'; // Assuming Button component exists and works
 import { EventHeader } from '../components/header';
@@ -16,6 +16,7 @@ const ContributePage = () => {
     const [uploadStatus, setUploadStatus] = useState({ message: '', type: '' }); // type: 'success' or 'error'
     const [uploadedImages, setUploadedImages] = useState([]); // State for previously uploaded images
     const [isLoadingUploads, setIsLoadingUploads] = useState(true); // Loading state for uploads section
+    const [isDragging, setIsDragging] = useState(false); // Add state for drag status
     const fileInputRef = useRef(null);
 
     // Fetch Previously Uploaded Images from API
@@ -101,8 +102,7 @@ const ContributePage = () => {
         // Simulate getting back data from the server after upload
         const newUploadedImagesData = selectedFiles.map((file, index) => ({
             id: `new_${Date.now()}_${index}`,
-            // Use a placeholder/mock URL instead of the temporary blob URL
-            url: `https://picsum.photos/seed/new_${Date.now()}_${index}/200/200`, 
+            url: URL.createObjectURL(file), // Use the actual file URL instead of picsum
             status: 'pending' // New uploads are pending
         }));
         // Prepend new uploads to the displayed list
@@ -139,6 +139,47 @@ const ContributePage = () => {
         }
     };
 
+    const handleDragEnter = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+    };
+
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+        
+        const files = Array.from(e.dataTransfer.files);
+        const imageFiles = files.filter(file => file.type.startsWith('image/'));
+        
+        if (imageFiles.length === 0) {
+            setUploadStatus({ message: 'Please drop only image files.', type: 'error' });
+            return;
+        }
+
+        const totalFiles = selectedFiles.length + imageFiles.length;
+        if (totalFiles > MAX_FILES) {
+            setUploadStatus({ message: `You can only select up to ${MAX_FILES} photos.`, type: 'error' });
+            return;
+        }
+
+        setSelectedFiles(prev => [...prev, ...imageFiles]);
+        const newPreviewUrls = imageFiles.map(file => URL.createObjectURL(file));
+        setPreviews(prev => [...prev, ...newPreviewUrls]);
+    };
+
     return (
         <div className="flex justify-center w-full">
         <div className="flex flex-col min-h-screen w-full max-w-[768px] mx-auto">
@@ -152,8 +193,16 @@ const ContributePage = () => {
   
             {/* Upload Area */} 
             <div
-              className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center mb-6 cursor-pointer hover:border-blue-500 bg-gray-50 hover:bg-gray-100 transition-colors duration-200"
-              onClick={() => fileInputRef.current?.click()} // Trigger hidden input
+              className={`border-2 border-dashed rounded-lg p-6 text-center mb-6 cursor-pointer transition-colors duration-200 ${
+                isDragging 
+                  ? 'border-blue-500 bg-blue-50' 
+                  : 'border-gray-300 hover:border-blue-500 bg-gray-50 hover:bg-gray-100'
+              }`}
+              onClick={() => fileInputRef.current?.click()}
+              onDragEnter={handleDragEnter}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
             >
               <input
                 ref={fileInputRef}
@@ -207,17 +256,17 @@ const ContributePage = () => {
             {/* Upload Button */} 
             {selectedFiles.length > 0 && (
               <Button 
-                onClick={handleUpload}
+                type="button"
+                variant="default"
                 disabled={isUploading}
+                onClick={handleUpload}
                 className="w-full md:w-auto px-8 mt-4"
-                icon={!isUploading ? <UploadCloud size={18} className="mr-2"/> : null}
+                icon={!isUploading ? '' : null}
+                iconPosition="left"
               >
                 {isUploading ? (
                   <>
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
+                  ''
                     Uploading...
                   </>
                 ) : (
@@ -237,16 +286,15 @@ const ContributePage = () => {
                   </svg>
                 </div>
               ) : uploadedImages.length > 0 ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                <div className="grid grid-cols-2  mb-10 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                   {uploadedImages.map((image) => (
                     <div key={image.id} className="relative aspect-square rounded-md overflow-hidden border border-gray-200 group">
                       <Image 
-                        src={image.url || '/placeholder-image.jpg'} 
+                        src={image.url || ''} 
                         alt={`Uploaded ${image.id}`}
                         fill
                         className="object-cover bg-gray-100"
                       />
-                      {/* Status Badge */}
                       {renderStatusBadge(image.status)}
                     </div>
                   ))}

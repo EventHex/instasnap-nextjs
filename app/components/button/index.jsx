@@ -44,7 +44,9 @@ const Button = ({
       {/* Directly render the icon component if it exists */}
       {icon && iconPosition === "left" && (
         <span className="mr-2 -ml-1 h-5 w-5">
+          
           <Image src={icon} alt={alt} width={20} height={20} />
+          
         </span>
       )}
       {children} {/* Removed buttonName fallback, rely on children */}
