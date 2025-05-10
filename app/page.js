@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Banner, HumanSelfi, Sparkle } from "./assets";
 import SnapButton from "./components/button";
-import instance from './instance';
+import Instance from './instance';
 import { useEvent } from './context';
 import HomeLoader from './components/loader/homeLoader';
 export default function Home() {
@@ -17,7 +17,7 @@ export default function Home() {
     const fetchEventDomain = async () => {
       try {
         const domain = 'testing.instasnap.ai';
-        const res = await instance.get(`auth/domain-event?domain=${domain}`);
+        const res = await Instance.get(`auth/domain-event?domain=${domain}`);
         // Extract the event ID from the response data
         if (res.data && res.data.domainData && res.data.domainData.event) {
           const id = res.data.domainData.event._id;
@@ -41,7 +41,7 @@ export default function Home() {
       // Only make the API call if event exists and is not null
       if (event) {
         try {
-          const response = await instance.get(`/photo-permission?event=${event}`);
+          const response = await Instance.get(`/photo-permission?event=${event}`);
           if (response.data.response && response.data.response[0]) {
             setIswhatsupauth(response.data.response[0].isWhatsappAuth);
             sessionStorage.setItem('isWhatsappAuth', response.data.response[0].isWhatsappAuth);

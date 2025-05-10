@@ -17,10 +17,7 @@ const Index = () => {
   const [loading, setLoading] = useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
 
-  useEffect(() => {
-    sessionStorage.setItem('isWhatsappAuth', 'true');
-    setIsWhatsappAuth(true);
-  }, []);
+
   
   // Function to start the camera
   const startCamera = async () => {
@@ -97,6 +94,22 @@ const Index = () => {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
     }
+
+    // Store the image in session storage
+    sessionStorage.setItem('profileUpdateImage', imageData);
+    
+    // Check WhatsApp authentication status
+    const isWhatsappAuth = sessionStorage.getItem('isWhatsappAuth');
+    
+    // Wait for 3 seconds before navigating
+    setTimeout(() => {
+      if (isWhatsappAuth === 'true') {
+        router.push('/publiclogin');
+      } else {
+        router.push('/register');
+       
+      }
+    }, 3000);
   };
 
   // Function to navigate to home page with the captured image
