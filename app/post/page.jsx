@@ -152,6 +152,14 @@ useEffect(() => {
             thumbnail: img.thumbnail
           }));
           setApiImages(formattedImages);
+          
+          // Set the first image as selected if available
+          if (formattedImages.length > 0) {
+            setPhotos([{
+              id: formattedImages[0].id,
+              src: formattedImages[0].src
+            }]);
+          }
         }
 
         // Fetch photo permissions to get social share content
