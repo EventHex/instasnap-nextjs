@@ -173,7 +173,7 @@ const Home = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowLoading(false);
-    }, 1000); // 10 seconds timeout
+    }, 800); // 10 seconds timeout
 
     return () => clearTimeout(timer);
   }, []);

@@ -106,7 +106,7 @@ export default function Home() {
               <div className="w-[90%] mt-1">
                 <p className="flex gap-3 text-center justify-center text-[#6C7278] text-[14px]">
                   Already registered with your face?
-                  <Link href="/signin">
+                  <Link href="/register">
                     <span className="text-[#4D81E7]">Sign in</span>
                   </Link>
                 </p>

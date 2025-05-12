@@ -49,7 +49,7 @@ const Register = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [signupotpbtn, setSignupotpbtn] = useState(false);
   const [loginFailed, setLoginFailed] = useState(false);
-  
+
   // Dedicated state for button text
   const [buttonText, setButtonText] = useState("send code");
 
@@ -87,6 +87,14 @@ const Register = () => {
     }));
     setIsGenderOpen(false);
   };
+
+
+useEffect(() => {
+const profileImage = sessionStorage.getItem('userSelfie');
+if(profileImage){
+  setUserSelfie(profileImage);
+}
+}, []);
 
   // Check if form is valid
   const isFormValid = () => {

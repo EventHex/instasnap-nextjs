@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const instance = axios.create({
   // baseURL: 'https://app-api.eventhex.ai/api/v1',
-  baseURL: 'http://localhost:8074/api/v1',
+  baseURL: 'http://localhost:8074/api/v1',  
   // timeout: 5000,
   headers: {
     'Content-Type': 'application/json'

@@ -16,6 +16,7 @@ import { Post1, Post2, Post3, LinkedIn } from '../assets';
 import Button from '../components/button';
 import Image from 'next/image';
 import { EventHeader} from '../components/header';
+import instance from '../instance';
 // --- Mock Data for Modal --- 
 const mockYourPhotos = Array.from({ length: 12 }, (_, i) => ({ 
     id: `my-${i + 1}`, 
@@ -28,8 +29,8 @@ const mockEventHighlights = Array.from({ length: 15 }, (_, i) => ({
 // --- End Mock Data ---
 
 const SocialShare = () => {
-  const [text, setText] = useState("Can't wait to apply what I learned at the KEDDA Dental Expo! 🦷✨ The future of dental technology is bright. 🚀 #KeddaDentalExpo #Learning 📚 #InternationalDentalTechExpo");
-  const [characterCount, setCharacterCount] = useState(text.length);
+  const [text, setText] = useState("");  // Initialize with empty string
+  const [characterCount, setCharacterCount] = useState(0);
   const maxCharacters = 3000;
 
   // State for the main page photo selection (max 3)
@@ -42,6 +43,8 @@ const SocialShare = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('Event Highlights'); // 'Your Photos' or 'Event Highlights'
   const [modalSelectedPhotos, setModalSelectedPhotos] = useState({}); // Track selections within the modal {id: src}
+
+  const [apiImages, setApiImages] = useState([]); // Add this with other state declarations
 
   const handleTextChange = (e) => {
     const newText = e.target.value;
@@ -103,7 +106,8 @@ const SocialShare = () => {
       // Combine mock photos with user uploaded photos
       return [...userUploadedPhotos, ...mockYourPhotos];
     } else {
-      return mockEventHighlights;
+      // Combine API images with mock event highlights
+      return [...apiImages, ...mockEventHighlights];
     }
   };
   // --- End Modal Logic --- 
@@ -131,6 +135,60 @@ const SocialShare = () => {
   const handlePost = () => {
     console.log('Post via LinkedIn action triggered');
   };
+
+
+useEffect(() => {
+  const Textfetch = async () => {
+    const userId = sessionStorage.getItem('userId');
+    const eventId = sessionStorage.getItem('eventId');
+    
+    if (userId && eventId) {
+      try {
+        const res = await instance.get(`/mobile/social-share?userId=${userId}&eventId=${eventId}`);
+        if (res.data && res.data.data && res.data.data.images) {
+          const formattedImages = res.data.data.images.map(img => ({
+            id: img.imageId,
+            src: img.image,
+            thumbnail: img.thumbnail
+          }));
+          setApiImages(formattedImages);
+        }
+
+        // Fetch photo permissions to get social share content
+        const photoPermissionRes = await instance.get(`/photo-permission?event=${eventId}`);
+        if (photoPermissionRes.data && photoPermissionRes.data.response && photoPermissionRes.data.response[0]) {
+          const socialShareContent = photoPermissionRes.data.response[0].socialShareContent;
+          if (socialShareContent) {
+            setText(socialShareContent);
+            setCharacterCount(socialShareContent.length);
+          }
+          sessionStorage.setItem('isWhatsappAuth', photoPermissionRes.data.response[0].isWhatsappAuth);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }
+  }
+  Textfetch();
+}, [])
+
+useEffect(() => {
+  const fetchPhotoPermission = async () => {
+    const eventId = sessionStorage.getItem('eventId');
+    if (eventId) {
+      try {
+        const res = await instance.get(`/photo-permission?event=${eventId}`);
+        if (res.data && res.data.response && res.data.response[0]) {
+          sessionStorage.setItem('isWhatsappAuth', res.data.response[0].isWhatsappAuth);
+        }
+        console.log(res, 'photo-permission response');
+      } catch (error) {
+        console.error('Error fetching photo permission:', error);
+      }
+    }
+  };
+  fetchPhotoPermission();
+}, []);
 
   return (
     <div className="flex justify-center w-full">

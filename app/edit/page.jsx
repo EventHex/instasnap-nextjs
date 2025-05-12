@@ -85,7 +85,7 @@ const page = () => {
   const [isClient, setIsClient] = useState(false);
   const [apiImages, setApiImages] = useState([]);
   const [phone, setPhone] = useState("");
-  const [username, setUsername] = useState("");
+  const [fullname, setFullname] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -96,46 +96,47 @@ const page = () => {
     if (storedSelfie) {
       setUserSelfie(storedSelfie);
     }
+
+    // Load saved form data if it exists
+    const savedFullname = sessionStorage.getItem("editFullname");
+    const savedPhone = sessionStorage.getItem("editPhone");
+    if (savedFullname) setFullname(savedFullname);
+    if (savedPhone) setPhone(savedPhone);
   }, []);
+
+  // Save form data before navigation
+  const handleRetake = () => {
+    sessionStorage.setItem("editFullname", fullname);
+    sessionStorage.setItem("editPhone", phone);
+  };
 
   // Handle profile update
   const handleProfileUpdate = async () => {
     try {
       setIsLoading(true);
-      const userId = sessionStorage.getItem("userId");
+      const id = sessionStorage.getItem("userId");
       const eventId = sessionStorage.getItem("eventId");
 
-      if (!userId || !eventId) {
-        console.error("Missing userId or eventId");
-        return;
-      }
-
-      // Create form data with child append
       const formData = new FormData();
-      const userData = {
-        userId: userId,
-        eventId: eventId,
-        mobile: phone,
-        fullName: username
-      };
-
-      // Append user data as a JSON string
-      formData.append("userData", JSON.stringify(userData));
-
+      
+      // Add the user ID and full name to formData
+      formData.append("id", id);
+      formData.append("fullName", fullname);
+      
       // Get the profile image from session storage
       const profileImage = sessionStorage.getItem("profileUpdateImage");
       if (profileImage) {
         try {
           // Convert base64 to blob
           const base64Response = await fetch(profileImage);
-          const blob = await base64Response.blob();
-          formData.append("file", blob, "profile.jpg");
+          const blob = await base64Response.blob()
+          formData.append("keyImage", blob, "profile.jpg");
         } catch (err) {
           console.error("Error processing profile image:", err);
         }
       }
 
-      const response = await Instance.post("/mobile/profile", formData, {
+      const response = await Instance.put("/mobile/profile", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -177,7 +178,7 @@ const page = () => {
         <p className="text-center text-[14px] font-[400]">
           {" "}
           Didn't like the photo?
-          <Link href="/start">
+          <Link href="/start" onClick={handleRetake}>
             {" "}
             <span className="text-[#375DFB] underline"> Retake</span>
           </Link>
@@ -205,8 +206,8 @@ const page = () => {
               type="text"
               name="username"
               placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={fullname}
+              onChange={(e) => setFullname(e.target.value)}
               icon={User}
               className="text-black bg-transparent border-1 border-gray-300"
             />
