@@ -280,9 +280,12 @@ if(profileImage){
         if (response.data.user) {
           sessionStorage.setItem("eventId", response.data.user.event);
           sessionStorage.setItem("userId", response.data.user._id);
+          
+          // Add a small delay before redirecting to ensure session storage is set
+          setTimeout(() => {
+            router.push("/home");
+          }, 100);
         }
-        
-        router.push("/home");
       }
     } catch (error) {
       console.error("Error verifying OTP:", error);

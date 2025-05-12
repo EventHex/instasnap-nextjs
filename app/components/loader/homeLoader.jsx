@@ -153,7 +153,6 @@ const Loader = () => {
         <div className="load-inner load-one" />
         <div className="load-inner load-two" />
         <div className="load-inner load-three" />
-        <span className="text">Loading...</span>
       </div>
     </StyledWrapper>
   );

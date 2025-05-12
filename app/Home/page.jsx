@@ -107,7 +107,7 @@ const Home = () => {
   const [userSelfie, setUserSelfie] = useState(null);
   const [imagesLoaded, setImagesLoaded] = useState({});
   const [apiImages, setApiImages] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [showLoading, setShowLoading] = useState(true);
   const { event, registredUser } = useEvent();
   const modalRef = useRef(null);
@@ -141,7 +141,10 @@ const Home = () => {
               "Content-Type": "multipart/form-data",
             },
           }
+          
         );
+        console.log(response.data, 'response');
+        
   
         if (response.data && response.data.FaceMatches) {
           setApiImages(
@@ -213,6 +216,16 @@ const Home = () => {
           },
         }
       );
+
+      // if (response.data && response.data.FaceMatches) {
+      //   setApiImages(
+      //     response.data.FaceMatches.map((match) => ({
+      //       id: match.imageId,
+      //       image: match.image,
+      //       date: new Date(match.matchDate).toLocaleDateString(),
+      //     }))
+      //   );
+      // }
 
       if (response.data && response.data.FaceMatches) {
         setApiImages(
@@ -453,7 +466,7 @@ const Home = () => {
                     viewPost(item);
                   }}
                 >
-                  {item.image ? (
+                  {item.image && item.image !== '' ? (
                     <Image
                       src={item.image}
                       alt={`Post ${item.id}`}
@@ -467,9 +480,7 @@ const Home = () => {
                       loading="eager"
                     />
                   ) : (
-                    <div className="w-full h-[400px] bg-gray-100 flex items-center justify-center">
-                      <p className="text-gray-500">Image not available</p>
-                    </div>
+                   ''
                   )}
                   {/* Black overlay that appears on hover */}
                   <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-30 transition-none"></div>

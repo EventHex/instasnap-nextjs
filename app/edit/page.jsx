@@ -29,7 +29,7 @@ const compressImage = (base64Image, maxSizeMB = 0.5) => {
       let width = img.width;
       let height = img.height;
 
-      // Set canvas dimensions (maintain original size but limit very large images)
+    
       if (width > 800 || height > 800) {
         const aspectRatio = width / height;
         if (width > height) {
@@ -117,11 +117,26 @@ const page = () => {
       const id = sessionStorage.getItem("userId");
       const eventId = sessionStorage.getItem("eventId");
 
+      // Validate required fields
+      if (!id) {
+        throw new Error("User ID is missing");
+      }
+      if (!fullname) {
+        throw new Error("Full name is required");
+      }
+      if (!phone) {
+        throw new Error("Phone number is required");
+      }
+
       const formData = new FormData();
       
-      // Add the user ID and full name to formData
+      // Add all required data to formData
       formData.append("id", id);
       formData.append("fullName", fullname);
+      formData.append("phone", phone);
+      if (eventId) {
+        formData.append("eventId", eventId);
+      }
       
       // Get the profile image from session storage
       const profileImage = sessionStorage.getItem("profileUpdateImage");
@@ -129,14 +144,20 @@ const page = () => {
         try {
           // Convert base64 to blob
           const base64Response = await fetch(profileImage);
-          const blob = await base64Response.blob()
+          const blob = await base64Response.blob();
           formData.append("keyImage", blob, "profile.jpg");
         } catch (err) {
           console.error("Error processing profile image:", err);
+          throw new Error("Failed to process profile image");
         }
       }
 
-      const response = await Instance.put("/mobile/profile", formData, {
+      // Log the form data for debugging
+      for (let pair of formData.entries()) {
+        console.log(pair[0] + ': ' + pair[1]);
+      }
+
+      const response = await Instance.put(`/mobile/profile?id=${id}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -153,10 +174,12 @@ const page = () => {
         setUserSelfie(profileImage);
         // Show success message
         alert("Profile updated successfully!");
+      } else {
+        throw new Error(response.data.message || "Profile update failed");
       }
     } catch (error) {
       console.error("Error updating profile:", error);
-      alert("Failed to update profile. Please try again.");
+      alert(error.message || "Failed to update profile. Please try again.");
     } finally {
       setIsLoading(false);
     }

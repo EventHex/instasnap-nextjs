@@ -18,7 +18,7 @@ const ContributePage = () => {
     const [isLoadingUploads, setIsLoadingUploads] = useState(true); // Loading state for uploads section
     const [isDragging, setIsDragging] = useState(false); // Add state for drag status
     const fileInputRef = useRef(null);
-
+const ImgCdn = 'https://event-hex-saas.s3.us-east-1.amazonaws.com/'
     // Fetch Previously Uploaded Images from API
     useEffect(() => {
         const fetchContributes = async () => {
@@ -34,7 +34,7 @@ const ContributePage = () => {
                         const imageUrl = item.thumbnail || item.compressed || item.image;
                         return {
                             id: item._id,
-                            url: imageUrl && imageUrl.startsWith('http') ? imageUrl : '/placeholder-image.jpg',
+                            url: item.image,
                             status: item.approve ? 'approved' : 'pending'
                         };
                     });
@@ -290,7 +290,7 @@ const ContributePage = () => {
                   {uploadedImages.map((image) => (
                     <div key={image.id} className="relative aspect-square rounded-md overflow-hidden border border-gray-200 group">
                       <Image 
-                        src={image.url || ''} 
+                        src={ ImgCdn + image.url} 
                         alt={`Uploaded ${image.id}`}
                         fill
                         className="object-cover bg-gray-100"
