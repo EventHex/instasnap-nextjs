@@ -115,6 +115,24 @@ const page = () => {
     if (savedPhone) setPhone(savedPhone);
   }, []);
 
+useEffect(() => {
+  
+  const id = sessionStorage.getItem("userId");
+  console.log(id);
+  
+  const userDatafatching = async () => {
+    const response = await Instance.get(`mobile/profile?id=${id}`);
+    console.log(response.data);
+    // Set the values from API response
+    if (response.data) {
+      setPhone(response.data.authenticationId || '');
+      setFullname(response.data.fullName || '');
+    }
+  }
+  userDatafatching();
+}, []);
+
+
   // Save form data before navigation
   const handleRetake = () => {
     sessionStorage.setItem("editFullname", fullname);
@@ -144,6 +162,7 @@ const page = () => {
       // Add all required data to formData
       formData.append("id", id);
       formData.append("fullName", fullname);
+      // formData.append("phone", phone);
       // if (eventId) {
       //   formData.append("eventId", eventId);
       // }
@@ -189,7 +208,9 @@ const page = () => {
       }
     } catch (error) {
       console.error("Error updating profile:", error);
-      alert(error.message || "Failed to update profile. Please try again.");
+      // More detailed error message
+      const errorMessage = error.response?.data?.message || error.message || "Failed to update profile. Please try again.";
+      alert(errorMessage);
     } finally {
       setIsLoading(false);
     }
