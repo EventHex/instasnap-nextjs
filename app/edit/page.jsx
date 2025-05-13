@@ -88,6 +88,17 @@ const page = () => {
   const [fullname, setFullname] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  const handleBack = () => {
+    window.history.back();
+  };
+
+  const handleLogout = () => {
+    // Clear all session storage
+    sessionStorage.clear();
+    // Redirect to home page
+    window.location.href = '/';
+  };
+
   useEffect(() => {
     setIsClient(true);
 
@@ -133,10 +144,9 @@ const page = () => {
       // Add all required data to formData
       formData.append("id", id);
       formData.append("fullName", fullname);
-      formData.append("phone", phone);
-      if (eventId) {
-        formData.append("eventId", eventId);
-      }
+      // if (eventId) {
+      //   formData.append("eventId", eventId);
+      // }
       
       // Get the profile image from session storage
       const profileImage = sessionStorage.getItem("profileUpdateImage");
@@ -189,7 +199,8 @@ const page = () => {
     <div className="w-full flex flex-col gap-15 mb-[70px]">
       <div className="flex flex-col items-center justify-center">
         <div className="w-full flex justify-between p-4">
-          <ChevronLeft /> <LogOut />
+          <ChevronLeft onClick={handleBack} />  
+            <LogOut onClick={handleLogout} className="cursor-pointer" />
         </div>
         <Banners
           profile={userSelfie || Profileimg}
