@@ -413,6 +413,7 @@ const Home = () => {
           profile={userSelfie || Profileimg}
           Banner={Banner}
           editIconimage={PenIcon}
+          
         />
 
         <div className="max-w-md mt-16">

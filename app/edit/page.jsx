@@ -193,11 +193,11 @@ const page = () => {
 
       if (response.status !==400) {
         // Clear the profile image from session storage after successful update
-        sessionStorage.removeItem("profileUpdateImage");
+        // sessionStorage.removeItem("profileUpdateImage");
         // Update the user selfie in session storage
-        sessionStorage.setItem("userSelfie", profileImage);
+        // sessionStorage.setItem("userSelfie", profileImage);
         // Update the local state
-        setUserSelfie(profileImage);
+        // setUserSelfie(profileImage);
         // Show success message
         alert("Profile updated successfully!");
       } else {
@@ -223,11 +223,19 @@ const page = () => {
           <ChevronLeft onClick={handleBack} />
           <LogOut onClick={handleLogout} className="cursor-pointer" />
         </div>
-        <Banners
+        {/* <Banners
           profile={userSelfie || Profileimg}
           editIcon={<RotateCcw className="animate-spin" color="#525866" />}
           Banner={Banner}
+        /> */}
+
+<Banners
+          profile={userSelfie || Profileimg}
+          Banner={Banner}
+          editIconimage={PenIcon}
+
         />
+
       </div>
       <div className="flex flex-col items-center justify-center w-full h-full">
         <p className="text-center text-[14px] font-[400]">
