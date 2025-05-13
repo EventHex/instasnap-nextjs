@@ -114,8 +114,7 @@ const page = () => {
     if (savedPhone) setPhone(savedPhone);
   }, []);
 
-
-  // get profile function 
+  // get profile function
   useEffect(() => {
     const id = sessionStorage.getItem("userId");
     console.log(id);
@@ -152,7 +151,6 @@ const page = () => {
       if (!fullname) {
         throw new Error("Full name is required");
       }
-    
 
       const formData = new FormData();
 
@@ -191,7 +189,7 @@ const page = () => {
 
       console.log("Profile update response:", response.data);
 
-      if (response.status !==400) {
+      if (response.status !== 400) {
         // Clear the profile image from session storage after successful update
         // sessionStorage.removeItem("profileUpdateImage");
         // Update the user selfie in session storage
@@ -217,25 +215,19 @@ const page = () => {
   };
 
   return (
-    <div className="w-full flex flex-col gap-15 mb-[70px]">
+    <div className="w-full flex flex-col  ">
+    <div className="w-full    flex flex-col gap-15 ">
       <div className="flex flex-col items-center justify-center">
         <div className="w-full flex justify-between p-4">
           <ChevronLeft onClick={handleBack} />
           <LogOut onClick={handleLogout} className="cursor-pointer" />
         </div>
-        {/* <Banners
-          profile={userSelfie || Profileimg}
-          editIcon={<RotateCcw className="animate-spin" color="#525866" />}
-          Banner={Banner}
-        /> */}
 
-<Banners
+        <Banners
           profile={userSelfie || Profileimg}
           Banner={Banner}
           editIconimage={PenIcon}
-
         />
-
       </div>
       <div className="flex flex-col items-center justify-center w-full h-full">
         <p className="text-center text-[14px] font-[400]">
@@ -248,8 +240,9 @@ const page = () => {
         </p>
       </div>
 
-      <div className="flex flex-col p-5">
-        <div className="flex flex-col w-full gap-5">
+    </div>
+      <div className="flex      flex-col p-5">
+        <div className="flex   flex-col w-full gap-5">
           <div className="flex justify-center items-center">
             <h1 className="text-[16px] font-[400]">Edit your details</h1>
           </div>
@@ -285,7 +278,7 @@ const page = () => {
           {isLoading ? "Updating..." : "Save"}
         </Button>
       </div>
-    </div>
+      </div>
   );
 };
 

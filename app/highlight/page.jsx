@@ -67,9 +67,11 @@ const Page = () => {
         </div>
 
         {/* Scrollable Content Area with Masonry */}
-        <div className=" w-full">
+        <div className=" w-full ">
           {isLoading ? (
+            <div className="flex justify-center items-center mt-[-100px]">
             <Loader />
+            </div>
           ) : (
             <Masonry
               breakpointCols={breakpointColumnsObj}

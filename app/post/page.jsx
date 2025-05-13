@@ -200,19 +200,31 @@ const SocialShare = () => {
   useEffect(() => {
     const fetchPhotoPermission = async () => {
       const eventId = sessionStorage.getItem("eventId");
-      if (eventId) {
-        try {
-          const res = await instance.get(`/photo-permission?event=${eventId}`);
-          if (res.data && res.data.response && res.data.response[0]) {
-            sessionStorage.setItem(
-              "isWhatsappAuth",
-              res.data.response[0].isWhatsappAuth
-            );
-          }
-          console.log(res, "photo-permission response");
-        } catch (error) {
-          console.error("Error fetching photo permission:", error);
+      if (!eventId) {
+        console.error("No eventId found in sessionStorage");
+        return;
+      }
+
+      try {
+        const res = await instance.get(`/photo-permission`, {
+          params: { event: eventId }
+        });
+        
+        if (res.data?.response?.[0]) {
+          sessionStorage.setItem(
+            "isWhatsappAuth",
+            res.data.response[0].isWhatsappAuth
+          );
+          console.log("Photo permission data:", res.data);
+        } else {
+          console.warn("No photo permission data found in response");
         }
+      } catch (error) {
+        console.error("Error fetching photo permission:", {
+          message: error.message,
+          response: error.response?.data,
+          status: error.response?.status
+        });
       }
     };
     fetchPhotoPermission();
@@ -228,8 +240,12 @@ const SocialShare = () => {
     }
   
     try {
-      const response = await instance.get(`/rewrite-content?eventId=${eventId}`);
+      const response = await instance.get(`user/rewrite?event=${eventId}`);
       console.log(response, 'rewrite-content response');
+      if (response.data && response.data.ReWord) {
+        setText(response.data.ReWord);
+        setCharacterCount(response.data.ReWord.length);
+      }
     } catch (error) {
       console.error('rewrite-content error:', error);
     }
