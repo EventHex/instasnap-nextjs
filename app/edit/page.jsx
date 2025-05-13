@@ -29,7 +29,6 @@ const compressImage = (base64Image, maxSizeMB = 0.5) => {
       let width = img.width;
       let height = img.height;
 
-    
       if (width > 800 || height > 800) {
         const aspectRatio = width / height;
         if (width > height) {
@@ -96,7 +95,7 @@ const page = () => {
     // Clear all session storage
     sessionStorage.clear();
     // Redirect to home page
-    window.location.href = '/';
+    window.location.href = "/";
   };
 
   useEffect(() => {
@@ -115,23 +114,23 @@ const page = () => {
     if (savedPhone) setPhone(savedPhone);
   }, []);
 
-useEffect(() => {
-  
-  const id = sessionStorage.getItem("userId");
-  console.log(id);
-  
-  const userDatafatching = async () => {
-    const response = await Instance.get(`mobile/profile?id=${id}`);
-    console.log(response.data);
-    // Set the values from API response
-    if (response.data) {
-      setPhone(response.data.authenticationId || '');
-      setFullname(response.data.fullName || '');
-    }
-  }
-  userDatafatching();
-}, []);
 
+  // get profile function 
+  useEffect(() => {
+    const id = sessionStorage.getItem("userId");
+    console.log(id);
+
+    const userDatafatching = async () => {
+      const response = await Instance.get(`mobile/profile?id=${id}`);
+      console.log(response.data);
+      // Set the values from API response
+      if (response.data) {
+        setPhone(response.data.authenticationId || "");
+        setFullname(response.data.fullName || "");
+      }
+    };
+    userDatafatching();
+  }, []);
 
   // Save form data before navigation
   const handleRetake = () => {
@@ -153,20 +152,14 @@ useEffect(() => {
       if (!fullname) {
         throw new Error("Full name is required");
       }
-      if (!phone) {
-        throw new Error("Phone number is required");
-      }
+    
 
       const formData = new FormData();
-      
+
       // Add all required data to formData
       formData.append("id", id);
       formData.append("fullName", fullname);
-      // formData.append("phone", phone);
-      // if (eventId) {
-      //   formData.append("eventId", eventId);
-      // }
-      
+
       // Get the profile image from session storage
       const profileImage = sessionStorage.getItem("profileUpdateImage");
       if (profileImage) {
@@ -183,18 +176,22 @@ useEffect(() => {
 
       // Log the form data for debugging
       for (let pair of formData.entries()) {
-        console.log(pair[0] + ': ' + pair[1]);
+        console.log(pair[0] + ": " + pair[1]);
       }
 
-      const response = await Instance.put(`/mobile/profile?id=${id}`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await Instance.put(
+        `/mobile/profile?id=${id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
       console.log("Profile update response:", response.data);
-      
-      if (response.data.success) {
+
+      if (response.status !==400) {
         // Clear the profile image from session storage after successful update
         sessionStorage.removeItem("profileUpdateImage");
         // Update the user selfie in session storage
@@ -209,7 +206,10 @@ useEffect(() => {
     } catch (error) {
       console.error("Error updating profile:", error);
       // More detailed error message
-      const errorMessage = error.response?.data?.message || error.message || "Failed to update profile. Please try again.";
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to update profile. Please try again.";
       alert(errorMessage);
     } finally {
       setIsLoading(false);
@@ -220,8 +220,8 @@ useEffect(() => {
     <div className="w-full flex flex-col gap-15 mb-[70px]">
       <div className="flex flex-col items-center justify-center">
         <div className="w-full flex justify-between p-4">
-          <ChevronLeft onClick={handleBack} />  
-            <LogOut onClick={handleLogout} className="cursor-pointer" />
+          <ChevronLeft onClick={handleBack} />
+          <LogOut onClick={handleLogout} className="cursor-pointer" />
         </div>
         <Banners
           profile={userSelfie || Profileimg}
