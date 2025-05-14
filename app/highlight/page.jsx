@@ -81,7 +81,7 @@ const Page = () => {
           ) : (
             <Masonry
               breakpointCols={breakpointColumnsObj}
-              className="flex w-full gap-2 md:gap-4"
+              className="flex p-4  w-full gap-2 md:gap-4"
               columnClassName="bg-clip-padding"
             >
               {/* Map over postData to render items */}

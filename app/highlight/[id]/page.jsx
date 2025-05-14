@@ -20,12 +20,15 @@ const DetailsPage = () => {
   const [downloadError, setDownloadError] = useState(null)
   const [downloadCount, setDownloadCount] = useState(0)
   const [currentImageData, setCurrentImageData] = useState(null)
+  const [shareStatus, setShareStatus] = useState('')
 
   useEffect(() => {
     setImageId(params.id);
   }, [params.id]);
 
   useEffect(() => {
+
+    
     const fetchPosts = async () => {
       setIsLoading(true);
       try {
@@ -65,23 +68,28 @@ const DetailsPage = () => {
     fetchPosts();
   }, [params.id]);
 
-  useEffect(() => {
-    const fetchDownloadData = async () => {
-      try {
-        setDownloadError(null);
-        const response = await instance.put(`/mobile/event-highlight/download?id=${imageId}`);
-        console.log(response.data, 'download data');
-        if (response.data.success) {
-          setDownloadCount(response.data.response.downloadCount || 0);
-        }
-      } catch (error) {
-        console.error("Error fetching download data:", error);
-        setDownloadError(error.response?.data?.message || 'Failed to fetch download data');
+  const DownloadImage = async () => {
+    try {
+      if (!currentPost?.image) {
+        console.error('No image URL available');
+        return;
       }
-    };
 
-    fetchDownloadData();
-  }, [imageId]);
+      const response = await fetch(currentPost.image);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `instasnap-highlight-${currentPost.id}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading image:', error);
+      setDownloadError('Failed to download image. Please try again.');
+    }
+  };
 
   const handleBack = () => {
     router.back()
@@ -90,6 +98,32 @@ const DetailsPage = () => {
   const handleLikeToggle = () => {
     setIsLiked(prev => !prev)
   }
+
+  const handleShare = async () => {
+    try {
+      if (navigator.share) {
+        // Use Web Share API if available
+        await navigator.share({
+          title: 'Check out this photo!',
+          text: 'Found this amazing photo on InstaSnap',
+          url: currentPost.image
+        });
+      } else {
+        // Fallback: Copy link to clipboard
+        await navigator.clipboard.writeText(currentPost.image);
+        setShareStatus('Link copied to clipboard!');
+        // Clear the status message after 2 seconds
+        setTimeout(() => setShareStatus(''), 2000);
+      }
+    } catch (error) {
+      console.error('Error sharing:', error);
+      if (error.name !== 'AbortError') {
+        // Only show error if it's not just the user canceling
+        setShareStatus('Failed to share. Please try again.');
+        setTimeout(() => setShareStatus(''), 2000);
+      }
+    }
+  };
 
   if (isLoading) {
     return (
@@ -160,20 +194,24 @@ const DetailsPage = () => {
                 >
                   <Download />
                 </button>
-                <button className="hover:text-green-500 transition-colors">
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleShare();
+                  }}
+                  className="hover:text-green-500 transition-colors"
+                >
                   <Share2 size={24} />
                 </button>
               </div>
               <button 
                 className="hover:text-blue-500 transition-colors"
-                onClick={() => fetchDownloadData()}
+                onClick={() => DownloadImage()}
               >
                 <CloudDownload size={24} />
               </button>
             </div>
-            {/* {downloadError && (
-              <p className="text-red-500 text-sm mt-2">{downloadError}</p>
-            )} */}
+          
             <div className="flex items-center justify-between mt-2">
               {/* <p className="text-sm">
                 <span className="text-gray-600">Downloads: </span>
@@ -184,6 +222,11 @@ const DetailsPage = () => {
                 <span className="text-black font-medium">{postData.length}</span>
               </p>
             </div>
+            {shareStatus && (
+              <div className="absolute top-16 right-4 bg-gray-800 text-white px-4 py-2 rounded-md text-sm">
+                {shareStatus}
+              </div>
+            )}
           </div>
         </div>
 
