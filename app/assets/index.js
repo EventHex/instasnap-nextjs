@@ -34,7 +34,7 @@ import Post3 from './image/Post3.svg'
 import EventHexlogo from './icons/EventhexLogo.svg'
 import LinkedIn from './icons/linkedin.svg'
 import SearchingGif from './icons/searching.gif'
-
+import Bannertest from './image/italian-fiat-500-car-riding-on-road-B44RG2.jpg'
 export {
   Logo,
   Phone,
@@ -71,5 +71,6 @@ export {
   Post3,
   EventHexlogo,
   LinkedIn,
-  SearchingGif
+  SearchingGif,
+  Bannertest
 }

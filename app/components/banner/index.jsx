@@ -20,10 +20,10 @@ const index = ({profile, Banner, editIconimage}) => {
   const profileImage = isValidUrl(profile) ? profile : Profileimg;
 
   return (
-    <div className="flex flex-col relative max-w-[700px] w-full">
-      <div className="rounded-b-[30px] relative aspect-video">
+    <div className="flex flex-col relative max-w-[700px] w-full h-[300px] md:h-[400px]">
+      <div className="rounded-b-[30px] relative h-full w-full">
         <Image
-          className="rounded-b-[30px] object-fill"
+          className="rounded-b-[30px] w-full h-full object-cover"
           // src={`${ImgCdn}${props?.Banner.src}`}
           src={Banner}
           alt="Banner image"
