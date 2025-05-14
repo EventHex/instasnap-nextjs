@@ -46,6 +46,8 @@ const SocialShare = () => {
 
   const [apiImages, setApiImages] = useState([]); // Add this with other state declarations
 
+  const [showDownloadPreview, setShowDownloadPreview] = useState(false);
+
   const handleTextChange = (e) => {
     const newText = e.target.value;
     if (newText.length <= maxCharacters) {
@@ -130,24 +132,31 @@ const SocialShare = () => {
   };
 
   const handleDownload = async () => {
-    try {
-      // Download each selected photo
-      for (const photo of photos) {
-        const response = await fetch(photo.src);
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `instasnap-${photo.id}.jpg`; // Use photo ID in filename
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-      }
-    } catch (error) {
-      console.error('Error downloading photos:', error);
-      alert('Failed to download one or more photos. Please try again.');
+    if (!photos || photos.length === 0) {
+      alert('No photos to download');
+      return;
     }
+    setShowDownloadPreview(true);
+  };
+
+  const handleConfirmDownload = () => {
+    // Create a container div for all downloads
+    const container = document.createElement('div');
+    container.style.display = 'none';
+    document.body.appendChild(container);
+
+    // Process all photos
+    photos.forEach((photo) => {
+        const link = document.createElement('a');
+        link.href = photo.src;
+        link.download = `instasnap-${photo.id}.jpg`;
+        container.appendChild(link);
+        link.click();
+    });
+
+    // Clean up
+    document.body.removeChild(container);
+    setShowDownloadPreview(false);
   };
 
   const handlePost = () => {
@@ -510,6 +519,43 @@ const SocialShare = () => {
                     );
                   })}
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Download Preview Modal */}
+        {showDownloadPreview && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-xs" onClick={() => setShowDownloadPreview(false)} />
+            <div className="relative z-50 bg-white rounded-2xl p-4 w-full max-w-lg mx-4">
+              <h3 className="text-lg font-medium mb-4">Download Preview</h3>
+              <div className="grid grid-cols-3 gap-3 mb-4">
+                {photos.map((photo) => (
+                  <div key={photo.id} className="relative aspect-square rounded-lg overflow-hidden">
+                    <Image
+                      src={photo.src}
+                      alt={`Preview ${photo.id}`}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setShowDownloadPreview(false)}
+                  className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg text-sm font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmDownload}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 flex items-center"
+                >
+                  <CloudDownload size={16} className="mr-2" />
+                  Download All
+                </button>
               </div>
             </div>
           </div>
