@@ -252,9 +252,9 @@ const page = () => {
               name="phone"
               placeholder="Phone Number"
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              readOnly
               icon={Phone}
-              className="text-black bg-transparent border-1 border-gray-300"
+              className="text-black bg-transparent border-1 border-gray-300 cursor-not-allowed opacity-70"
             />
           </div>
           <div>
