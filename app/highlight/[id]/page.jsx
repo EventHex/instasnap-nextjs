@@ -15,7 +15,7 @@ const DetailsPage = () => {
   const [postData, setPostData] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [isLiked, setIsLiked] = useState(false)
-  const [profileImage, setProfileImage] = useState(null)
+  const [userSelfie, setUserSelfie] = useState(null)
   const [imageId, setImageId] = useState(null)
   const [downloadError, setDownloadError] = useState(null)
   const [downloadCount, setDownloadCount] = useState(0)
@@ -26,15 +26,12 @@ const DetailsPage = () => {
   }, [params.id]);
 
   useEffect(() => {
-    console.log(imageId, 'image gotted');
-  }, [imageId]);
-
-  useEffect(() => {
     const fetchPosts = async () => {
       setIsLoading(true);
       try {
-        const profile = sessionStorage.getItem("profileImage");
-        setProfileImage(profile)
+        const selfie = sessionStorage.getItem("userSelfie");
+        console.log("User selfie from session storage:", selfie);
+        setUserSelfie(selfie)
         const event = sessionStorage.getItem("eventId");
         const response = await instance(
           `event-highlight?event=${event}&limit=30&skip=0`
@@ -125,9 +122,9 @@ const DetailsPage = () => {
           {/* User Info */}
           <div className="p-2 flex items-center">
             <div className="h-10 w-10 rounded-full bg-gray-200 overflow-hidden">
-              {profileImage && (
+              {userSelfie && (
                 <Image 
-                  src={profileImage} 
+                  src={userSelfie} 
                   alt="Profile"
                   width={40}
                   height={40}
