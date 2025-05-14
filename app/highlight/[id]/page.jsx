@@ -18,6 +18,8 @@ const DetailsPage = () => {
   const [profileImage, setProfileImage] = useState(null)
   const [imageId, setImageId] = useState(null)
   const [downloadError, setDownloadError] = useState(null)
+  const [downloadCount, setDownloadCount] = useState(0)
+  const [currentImageData, setCurrentImageData] = useState(null)
 
   useEffect(() => {
     setImageId(params.id);
@@ -37,14 +39,24 @@ const DetailsPage = () => {
         const response = await instance(
           `event-highlight?event=${event}&limit=30&skip=0`
         );
+        console.log(response.data, 'response data');
+        
 
         if (response.data.success) {
           const formattedData = response.data.response.map((item) => ({
             id: item._id,
             image: `https://event-hex-saas.s3.amazonaws.com/${item.image}`,
             date: new Date(item.createdAt).toLocaleDateString(),
+            downloadCount: item.downloadCount || 0
           }));
           setPostData(formattedData);
+          
+          // Find and set current image data
+          const currentImage = response.data.response.find(item => item._id === params.id);
+          if (currentImage) {
+            setCurrentImageData(currentImage);
+            setDownloadCount(currentImage.downloadCount || 0);
+          }
         }
       } catch (error) {
         console.error("Error fetching highlights:", error);
@@ -54,14 +66,17 @@ const DetailsPage = () => {
     };
 
     fetchPosts();
-  }, []);
+  }, [params.id]);
 
   useEffect(() => {
     const fetchDownloadData = async () => {
       try {
         setDownloadError(null);
-        const response = await instance.get(`/mobile/event-highlight/download?id=${imageId}`);
+        const response = await instance.put(`/mobile/event-highlight/download?id=${imageId}`);
         console.log(response.data, 'download data');
+        if (response.data.success) {
+          setDownloadCount(response.data.response.downloadCount || 0);
+        }
       } catch (error) {
         console.error("Error fetching download data:", error);
         setDownloadError(error.response?.data?.message || 'Failed to fetch download data');
@@ -159,10 +174,19 @@ const DetailsPage = () => {
                 <CloudDownload size={24} />
               </button>
             </div>
-            {downloadError && (
-              <p className="text-red-500 text-sm mt-2">{downloadError}  <span className='text-black'>12</span> </p>
-            )}
-      
+            {/* {downloadError && (
+              <p className="text-red-500 text-sm mt-2">{downloadError}</p>
+            )} */}
+            <div className="flex items-center justify-between mt-2">
+              {/* <p className="text-sm">
+                <span className="text-gray-600">Downloads: </span>
+                <span className="text-black font-medium">{downloadCount}</span>
+              </p> */}
+              <p className="text-sm">
+                <span className="text-gray-600"> Count:</span>
+                <span className="text-black font-medium">{postData.length}</span>
+              </p>
+            </div>
           </div>
         </div>
 
