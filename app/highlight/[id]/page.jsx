@@ -1,138 +1,95 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import { EventHeader } from '../../components/header'
-import { Post1, Post2, Post3 } from '../../assets'
 import Image from 'next/image'
 import NavFooter from '../../components/navfooter'
-import { ArrowLeft, CloudDownload, Heart, Share2, MessageCircle } from 'lucide-react'
+import { ArrowLeft, CloudDownload, Download, Heart, Share2 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter, useParams } from 'next/navigation'
-import Button from '../../components/button'
+import instance from '../../instance'
+import Loader from '../../components/loader'
 
 const DetailsPage = () => {
   const router = useRouter()
   const params = useParams()
-  const [selectedPost, setSelectedPost] = useState(null)
-  const [otherPosts, setOtherPosts] = useState([])
+  const [postData, setPostData] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
   const [isLiked, setIsLiked] = useState(false)
-
-  const allPosts = [
-    {
-      id: 1,
-      image: Post1,
-      date: "2024-02-01",
-    },
-    {
-      id: 2,
-      image: Post2,
-      date: "2024-03-02",
-    },
-    {
-      id: 3,
-      image: Post3,
-      date: "2024-03-05",
-    },
-    {
-      id: 4,
-      image: Post1,
-      date: "2024-02-01",
-    },
-    {
-      id: 5,
-      image: Post2,
-      date: "2024-03-02",
-    },
-    {
-      id: 5.5,
-      image: Post2,
-      date: "2024-03-05",
-    },
-    {
-      id: 6,
-      image: Post3,
-      date: "2024-02-01",
-    },
-    {
-      id: 7,
-      image: Post1,
-      date: "2024-03-02",
-    },
-    {
-      id: 8,
-      image: Post2,
-      date: "2024-03-05",
-    },
-    {
-      id: 9,
-      image: Post3,
-      date: "2024-02-01",
-    },
-    {
-      id: 10,
-      image: Post1,
-      date: "2024-03-02",
-    },
-    {
-      id: 11,
-      image: Post2,
-      date: "2024-03-05",
-    },
-    {
-      id: 12,
-      image: Post3,
-      date: "2024-02-01",
-    },
-    {
-      id: 13,
-      image: Post1,
-      date: "2024-03-02",
-    },
-    {
-      id: 14,
-      image: Post2,
-      date: "2024-03-05",
-    },
-    {
-      id: 15,
-      image: Post3,
-      date: "2024-02-01",
-    },
-    {
-      id: 16,
-      image: Post1,
-      date: "2024-03-02",
-    },
-    {
-      id: 17,
-      image: Post2,
-      date: "2024-03-05",
-    },
-    {
-      id: 18,
-      image: Post3,
-      date: "2024-02-01",
-    },
-    {
-      id: 19,
-      image: Post1,
-      date: "2024-03-02",
-    },
-    {
-      id: 20,
-      image: Post2,
-      date: "2024-03-05",
-    }
-  ]
+  const [userSelfie, setUserSelfie] = useState(null)
+  const [imageId, setImageId] = useState(null)
+  const [downloadError, setDownloadError] = useState(null)
+  const [downloadCount, setDownloadCount] = useState(0)
+  const [currentImageData, setCurrentImageData] = useState(null)
+  const [shareStatus, setShareStatus] = useState('')
 
   useEffect(() => {
-    if (!params?.id) return;
+    setImageId(params.id);
+  }, [params.id]);
+
+  useEffect(() => {
+
     
-    const current = allPosts.find(post => post.id === Number(params.id))
-    const others = allPosts.filter(post => post.id !== Number(params.id))
-    
-    setSelectedPost(current)
-    setOtherPosts(others)
-  }, [params?.id])
+    const fetchPosts = async () => {
+      setIsLoading(true);
+      try {
+        const selfie = sessionStorage.getItem("userSelfie");
+        console.log("User selfie from session storage:", selfie);
+        setUserSelfie(selfie)
+        const event = sessionStorage.getItem("eventId");
+        const response = await instance(
+          `event-highlight?event=${event}&limit=30&skip=0`
+        );
+        console.log(response.data, 'response data');
+        
+
+        if (response.data.success) {
+          const formattedData = response.data.response.map((item) => ({
+            id: item._id,
+            image: `https://event-hex-saas.s3.amazonaws.com/${item.image}`,
+            date: new Date(item.createdAt).toLocaleDateString(),
+            downloadCount: item.downloadCount || 0
+          }));
+          setPostData(formattedData);
+          
+          // Find and set current image data
+          const currentImage = response.data.response.find(item => item._id === params.id);
+          if (currentImage) {
+            setCurrentImageData(currentImage);
+            setDownloadCount(currentImage.downloadCount || 0);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching highlights:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, [params.id]);
+
+  const DownloadImage = async () => {
+    try {
+      if (!currentPost?.image) {
+        console.error('No image URL available');
+        return;
+      }
+
+      const response = await fetch(currentPost.image);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `instasnap-highlight-${currentPost.id}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading image:', error);
+      setDownloadError('Failed to download image. Please try again.');
+    }
+  };
 
   const handleBack = () => {
     router.back()
@@ -142,17 +99,53 @@ const DetailsPage = () => {
     setIsLiked(prev => !prev)
   }
 
-  if (!selectedPost) {
+  const handleShare = async () => {
+    try {
+      if (navigator.share) {
+        // Use Web Share API if available
+        await navigator.share({
+          title: 'Check out this photo!',
+          text: 'Found this amazing photo on InstaSnap',
+          url: currentPost.image
+        });
+      } else {
+        // Fallback: Copy link to clipboard
+        await navigator.clipboard.writeText(currentPost.image);
+        setShareStatus('Link copied to clipboard!');
+        // Clear the status message after 2 seconds
+        setTimeout(() => setShareStatus(''), 2000);
+      }
+    } catch (error) {
+      console.error('Error sharing:', error);
+      if (error.name !== 'AbortError') {
+        // Only show error if it's not just the user canceling
+        setShareStatus('Failed to share. Please try again.');
+        setTimeout(() => setShareStatus(''), 2000);
+      }
+    }
+  };
+
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Loading...</div>
+      <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500"></div>
+    </div>
+    )
+  }
+
+  const currentPost = postData.find(post => post.id === params.id) || postData[0];
+
+  if (!currentPost) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-xl">No post found</div>
       </div>
     )
   }
 
   return (
-    <div className=" bg-gray-50">
-      <div className='flex justify-center items-center  bg-white '>
+    <div className="bg-gray-50">
+      <div className='flex justify-center items-center bg-white'>
         <EventHeader />
         <div className="w-8" />
       </div>
@@ -161,27 +154,29 @@ const DetailsPage = () => {
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="bg-white rounded-xl overflow-hidden">
           {/* User Info */}
-          <div className="p-2 flex items-center ">
+          <div className="p-2 flex items-center">
             <div className="h-10 w-10 rounded-full bg-gray-200 overflow-hidden">
-              <Image 
-                src={selectedPost.image} 
-                alt="Profile"
-                width={40}
-                height={40}
-                className="w-full h-full object-cover"
-              />
+              {userSelfie && (
+                <Image 
+                  src={userSelfie} 
+                  alt="Profile"
+                  width={40}
+                  height={40}
+                  className="w-full h-full object-cover"
+                />
+              )}
             </div>
             <div className="ml-3">
               <h3 className="font-semibold">User Name</h3>
-              <p className="text-xs text-gray-500">{selectedPost.date}</p>
+              <p className="text-xs text-gray-500">{currentPost.date}</p>
             </div>
           </div>
 
           {/* Image */}
           <div className="aspect-square relative">
             <Image 
-              src={selectedPost.image} 
-              alt={`Post ${selectedPost.id}`}
+              src={currentPost.image} 
+              alt={`Post ${currentPost.id}`}
               className="w-full h-full object-cover"
               width={1000}
               height={1000}
@@ -190,37 +185,48 @@ const DetailsPage = () => {
           </div>
 
           {/* Actions */}
-          <div className="p-4 ">
+          <div className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <button 
                   onClick={handleLikeToggle}
                   className="transition-colors"
                 >
-                  <Heart 
-                    size={24} 
-                    fill={isLiked ? 'red' : 'none'} 
-                    color={isLiked ? 'red' : 'currentColor'}
-                  />
+                  <Download />
                 </button>
-                <button className="hover:text-green-500 transition-colors">
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleShare();
+                  }}
+                  className="hover:text-green-500 transition-colors"
+                >
                   <Share2 size={24} />
                 </button>
               </div>
-              <button className="hover:text-blue-500 transition-colors">
+              <button 
+                className="hover:text-blue-500 transition-colors"
+                onClick={() => DownloadImage()}
+              >
                 <CloudDownload size={24} />
               </button>
             </div>
-            <div className="mt-3">
-              <p className="text-sm font-semibold">
-                {isLiked ? '1,235' : '1,234'} likes
+          
+            <div className="flex items-center justify-between mt-2">
+              {/* <p className="text-sm">
+                <span className="text-gray-600">Downloads: </span>
+                <span className="text-black font-medium">{downloadCount}</span>
+              </p> */}
+              <p className="text-sm">
+                <span className="text-gray-600"> Count:</span>
+                <span className="text-black font-medium">{postData.length}</span>
               </p>
-              <p className="text-sm mt-1">
-                <span className="font-semibold">Username</span>{" "}
-                Beautiful capture of the moment! 📸✨
-              </p>
-              {/* <p className="text-xs text-gray-500 mt-2">View all 56 comments</p> */}
             </div>
+            {shareStatus && (
+              <div className="absolute top-16 right-4 bg-gray-800 text-white px-4 py-2 rounded-md text-sm">
+                {shareStatus}
+              </div>
+            )}
           </div>
         </div>
 
@@ -228,7 +234,7 @@ const DetailsPage = () => {
         <div className="mt-8 mb-[90px]">
           <h2 className="text-xl font-semibold mb-4">More Photos</h2>
           <div className="grid grid-cols-3 gap-4">
-            {otherPosts.slice(0, 6).map((post) => (
+            {postData.map((post) => (
               <Link 
                 key={post.id} 
                 href={`/highlight/${post.id}`}

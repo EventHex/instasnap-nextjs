@@ -1,22 +1,13 @@
 'use client'
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import NavFooter from '../components/navfooter';
-import { UploadCloud, X, CheckCircle, AlertCircle, Clock, Image as ImageIcon } from 'lucide-react';
+import { UploadCloud, X, CheckCircle, AlertCircle, Clock, Image as ImageIcon, UploadCloudIcon, Upload, UploadIcon, LucideUploadCloud } from 'lucide-react';
 import Image from 'next/image';
 import Button from '../components/button'; // Assuming Button component exists and works
 import { EventHeader } from '../components/header';
+import instance from '../instance';
 
 const MAX_FILES = 10;
-
-// --- Mock Data for Previously Uploaded Images --- 
-// Replace this with actual API call in useEffect
-const mockUploadedImages = [
-    { id: 'img101', url: 'https://picsum.photos/seed/uploaded1/200/200', status: 'pending' },
-    { id: 'img102', url: 'https://picsum.photos/seed/uploaded2/200/300', status: 'approved' },
-    { id: 'img103', url: 'https://picsum.photos/seed/uploaded3/300/200', status: 'pending' },
-    { id: 'img104', url: 'https://picsum.photos/seed/uploaded4/250/250', status: 'approved' },
-];
-
 
 const ContributePage = () => {
     const [selectedFiles, setSelectedFiles] = useState([]);
@@ -25,19 +16,39 @@ const ContributePage = () => {
     const [uploadStatus, setUploadStatus] = useState({ message: '', type: '' }); // type: 'success' or 'error'
     const [uploadedImages, setUploadedImages] = useState([]); // State for previously uploaded images
     const [isLoadingUploads, setIsLoadingUploads] = useState(true); // Loading state for uploads section
+    const [isDragging, setIsDragging] = useState(false); // Add state for drag status
     const fileInputRef = useRef(null);
-
-    // --- Fetch Previously Uploaded Images (Placeholder) --- 
+const ImgCdn = 'https://event-hex-saas.s3.us-east-1.amazonaws.com/'
+    // Fetch Previously Uploaded Images from API
     useEffect(() => {
-        setIsLoadingUploads(true);
-        // Simulate fetching data from API
-        setTimeout(() => { 
-            // Replace with: fetch('/api/my-uploads').then(res => res.json()).then(data => setUploadedImages(data))
-            setUploadedImages(mockUploadedImages);
-            setIsLoadingUploads(false);
-        }, 1500); // Simulate network delay
+        const fetchContributes = async () => {
+            setIsLoadingUploads(true);
+            try {
+                const res = await instance.get("contribute");
+                console.log("API response:", res);
+                
+                if (res.data && res.data.success && res.data.response) {
+                    // Map the API response to the expected format
+                    const formattedImages = res.data.response.map(item => {
+                        // Ensure we have a valid URL by checking all possible image sources
+                        const imageUrl = item.thumbnail || item.compressed || item.image;
+                        return {
+                            id: item._id,
+                            url: item.image,
+                            status: item.approve ? 'approved' : 'pending'
+                        };
+                    });
+                    setUploadedImages(formattedImages);
+                }
+            } catch (error) {
+                console.error("Error fetching contributions:", error);
+            } finally {
+                setIsLoadingUploads(false);
+            }
+        };
+        
+        fetchContributes();
     }, []);
-    // --- End Fetch Logic --- 
 
     // Clean up preview URLs when component unmounts or previews change
     useEffect(() => {
@@ -91,8 +102,7 @@ const ContributePage = () => {
         // Simulate getting back data from the server after upload
         const newUploadedImagesData = selectedFiles.map((file, index) => ({
             id: `new_${Date.now()}_${index}`,
-            // Use a placeholder/mock URL instead of the temporary blob URL
-            url: `https://picsum.photos/seed/new_${Date.now()}_${index}/200/200`, 
+            url: URL.createObjectURL(file), // Use the actual file URL instead of picsum
             status: 'pending' // New uploads are pending
         }));
         // Prepend new uploads to the displayed list
@@ -129,9 +139,46 @@ const ContributePage = () => {
         }
     };
 
-    // --- DEBUG LOG --- 
-    console.log("Rendering 'Your Uploads' with state:", uploadedImages);
-    // --- END DEBUG LOG ---
+    const handleDragEnter = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+    };
+
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+        
+        const files = Array.from(e.dataTransfer.files);
+        const imageFiles = files.filter(file => file.type.startsWith('image/'));
+        
+        if (imageFiles.length === 0) {
+            setUploadStatus({ message: 'Please drop only image files.', type: 'error' });
+            return;
+        }
+
+        const totalFiles = selectedFiles.length + imageFiles.length;
+        if (totalFiles > MAX_FILES) {
+            setUploadStatus({ message: `You can only select up to ${MAX_FILES} photos.`, type: 'error' });
+            return;
+        }
+
+        setSelectedFiles(prev => [...prev, ...imageFiles]);
+        const newPreviewUrls = imageFiles.map(file => URL.createObjectURL(file));
+        setPreviews(prev => [...prev, ...newPreviewUrls]);
+    };
 
     return (
         <div className="flex justify-center w-full">
@@ -146,8 +193,16 @@ const ContributePage = () => {
   
             {/* Upload Area */} 
             <div
-              className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center mb-6 cursor-pointer hover:border-blue-500 bg-gray-50 hover:bg-gray-100 transition-colors duration-200"
-              onClick={() => fileInputRef.current?.click()} // Trigger hidden input
+              className={`border-2 border-dashed rounded-lg p-6 text-center mb-6 cursor-pointer transition-colors duration-200 ${
+                isDragging 
+                  ? 'border-blue-500 bg-blue-50' 
+                  : 'border-gray-300 hover:border-blue-500 bg-gray-50 hover:bg-gray-100'
+              }`}
+              onClick={() => fileInputRef.current?.click()}
+              onDragEnter={handleDragEnter}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
             >
               <input
                 ref={fileInputRef}
@@ -201,17 +256,17 @@ const ContributePage = () => {
             {/* Upload Button */} 
             {selectedFiles.length > 0 && (
               <Button 
-                onClick={handleUpload}
+                type="button"
+                variant="default"
                 disabled={isUploading}
+                onClick={handleUpload}
                 className="w-full md:w-auto px-8 mt-4"
-                icon={!isUploading ? <UploadCloud size={18} className="mr-2"/> : null}
+                icon={!isUploading ? '' : null}
+                iconPosition="left"
               >
                 {isUploading ? (
                   <>
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
+                  ''
                     Uploading...
                   </>
                 ) : (
@@ -223,20 +278,33 @@ const ContributePage = () => {
             {/* Your Uploads Section */}
             <div className="mt-6">
               <h2 className="text-lg font-medium mb-3 text-gray-700">Your Uploads</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                {uploadedImages.map((image) => (
-                  <div key={image.id} className="relative aspect-square rounded-md overflow-hidden border border-gray-200 group">
-                    <Image 
-                      src={image.url} 
-                      alt={`Uploaded ${image.id}`}
-                      fill
-                      className="object-cover bg-gray-100"
-                    />
-                    {/* Status Badge */}
-                    {renderStatusBadge(image.status)}
-                  </div>
-                ))}
-              </div>
+              {isLoadingUploads ? (
+                <div className="flex justify-center items-center py-10">
+                  <svg className="animate-spin h-10 w-10 text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                </div>
+              ) : uploadedImages.length > 0 ? (
+                <div className="grid grid-cols-2  mb-10 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                  {uploadedImages.map((image) => (
+                    <div key={image.id} className="relative aspect-square rounded-md overflow-hidden border border-gray-200 group">
+                      <Image 
+                        src={ ImgCdn + image.url} 
+                        alt={`Uploaded ${image.id}`}
+                        fill
+                        className="object-cover bg-gray-100"
+                      />
+                      {renderStatusBadge(image.status)}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-10 text-gray-500">
+                  <ImageIcon className="mx-auto h-10 w-10 text-gray-300 mb-2" />
+                  <p>No uploads found</p>
+                </div>
+              )}
             </div>
           </div>
           

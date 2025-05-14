@@ -20,8 +20,10 @@ import Button from "../components/button";
 import Image from "next/image";
 import instance from "../instance";
 import { useEvent } from "../context"; // Import the context hook
+import { useRouter } from "next/navigation";
 
 const Register = () => {
+  const router = useRouter();
   const { event  } = useEvent();
   const [formData, setFormData] = useState({
     firstName: "",
@@ -45,6 +47,11 @@ const Register = () => {
   const [codeSentError, setCodeSentError] = useState(false);
   const [codeSentSuccess, setCodeSentSuccess] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [signupotpbtn, setSignupotpbtn] = useState(false);
+  const [loginFailed, setLoginFailed] = useState(false);
+
+  // Dedicated state for button text
+  const [buttonText, setButtonText] = useState("send code");
 
   const countryCodes = [
     { code: "91", country: "India" },
@@ -81,6 +88,14 @@ const Register = () => {
     setIsGenderOpen(false);
   };
 
+
+useEffect(() => {
+const profileImage = sessionStorage.getItem('userSelfie');
+if(profileImage){
+  setUserSelfie(profileImage);
+}
+}, []);
+
   // Check if form is valid
   const isFormValid = () => {
     return (
@@ -94,54 +109,202 @@ const Register = () => {
 
   // Handle form submission
   const handleSubmit = async (e) => {
+    console.log("handleSubmit");
     e.preventDefault();
     if (isFormValid()) {
-   
       setSubmittedData({
         ...formData,
         countryCode: selectedCode,
       });
 
- 
       try {
-        const res = await instance.post("auth/login-public", {
-          mobile: formData.phone,
-          phoneCode: selectedCode,
-          fullName: formData.firstName,
-          event: event,
+        // Get the image from session storage
+        const userImage = sessionStorage.getItem("userSelfie");
+        console.log("User image from session storage:", userImage ? "exists" : "not found");
+        
+        // Create FormData object
+        const formDataToSend = new FormData();
+        formDataToSend.append('mobile', formData.phone);
+        formDataToSend.append('phoneCode', selectedCode);
+        formDataToSend.append('fullName', formData.firstName);
+        formDataToSend.append('event', event);
+        formDataToSend.append('designation', formData.designation);
+        formDataToSend.append('companyName', formData.companyName);
+        formDataToSend.append('gender', formData.gender);
+        
+        // Handle image from session storage
+        if (userImage) {
+          try {
+            console.log("Processing image...");
+            // Convert base64 to blob
+            const base64Response = await fetch(userImage);
+            const blob = await base64Response.blob();
+            console.log("Image blob created:", blob.size, "bytes");
+            formDataToSend.append('file', blob, 'selfie.jpg');
+          } catch (error) {
+            console.error('Error processing image:', error);
+            alert('Error processing your image. Please try again.');
+            return;
+          }
+        } else {
+          console.warn("No user image found in session storage");
+        }
+        
+        console.log("Sending signup request...");
+        const res = await instance.post("/auth/signup-mobile-with-country", formDataToSend, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
         });
+        
         console.log("API response:", res);
-        // Handle successful response here
-        // For example, you could redirect to another page
+        if (res.data.success) {
+          setIsLoggedIn(true);
+          setShowVerification(true);
+          setCodeSent(true);
+          // Store eventId and userId in session storage if provided in response
+          if (res.data.user) {
+            sessionStorage.setItem("eventId", res.data.user.event);
+            sessionStorage.setItem("userId", res.data.user._id);
+            console.log("Stored eventId and userId in session storage");
+          }
+        } else {
+          console.error("Signup failed:", res.data);
+          alert('Signup failed. Please try again.');
+        }
       } catch (error) {
         console.error("Error calling API:", error);
-        // Handle error here
+        alert('Error during signup. Please try again.');
       }
-
-      // You can add additional logic here
-      console.log("Form submitted:", {
-        ...formData,
-        countryCode: selectedCode,
-      });
     }
   };
 
   // Update the handleSendCode function
-  const handleSendCode = () => {
+  const handleSendCode = async () => {
     if (formData.phone) {
-      setShowVerification(true);
-      setCodeSent(true);
-      // Add your send code logic here
-      console.log("Sending code to:", formData.phone);
+      try {
+        // First try to login
+        const loginResponse = await instance.post("/auth/login-mobile-with-country", {
+          phoneCode: selectedCode,
+          mobile: formData.phone,
+          event: event
+        });
+
+        console.log("Login response:", loginResponse.data);
+
+        if (loginResponse.data.success) {
+          setShowVerification(true);
+          setCodeSent(true);
+          setLoginFailed(false);
+          setButtonText(""); // Clear button text when code is sent successfully
+        }
+        else {
+          setLoginFailed(true);
+          // Directly check for message in the response
+          if (loginResponse.data.message && 
+              (loginResponse.data.message.includes("No ticket") || 
+               loginResponse.data.message.includes("registrations") || 
+               loginResponse.data.message.includes("not found"))) {
+            setButtonText("sign up");
+            console.log("Changed button text to 'sign up' from unsuccessful login");
+            alert('You have no account. Please fill the fields below.');
+          }
+        }
+      } catch (error) {
+        console.log("Error caught:", error);
+        
+        try {
+          // Log all possible paths to the error message
+          console.log("Error object:", error);
+          console.log("Error message:", error.message);
+          
+          if (error.response) {
+            console.log("Error response:", error.response);
+            console.log("Error response data:", error.response.data);
+            console.log("Error response message:", error.response.data?.message);
+            
+            // Try to find the error message in different potential locations
+            const errorMessage = 
+              error.response.data?.message || 
+              error.response.data?.error || 
+              error.response.statusText || 
+              error.message || 
+              "";
+              
+            console.log("Extracted error message:", errorMessage);
+            
+            // Very loose matching for any indication of "no user found" or similar
+            if (errorMessage.toLowerCase().includes("no") && 
+                (errorMessage.toLowerCase().includes("ticket") || 
+                 errorMessage.toLowerCase().includes("registrations") || 
+                 errorMessage.toLowerCase().includes("user") || 
+                 errorMessage.toLowerCase().includes("found"))) {
+              
+              // Directly set the button text
+              console.log("Setting button text to 'sign up'");
+              setButtonText("sign up");
+              alert('You have no account. Please fill the fields below.');
+            }
+          }
+        } catch (e) {
+          console.log("Error in error handling:", e);
+        }
+      }
     }
   };
 
-  const SendCode = () => {
-    setCodeSentError(true);
+  const SendCode = async () => {
+    try {
+      const response = await instance.post("/auth/login-mobile-with-country", {
+        phoneCode: selectedCode,
+        mobile: formData.phone,
+        event: event
+      });
+
+      if (response.data.success) {
+        setCodeSentError(false);
+        alert('Verification code has been resent successfully.');
+      }
+    } catch (error) {
+      console.error("Error resending code:", error);
+      setCodeSentError(true);
+    }
   };
 
-  const handleVerify = () => {
-    setCodeSentSuccess(true);
+  const handleVerify = async () => {
+    try {
+      console.log("handleVerify");
+      console.log("Phone:", formData.phone);
+      console.log("Verification Code:", formData.verificationCode);
+      console.log("Event:", event);
+      console.log("Phone Code:", selectedCode);
+      
+      const response = await instance.post("/auth/verify-otp-with-country", {
+        mobile: formData.phone,
+        otp: formData.verificationCode,
+        event: event,
+        phoneCode: selectedCode,
+      });
+      
+      if (response.data.success) {
+        setCodeSentSuccess(true);
+        console.log("OTP verified successfully:", response.data);
+        
+        // Store eventId and userId in session storage
+        if (response.data.user) {
+          sessionStorage.setItem("eventId", response.data.user.event);
+          sessionStorage.setItem("userId", response.data.user._id);
+          
+          // Add a small delay before redirecting to ensure session storage is set
+          setTimeout(() => {
+            router.push("/home");
+          }, 100);
+        }
+      }
+    } catch (error) {
+      console.error("Error verifying OTP:", error);
+      setCodeSentError(true);
+    }
   };
 
   useEffect(() => {
@@ -153,7 +316,6 @@ const Register = () => {
       setUserSelfie(storedSelfie);
     }
     
-    // Removed API call from useEffect since it's now in handleSubmit
   }, []);
 
   return (
@@ -221,8 +383,9 @@ const Register = () => {
                       onClick={handleSendCode}
                       className="px-1 border-[#E2E4E9] border border-l-0 text-[#375DFB] rounded-r-lg flex items-center justify-center"
                     >
+                      {/* Debug: Current button text: {buttonText} */}
                       {codeSent ? (
-                        <div className="  ">
+                        <div className="">
                           <Image
                             width={20}
                             height={20}
@@ -232,14 +395,13 @@ const Register = () => {
                           />
                         </div>
                       ) : (
-                        "send code"
+                        buttonText // Use the dedicated button text state
                       )}
                     </button>
                   </div>
                 </div>
               </div>
 
-              {/* Verification Input - Only shown after sending code */}
               {showVerification && (
                 <>
                   <div className="flex flex-col gap-2">
@@ -289,7 +451,7 @@ const Register = () => {
                             className="text-[#525866] font-inter font-[400] text-[14px] underline"
                           >
                             Resend code
-                          </span>{" "}
+                          </span>
                         </p>
                       )}
                     </div>

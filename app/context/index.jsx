@@ -12,17 +12,27 @@ export const EventProvider = ({ children }) => {
   const [event, setEventId] = useState(null);
   const [iswhatsupauth, setIswhatsupauth] = useState(false);
   const [registredUser, setRegistredUser] = useState(null);
+  const [cachedImages, setCachedImages] = useState([]);
+  const [lastFetchTime, setLastFetchTime] = useState(null);
 
   // Initialize from sessionStorage on mount
   useEffect(() => {
     const storedEvent = sessionStorage.getItem('eventId');
     const storedRegistredUser = sessionStorage.getItem('registredUser');
+    const storedImages = sessionStorage.getItem('cachedImages');
+    const storedFetchTime = sessionStorage.getItem('lastFetchTime');
     
     if (storedEvent) {
       setEventId(storedEvent);
     }
     if (storedRegistredUser) {
       setRegistredUser(storedRegistredUser);
+    }
+    if (storedImages) {
+      setCachedImages(JSON.parse(storedImages));
+    }
+    if (storedFetchTime) {
+      setLastFetchTime(parseInt(storedFetchTime));
     }
   }, []);
 
@@ -34,6 +44,10 @@ export const EventProvider = ({ children }) => {
     setIswhatsupauth,
     registredUser,
     setRegistredUser,
+    cachedImages,
+    setCachedImages,
+    lastFetchTime,
+    setLastFetchTime,
   };
 
   return (

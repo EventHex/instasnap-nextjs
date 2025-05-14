@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Banner, HumanSelfi, Sparkle } from "./assets";
 import SnapButton from "./components/button";
-import instance from './instance';
+import Instance from './instance';
 import { useEvent } from './context';
 import HomeLoader from './components/loader/homeLoader';
 export default function Home() {
@@ -14,10 +14,13 @@ export default function Home() {
 
   
   useEffect(() => {
+const baseURL=process.env.NEXT_PUBLIC_API_BASE_URL
+console.log(baseURL, 'base url');
+     
     const fetchEventDomain = async () => {
       try {
         const domain = 'testing.instasnap.ai';
-        const res = await instance.get(`auth/domain-event?domain=${domain}`);
+        const res = await Instance.get(`auth/domain-event?domain=${domain}`);
         // Extract the event ID from the response data
         if (res.data && res.data.domainData && res.data.domainData.event) {
           const id = res.data.domainData.event._id;
@@ -41,7 +44,7 @@ export default function Home() {
       // Only make the API call if event exists and is not null
       if (event) {
         try {
-          const response = await instance.get(`/photo-permission?event=${event}`);
+          const response = await Instance.get(`/photo-permission?event=${event}`);
           if (response.data.response && response.data.response[0]) {
             setIswhatsupauth(response.data.response[0].isWhatsappAuth);
             sessionStorage.setItem('isWhatsappAuth', response.data.response[0].isWhatsappAuth);
@@ -106,7 +109,7 @@ export default function Home() {
               <div className="w-[90%] mt-1">
                 <p className="flex gap-3 text-center justify-center text-[#6C7278] text-[14px]">
                   Already registered with your face?
-                  <Link href="/signin">
+                  <Link href="/register">
                     <span className="text-[#4D81E7]">Sign in</span>
                   </Link>
                 </p>

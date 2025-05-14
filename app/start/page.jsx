@@ -7,7 +7,8 @@ import { FaceIdBase } from '../assets';
 import StartButton from '../components/Button';
 import { useEvent } from '../context';
 const Index = () => {
-  const { iswhatsupauth, setIswhatsupauth} = useEvent();
+  // Initialize isWhatsappAuth as true instead of false
+  const [isWhatsappAuth, setIsWhatsappAuth] = useState(true);
   const router = useRouter();
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -16,6 +17,8 @@ const Index = () => {
   const [loading, setLoading] = useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
 
+
+  
   // Function to start the camera
   const startCamera = async () => {
     setLoading(true);
@@ -91,6 +94,22 @@ const Index = () => {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
     }
+
+    // Store the image in session storage
+    sessionStorage.setItem('profileUpdateImage', imageData);
+    
+    // Check WhatsApp authentication status
+    const isWhatsappAuth = sessionStorage.getItem('isWhatsappAuth');
+    
+    // Wait for 3 seconds before navigating
+    setTimeout(() => {
+      if (isWhatsappAuth === 'true') {
+        router.push('/publiclogin');
+      } else {
+        router.push('/register');
+       
+      }
+    }, 3000);
   };
 
   // Function to navigate to home page with the captured image
@@ -98,12 +117,17 @@ const Index = () => {
     // Save image to sessionStorage or localStorage to persist across routes
     if (capturedImage) {
       sessionStorage.setItem('userSelfie', capturedImage);
-      if (iswhatsupauth === true  ) {
-        
-        router.push('/register');
-      } else {
-        router.push('/publiclogin');
-      }
+      
+      // Check if userId exists in sessionStorage
+      const userId = sessionStorage.getItem('userId');
+      
+      // if (userId) {
+      //   // If userId exists, navigate to home
+      //   router.push('/home');
+      // } else {
+      //   // If no userId, navigate to register
+      //   router.push('/register');
+      // }
     }
   };
   
