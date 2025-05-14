@@ -17,6 +17,9 @@ import Button from "../components/button";
 import Image from "next/image";
 import { EventHeader } from "../components/header";
 import instance from "../instance";
+import { useDispatch, useSelector } from 'react-redux';
+import { setHighlights, setLoading, setError } from '../redux/slices/highlightsSlice';
+
 // --- Mock Data for Modal ---
 const mockYourPhotos = Array.from({ length: 12 }, (_, i) => ({
   id: `my-${i + 1}`,
@@ -105,11 +108,14 @@ const SocialShare = () => {
 
   const getModalPhotosForTab = () => {
     if (activeTab === "Your Photos") {
-      // Combine mock photos with user uploaded photos
+      // Combine user uploaded photos with mock photos
       return [...userUploadedPhotos, ...mockYourPhotos];
     } else {
-      // Combine API images with mock event highlights
-      return [...apiImages, ...mockEventHighlights];
+      // Return highlights from Redux store
+      return highlights.map(item => ({
+        id: item.id,
+        src: item.image
+      }));
     }
   };
   // --- End Modal Logic ---
@@ -139,25 +145,70 @@ const SocialShare = () => {
     setShowDownloadPreview(true);
   };
 
-  const handleConfirmDownload = () => {
-    // Create a container div for all downloads
+const handleConfirmDownload = async () => {
+  if (!photos || photos.length === 0) {
+    alert('No photos to download');
+    return;
+  }
+
+  try {
+    // Create a container div for downloads (hidden)
     const container = document.createElement('div');
     container.style.display = 'none';
     document.body.appendChild(container);
-
+    
     // Process all photos
-    photos.forEach((photo) => {
-        const link = document.createElement('a');
-        link.href = photo.src;
-        link.download = `instasnap-${photo.id}.jpg`;
-        container.appendChild(link);
-        link.click();
-    });
-
-    // Clean up
-    document.body.removeChild(container);
+    for (const photo of photos) {
+      try {
+        // Create download function for each image
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', photo.src, true);
+        xhr.responseType = 'blob';
+        
+        xhr.onload = function() {
+          if (this.status === 200) {
+            // Create blob and download link
+            const blob = new Blob([this.response], { type: 'image/jpeg' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.style.display = 'none';
+            
+            // Extract filename from S3 URL or use default name
+            const filename = photo.src.split('/').pop() || `instasnap-${photo.id}.jpg`;
+            
+            link.href = url;
+            link.download = filename;
+            container.appendChild(link);
+            link.click();
+            
+            // Clean up
+            setTimeout(() => {
+              window.URL.revokeObjectURL(url);
+            }, 100);
+          }
+        };
+        
+        xhr.send();
+        
+        // Add a small delay between downloads
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+      } catch (error) {
+        console.error(`Failed to download photo ${photo.id}:`, error);
+      }
+    }
+    
+    // Clean up container and close modal
+    setTimeout(() => {
+      document.body.removeChild(container);
+      setShowDownloadPreview(false);
+    }, 1000);
+    
+  } catch (error) {
+    console.error('Download process failed:', error);
     setShowDownloadPreview(false);
-  };
+  }
+};
 
   const handlePost = () => {
     console.log("Post via LinkedIn action triggered");
@@ -273,7 +324,50 @@ const SocialShare = () => {
       console.error('rewrite-content error:', error);
     }
   };
+
+  const [limit, setLimit] = useState(30);
+  const [skip, setSkip] = useState(0);
+  const dispatch = useDispatch();
   
+  const { highlights, loading, error } = useSelector((state) => state.highlights);
+
+  useEffect(() => {
+    const fetchHighlights = async () => {
+      // Only fetch if we don't have data in Redux
+      if (highlights.length === 0) {
+        dispatch(setLoading(true));
+        try {
+          const event = sessionStorage.getItem("eventId");
+          if (!event) {
+            console.error("No eventId found in sessionStorage");
+            dispatch(setError("No eventId found"));
+            return;
+          }
+
+          const response = await instance.get(
+            `event-highlight?event=${event}&limit=${limit}&skip=${skip}`
+          );
+
+          if (response.data.success) {
+            const formattedData = response.data.response.map((item) => ({
+              id: item._id,
+              image: `https://event-hex-saas.s3.amazonaws.com/${item.image}`,
+              date: new Date(item.createdAt).toLocaleDateString(),
+            }));
+            dispatch(setHighlights(formattedData));
+          } else {
+            dispatch(setError("Failed to fetch highlights"));
+          }
+        } catch (error) {
+          console.error("Error fetching highlights:", error);
+          dispatch(setError(error.message));
+        }
+      }
+    };
+
+    fetchHighlights();
+  }, [dispatch, limit, skip, highlights.length]);
+
 
   return (
     <div className="flex justify-center w-full">

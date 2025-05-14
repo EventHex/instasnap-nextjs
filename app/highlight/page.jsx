@@ -16,7 +16,7 @@ const Page = () => {
   const [limit, setLimit] = useState(30);
   const [skip, setSkip] = useState(0);
   const dispatch = useDispatch();
-  const { highlights, loading, error } = useSelector((state) => state.highlights);
+    const { highlights, loading, error } = useSelector((state) => state.highlights);
 
   useEffect(() => {
     const fetchHighlights = async () => {
@@ -25,7 +25,7 @@ const Page = () => {
         dispatch(setLoading(true));
         try {
           const event = sessionStorage.getItem("eventId");
-          const response = await instance(
+          const response = await instance.get(
             `event-highlight?event=${event}&limit=${limit}&skip=${skip}`
           );
 
