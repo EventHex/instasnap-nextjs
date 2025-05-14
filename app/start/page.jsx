@@ -121,13 +121,13 @@ const Index = () => {
       // Check if userId exists in sessionStorage
       const userId = sessionStorage.getItem('userId');
       
-      if (userId) {
-        // If userId exists, navigate to home
-        router.push('/home');
-      } else {
-        // If no userId, navigate to register
-        router.push('/register');
-      }
+      // if (userId) {
+      //   // If userId exists, navigate to home
+      //   router.push('/home');
+      // } else {
+      //   // If no userId, navigate to register
+      //   router.push('/register');
+      // }
     }
   };
   

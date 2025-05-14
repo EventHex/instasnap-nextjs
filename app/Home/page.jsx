@@ -14,6 +14,8 @@ import Masonry from "react-masonry-css";
 import Instance from "../instance";
 import { useEvent } from "../context";
 import Loader from "../components/loader";
+import { useDispatch, useSelector } from 'react-redux';
+import { setImages, setLoading, setError } from '../redux/slices/imagesSlice';
 
 // Add image compression utility without changing any existing functionality
 const compressImage = (base64Image, maxSizeMB = 0.5) => {
@@ -109,93 +111,34 @@ const Home = () => {
   const [apiImages, setApiImages] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showLoading, setShowLoading] = useState(true);
-  const { event, registredUser } = useEvent();
+  const { event, registredUser, cachedImages, setCachedImages, lastFetchTime, setLastFetchTime } = useEvent();
   const modalRef = useRef(null);
 
+  // Redux hooks
+  const dispatch = useDispatch();
+  const { images: apiImagesRedux, isLoading: isLoadingRedux } = useSelector((state) => state.images);
+
   // Set isClient to true on mount
-  useEffect(() => {
-    const eventId = sessionStorage.getItem("eventId");
-    const userId = sessionStorage.getItem("userId");
-    const image = sessionStorage.getItem("userSelfie");
-  console.log(eventId, userId, "eventId and userId", image, "image");
-  
-    const fetchFaceMatch = async () => {
-      try {
-        setIsLoading(true);
-        const formData = new FormData();
-        formData.append("eventId", eventId);
-        formData.append("userId", userId);
-  
-        if (image) {
-          // Convert base64 to blob
-          const base64Response = await fetch(image);
-          const blob = await base64Response.blob();
-          formData.append("file", blob, "selfie.jpg");
-        }
-  
-        const response = await Instance.post(
-          `/mobile/instasnap/match`,
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-          
-        );
-        console.log(response.data, 'response');
-        
-  
-        if (response.data && response.data.FaceMatches) {
-          setApiImages(
-            response.data.FaceMatches.map((match) => ({
-              id: match.imageId,
-              image: match.image,
-              date: new Date(match.matchDate).toLocaleDateString(),
-            }))
-          );
-        }
-        console.log("Match API response:", response.data);
-      } catch (error) {
-        console.error("Error in fetchFaceMatch:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (eventId && userId) {
-      fetchFaceMatch();
-    }
-  }, []);
-
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  // Handle loading timeout
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowLoading(false);
-    }, 800); // 10 seconds timeout
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  const matchImages = async () => {
+  const fetchFaceMatch = async () => {
     const eventId = sessionStorage.getItem("eventId");
     const userId = sessionStorage.getItem("userId");
     const image = sessionStorage.getItem("userSelfie");
     
-    console.log(eventId, userId, "eventId and userId", image, "image");
-    
     if (!eventId || !userId) {
+      console.error("Missing required data:", { eventId, userId });
       alert("Missing required data. Please try again.");
       setIsLoading(false);
+      setShowLoading(false);
       return;
     }
 
     try {
       setIsLoading(true);
+      setShowLoading(true);
       const formData = new FormData();
       formData.append("eventId", eventId);
       formData.append("userId", userId);
@@ -217,45 +160,58 @@ const Home = () => {
         }
       );
 
-      // if (response.data && response.data.FaceMatches) {
-      //   setApiImages(
-      //     response.data.FaceMatches.map((match) => ({
-      //       id: match.imageId,
-      //       image: match.image,
-      //       date: new Date(match.matchDate).toLocaleDateString(),
-      //     }))
-      //   );
-      // }
-
       if (response.data && response.data.FaceMatches) {
-        setApiImages(
-          response.data.FaceMatches.map((match) => ({
-            id: match.imageId,
-            image: match.image,
-            date: new Date(match.matchDate).toLocaleDateString(),
-          }))
-        );
+        const newImages = response.data.FaceMatches.map((match) => ({
+          id: match.imageId,
+          image: match.image,
+          date: new Date(match.matchDate).toLocaleDateString(),
+        }));
+        setApiImages(newImages);
+        // Store in context and sessionStorage
+        setCachedImages(newImages);
+        setLastFetchTime(Date.now());
+        sessionStorage.setItem('cachedImages', JSON.stringify(newImages));
+        sessionStorage.setItem('lastFetchTime', Date.now().toString());
+      } else {
+        console.error("No FaceMatches found in response:", response.data);
       }
       console.log("Match API response:", response.data);
     } catch (error) {
-      console.error("Error in matchImages:", error);
+      console.error("Error in fetchFaceMatch:", error);
       alert("Failed to match images. Please try again.");
     } finally {
       setIsLoading(false);
+      setShowLoading(false);
     }
   };
 
   // Handle API call when event and registredUser are available
   useEffect(() => {
-    if (isClient && event && registredUser) {
-      matchImages();
-    } else if (isClient) {
-      console.warn("Missing required data for match API:", {
-        event,
-        registredUser,
-      });
+    if (!isClient) return;
+
+    const eventId = sessionStorage.getItem("eventId");
+    const userId = sessionStorage.getItem("userId");
+    
+    if (eventId && userId) {
+      // Check if we have cached images and if they're less than 5 minutes old
+      const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
+      const now = Date.now();
+      
+      if (cachedImages && cachedImages.length > 0 && lastFetchTime && (now - lastFetchTime < CACHE_DURATION)) {
+        setApiImages(cachedImages);
+        setIsLoading(false);
+        setShowLoading(false);
+      } else {
+        fetchFaceMatch();
+      }
+    } else {
+      console.error("Missing eventId or userId in sessionStorage");
+      setIsLoading(false);
+      setShowLoading(false);
     }
   }, [isClient, event, registredUser]);
+
+  
 
   // Handle userSelfie from sessionStorage
   useEffect(() => {
@@ -440,7 +396,7 @@ const Home = () => {
             <Button
               width="w-auto"
               className="bg-[#375DFB] hover:bg-[#2440c4] text-[14px] font-[500] py-2 px-6"
-              onClick={matchImages}
+              onClick={fetchFaceMatch}
               disabled={isLoading}
             >
               {isLoading ? <Loader /> : "Recheck"}

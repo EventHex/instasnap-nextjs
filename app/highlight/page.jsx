@@ -9,39 +9,43 @@ import Link from "next/link";
 import Masonry from "react-masonry-css"; 
 import instance from "../instance";
 import Loader from "../components/loader";
+import { useDispatch, useSelector } from 'react-redux';
+import { setHighlights, setLoading, setError } from '../redux/slices/highlightsSlice';
 
 const Page = () => {
   const [limit, setLimit] = useState(30);
   const [skip, setSkip] = useState(0);
-  const [postData, setPostData] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const dispatch = useDispatch();
+  const { highlights, loading, error } = useSelector((state) => state.highlights);
 
   useEffect(() => {
-    const highlight = async () => {
-      setIsLoading(true);
-      try {
-        const event = sessionStorage.getItem("eventId");
-        const response = await instance(
-          `event-highlight?event=${event}&limit=${limit}&skip=${skip}`
-        );
+    const fetchHighlights = async () => {
+      // Only fetch if we don't have data in Redux
+      if (highlights.length === 0) {
+        dispatch(setLoading(true));
+        try {
+          const event = sessionStorage.getItem("eventId");
+          const response = await instance(
+            `event-highlight?event=${event}&limit=${limit}&skip=${skip}`
+          );
 
-        if (response.data.success) {
-          const formattedData = response.data.response.map((item) => ({
-            id: item._id,
-            image: `https://event-hex-saas.s3.amazonaws.com/${item.image}`,
-            date: new Date(item.createdAt).toLocaleDateString(),
-          }));
-          setPostData(formattedData);
+          if (response.data.success) {
+            const formattedData = response.data.response.map((item) => ({
+              id: item._id,
+              image: `https://event-hex-saas.s3.amazonaws.com/${item.image}`,
+              date: new Date(item.createdAt).toLocaleDateString(),
+            }));
+            dispatch(setHighlights(formattedData));
+          }
+        } catch (error) {
+          console.error("Error fetching highlights:", error);
+          dispatch(setError(error.message));
         }
-      } catch (error) {
-        console.error("Error fetching highlights:", error);
-      } finally {
-        setIsLoading(false);
       }
     };
 
-    highlight();
-  }, []);
+    fetchHighlights();
+  }, [dispatch, limit, skip, highlights.length]);
 
   // Masonry breakpoint columns
   const breakpointColumnsObj = {
@@ -68,10 +72,12 @@ const Page = () => {
 
         {/* Scrollable Content Area with Masonry */}
         <div className=" w-full ">
-          {isLoading ? (
+          {loading ? (
             <div className="flex justify-center items-center mt-[-100px]">
-            <Loader />
+              <Loader />
             </div>
+          ) : error ? (
+            <div className="text-center text-red-500 mt-4">{error}</div>
           ) : (
             <Masonry
               breakpointCols={breakpointColumnsObj}
@@ -79,7 +85,7 @@ const Page = () => {
               columnClassName="bg-clip-padding"
             >
               {/* Map over postData to render items */}
-              {postData.map((post) => (
+              {highlights.map((post) => (
                 <Link
                   key={post.id}
                   href={`/highlight/${post.id}`}
