@@ -253,8 +253,22 @@ if(profileImage){
     }
   };
 
-  const SendCode = () => {
-    // setCodeSentError(true);
+  const SendCode = async () => {
+    try {
+      const response = await instance.post("/auth/login-mobile-with-country", {
+        phoneCode: selectedCode,
+        mobile: formData.phone,
+        event: event
+      });
+
+      if (response.data.success) {
+        setCodeSentError(false);
+        alert('Verification code has been resent successfully.');
+      }
+    } catch (error) {
+      console.error("Error resending code:", error);
+      setCodeSentError(true);
+    }
   };
 
   const handleVerify = async () => {
