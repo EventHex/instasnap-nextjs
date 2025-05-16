@@ -190,13 +190,6 @@ const page = () => {
       console.log("Profile update response:", response.data);
 
       if (response.status !== 400) {
-        // Clear the profile image from session storage after successful update
-        // sessionStorage.removeItem("profileUpdateImage");
-        // Update the user selfie in session storage
-        // sessionStorage.setItem("userSelfie", profileImage);
-        // Update the local state
-        // setUserSelfie(profileImage);
-        // Show success message
         alert("Profile updated successfully!");
       } else {
         throw new Error(response.data.message || "Profile update failed");
@@ -216,7 +209,7 @@ const page = () => {
 
   return (
     <div className="w-full flex flex-col  ">
-    <div className="w-full    flex flex-col gap-15 ">
+    <div className="w-full   flex flex-col gap-16 ">
       <div className="flex flex-col items-center justify-center">
         <div className="w-full flex justify-between p-4">
           <ChevronLeft onClick={handleBack} />
@@ -229,12 +222,11 @@ const page = () => {
           editIconimage={PenIcon}
         />
       </div>
-      <div className="flex flex-col items-center justify-center w-full h-full">
+      <div className="flex flex-col items-center justify-center  gap-5 w-full h-full">
         <p className="text-center text-[14px] font-[400]">
-          {" "}
+       
           Didn't like the photo?
           <Link href="/start" onClick={handleRetake}>
-            {" "}
             <span className="text-[#375DFB] underline"> Retake</span>
           </Link>
         </p>

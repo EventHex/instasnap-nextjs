@@ -2,7 +2,7 @@
 import React, {useState, useEffect} from 'react';
 import Image from "next/image";
 import Link from "next/link";
-import { Banner, HumanSelfi, Sparkle } from "./assets";
+import { Banner, HumanSelfi, Sparkle } from "./assets/index.js";
 import SnapButton from "./components/button";
 import Instance from './instance';
 import { useEvent } from './context';

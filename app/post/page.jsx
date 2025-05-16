@@ -5,7 +5,7 @@ import {
   ChevronLeft,
   Upload,
   Check,
-  CloudDownload,
+  Download,
   Image as ImageIcon,
   Linkedin,
   X as XIcon,
@@ -427,7 +427,7 @@ const handleConfirmDownload = async () => {
                 onClick={handleDownload}
                 className="flex items-center text-blue-600 font-medium text-sm p-1"
               >
-                <CloudDownload size={16} className="mr-1" />
+                <Download size={16} className="mr-1" />
                 Download
               </button>
             </div>
@@ -473,7 +473,7 @@ const handleConfirmDownload = async () => {
               onClick={handlePost}
               variant="default"
               className="w-full bg-blue-600 hover:bg-blue-700"
-              icon={LinkedIn}
+              icon={Linkedin}
             >
               Post via LinkedIn
             </Button>
@@ -647,7 +647,7 @@ const handleConfirmDownload = async () => {
                   onClick={handleConfirmDownload}
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 flex items-center"
                 >
-                  <CloudDownload size={16} className="mr-2" />
+                  <Download size={16} className="mr-2" />
                   Download All
                 </button>
               </div>

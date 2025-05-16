@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react'
 import { EventHeader } from '../../components/header'
 import Image from 'next/image'
 import NavFooter from '../../components/navfooter'
-import { ArrowLeft, CloudDownload, Download, Heart, Share2 } from 'lucide-react'
+import { ArrowLeft, Download, Heart, Share2 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter, useParams } from 'next/navigation'
 import instance from '../../instance'
@@ -208,7 +208,7 @@ const DetailsPage = () => {
                 className="hover:text-blue-500 transition-colors"
                 onClick={() => DownloadImage()}
               >
-                <CloudDownload size={24} />
+                <Download size={24} />
               </button>
             </div>
           

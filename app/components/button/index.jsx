@@ -32,6 +32,15 @@ const Button = ({
   const variantStyles = variants[variant] || variants.default;
   const appliedStyles = disabled ? disabledStyles : variantStyles;
 
+  // Helper function to render icon
+  const renderIcon = (icon) => {
+    if (!icon) return null;
+    if (React.isValidElement(icon)) {
+      return icon;
+    }
+    return <Image src={icon} alt={alt} width={20} height={20} />;
+  };
+
   return (
     <button 
       type={type}
@@ -44,15 +53,13 @@ const Button = ({
       {/* Directly render the icon component if it exists */}
       {icon && iconPosition === "left" && (
         <span className="mr-2 -ml-1 h-5 w-5">
-          
-          <Image src={icon} alt={alt} width={20} height={20} />
-          
+          {renderIcon(icon)}
         </span>
       )}
       {children} {/* Removed buttonName fallback, rely on children */}
       {icon && iconPosition === "right" && (
         <span className="ml-2 -mr-1 h-5 w-5">
-          <Image src={icon} alt={alt} width={20} height={20} />
+          {renderIcon(icon)}
         </span>
       )}
       {buttonName}
