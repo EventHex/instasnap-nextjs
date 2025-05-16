@@ -1,8 +1,10 @@
+'use client'; // Added this line to make it a client component
+
 import React from 'react'
 import Image from 'next/image'
 import { PenIcon, Profileimg } from '@/app/assets'
 import Link from 'next/link'
-import {Banner} from '../../assets'
+import {Banner as BannerImage} from '../../assets' // Renamed to avoid conflict with prop
 
 const index = ({profile, Banner, editIconimage}) => {
   // Validate profile URL
