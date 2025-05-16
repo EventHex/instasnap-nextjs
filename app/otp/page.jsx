@@ -1,14 +1,15 @@
+'use client';
 import React from "react";
 import { Banner } from "../assets";
 import Banners from "../components/banner";
 import India from "../assets/icons/india.svg";
-import DownArrow from "../assets/icons/downarrow.svg";
+import DownArrow from "../assets/icons/Downarrow.svg"; // Fixed case to match actual file
 import Image from "next/image";
-import SignInButton from "../components/button";
+import Button from "../components/button"; // Ensure this matches the actual folder case
 
 const Otp = () => {
   return (
-    <div className=" flex flex-col justify-between w-full">
+    <div className="flex flex-col justify-between w-full">
       <div>
         <Banners Banner={Banner} />
         <div className="flex flex-col items-center justify-center mt-6 gap-6 w-full">
@@ -19,9 +20,9 @@ const Otp = () => {
                 type="button"
                 className="flex items-center gap-2 border border-[#E2E4E9] rounded-l-lg px-4 py-2 text-gray-700 font-[400] text-[14px] bg-white"
               >
-                <Image src={India} alt="India Flag" className="w-5 h-5" />
+                <Image src={India} alt="India Flag" width={20} height={20} />
                 +91
-                <Image src={DownArrow} alt="Down Arrow" className="w-4 h-4" />
+                <Image src={DownArrow} alt="Down Arrow" width={16} height={16} />
               </button>
 
               <input
@@ -33,9 +34,9 @@ const Otp = () => {
             </div>
 
             <div className="w-full flex justify-center font-[700] text-[16px]">
-              <SignInButton
-              className="w-full "
-              buttonName="Sign in" />
+              <Button className="w-full">
+                Sign in
+              </Button>
             </div>
           </div>
         </div>
@@ -43,7 +44,7 @@ const Otp = () => {
 
       {/* <p className="text-sm text-gray-600 text-center font-[400] text-[14px] p-6">
         New user?{" "}
-        <a
+        
           href="/signup"
           className="text-blue-600 hover:underline font-[500] text-[14px]"
         >
