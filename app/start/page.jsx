@@ -96,7 +96,14 @@ const Index = () => {
     }
 
     // Store the image in session storage
+    sessionStorage.setItem('userSelfie', imageData);
     sessionStorage.setItem('profileUpdateImage', imageData);
+    
+    // Log confirmation of image storage
+    console.log('Image stored in session storage:', {
+      userSelfie: sessionStorage.getItem('userSelfie') ? 'Stored' : 'Not stored',
+      profileUpdateImage: sessionStorage.getItem('profileUpdateImage') ? 'Stored' : 'Not stored'
+    });
     
     // Check WhatsApp authentication status
     const isWhatsappAuth = sessionStorage.getItem('isWhatsappAuth');
@@ -107,7 +114,6 @@ const Index = () => {
         router.push('/publiclogin');
       } else {
         router.push('/register');
-       
       }
     }, 3000);
   };
@@ -120,14 +126,7 @@ const Index = () => {
       
       // Check if userId exists in sessionStorage
       const userId = sessionStorage.getItem('userId');
-      
-      // if (userId) {
-      //   // If userId exists, navigate to home
-      //   router.push('/home');
-      // } else {
-      //   // If no userId, navigate to register
-      //   router.push('/register');
-      // }
+    
     }
   };
   
