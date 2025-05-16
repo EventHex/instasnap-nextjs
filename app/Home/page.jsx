@@ -1,12 +1,9 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import { Banner, Bannertest, PenIcon, Post1, Post2, Post3, Profileimg } from "../assets";
+import { Banner, EventHex,ShineAI, Frame,PenIcon,  Profileimg } from "../assets";
 import Banners from "../components/banner";
 import AiInput from "../components/aiInput";
 import Image from "next/image";
-import Frame from "../assets/image/Frame.svg";
-import EventHex from "../assets/icons/Vector (90).svg";
-import ShineAI from "../assets/icons/Vector(16).svg";
 import Navbar from "../components/navfooter";
 import { CloudDownload, Share2, View, X } from "lucide-react";
 import Button from "../components/button";

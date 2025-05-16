@@ -14,8 +14,8 @@ export default function Home() {
 
   
   useEffect(() => {
-const baseURL=process.env.NEXT_PUBLIC_API_BASE_URL
-console.log(baseURL, 'base url');
+// const baseURL=process.env.NEXT_PUBLIC_API_BASE_URL
+// console.log(baseURL, 'base url');
      
     const fetchEventDomain = async () => {
       try {

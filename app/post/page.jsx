@@ -17,9 +17,6 @@ import Button from "../components/button";
 import Image from "next/image";
 import { EventHeader } from "../components/header";
 import instance from "../instance";
-import { useDispatch, useSelector } from 'react-redux';
-import { setHighlights, setLoading, setError } from '../redux/slices/highlightsSlice';
-
 // --- Mock Data for Modal ---
 const mockYourPhotos = Array.from({ length: 12 }, (_, i) => ({
   id: `my-${i + 1}`,
@@ -48,8 +45,6 @@ const SocialShare = () => {
   const [modalSelectedPhotos, setModalSelectedPhotos] = useState({}); // Track selections within the modal {id: src}
 
   const [apiImages, setApiImages] = useState([]); // Add this with other state declarations
-
-  const [showDownloadPreview, setShowDownloadPreview] = useState(false);
 
   const handleTextChange = (e) => {
     const newText = e.target.value;
@@ -108,14 +103,11 @@ const SocialShare = () => {
 
   const getModalPhotosForTab = () => {
     if (activeTab === "Your Photos") {
-      // Combine user uploaded photos with mock photos
+      // Combine mock photos with user uploaded photos
       return [...userUploadedPhotos, ...mockYourPhotos];
     } else {
-      // Return highlights from Redux store
-      return highlights.map(item => ({
-        id: item.id,
-        src: item.image
-      }));
+      // Combine API images with mock event highlights
+      return [...apiImages, ...mockEventHighlights];
     }
   };
   // --- End Modal Logic ---
@@ -138,77 +130,25 @@ const SocialShare = () => {
   };
 
   const handleDownload = async () => {
-    if (!photos || photos.length === 0) {
-      alert('No photos to download');
-      return;
-    }
-    setShowDownloadPreview(true);
-  };
-
-const handleConfirmDownload = async () => {
-  if (!photos || photos.length === 0) {
-    alert('No photos to download');
-    return;
-  }
-
-  try {
-    // Create a container div for downloads (hidden)
-    const container = document.createElement('div');
-    container.style.display = 'none';
-    document.body.appendChild(container);
-    
-    // Process all photos
-    for (const photo of photos) {
-      try {
-        // Create download function for each image
-        const xhr = new XMLHttpRequest();
-        xhr.open('GET', photo.src, true);
-        xhr.responseType = 'blob';
-        
-        xhr.onload = function() {
-          if (this.status === 200) {
-            // Create blob and download link
-            const blob = new Blob([this.response], { type: 'image/jpeg' });
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.style.display = 'none';
-            
-            // Extract filename from S3 URL or use default name
-            const filename = photo.src.split('/').pop() || `instasnap-${photo.id}.jpg`;
-            
-            link.href = url;
-            link.download = filename;
-            container.appendChild(link);
-            link.click();
-            
-            // Clean up
-            setTimeout(() => {
-              window.URL.revokeObjectURL(url);
-            }, 100);
-          }
-        };
-        
-        xhr.send();
-        
-        // Add a small delay between downloads
-        await new Promise(resolve => setTimeout(resolve, 300));
-        
-      } catch (error) {
-        console.error(`Failed to download photo ${photo.id}:`, error);
+    try {
+      // Download each selected photo
+      for (const photo of photos) {
+        const response = await fetch(photo.src);
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `instasnap-${photo.id}.jpg`; // Use photo ID in filename
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
       }
+    } catch (error) {
+      console.error('Error downloading photos:', error);
+      alert('Failed to download one or more photos. Please try again.');
     }
-    
-    // Clean up container and close modal
-    setTimeout(() => {
-      document.body.removeChild(container);
-      setShowDownloadPreview(false);
-    }, 1000);
-    
-  } catch (error) {
-    console.error('Download process failed:', error);
-    setShowDownloadPreview(false);
-  }
-};
+  };
 
   const handlePost = () => {
     console.log("Post via LinkedIn action triggered");
@@ -324,50 +264,7 @@ const handleConfirmDownload = async () => {
       console.error('rewrite-content error:', error);
     }
   };
-
-  const [limit, setLimit] = useState(30);
-  const [skip, setSkip] = useState(0);
-  const dispatch = useDispatch();
   
-  const { highlights, loading, error } = useSelector((state) => state.highlights);
-
-  useEffect(() => {
-    const fetchHighlights = async () => {
-      // Only fetch if we don't have data in Redux
-      if (highlights.length === 0) {
-        dispatch(setLoading(true));
-        try {
-          const event = sessionStorage.getItem("eventId");
-          if (!event) {
-            console.error("No eventId found in sessionStorage");
-            dispatch(setError("No eventId found"));
-            return;
-          }
-
-          const response = await instance.get(
-            `event-highlight?event=${event}&limit=${limit}&skip=${skip}`
-          );
-
-          if (response.data.success) {
-            const formattedData = response.data.response.map((item) => ({
-              id: item._id,
-              image: `https://event-hex-saas.s3.amazonaws.com/${item.image}`,
-              date: new Date(item.createdAt).toLocaleDateString(),
-            }));
-            dispatch(setHighlights(formattedData));
-          } else {
-            dispatch(setError("Failed to fetch highlights"));
-          }
-        } catch (error) {
-          console.error("Error fetching highlights:", error);
-          dispatch(setError(error.message));
-        }
-      }
-    };
-
-    fetchHighlights();
-  }, [dispatch, limit, skip, highlights.length]);
-
 
   return (
     <div className="flex justify-center w-full">
@@ -613,43 +510,6 @@ const handleConfirmDownload = async () => {
                     );
                   })}
                 </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Download Preview Modal */}
-        {showDownloadPreview && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <div className="absolute inset-0 bg-black/40 backdrop-blur-xs" onClick={() => setShowDownloadPreview(false)} />
-            <div className="relative z-50 bg-white rounded-2xl p-4 w-full max-w-lg mx-4">
-              <h3 className="text-lg font-medium mb-4">Download Preview</h3>
-              <div className="grid grid-cols-3 gap-3 mb-4">
-                {photos.map((photo) => (
-                  <div key={photo.id} className="relative aspect-square rounded-lg overflow-hidden">
-                    <Image
-                      src={photo.src}
-                      alt={`Preview ${photo.id}`}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                ))}
-              </div>
-              <div className="flex justify-end gap-3">
-                <button
-                  onClick={() => setShowDownloadPreview(false)}
-                  className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg text-sm font-medium"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleConfirmDownload}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 flex items-center"
-                >
-                  <CloudDownload size={16} className="mr-2" />
-                  Download All
-                </button>
               </div>
             </div>
           </div>
