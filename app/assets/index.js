@@ -72,5 +72,5 @@ export {
   EventHexlogo,
   LinkedIn,
   SearchingGif,
-  Bannertest
+  Bannertest,
 }
